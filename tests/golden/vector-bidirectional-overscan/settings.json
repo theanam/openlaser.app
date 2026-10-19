@@ -1,0 +1,17 @@
+{
+  "description": "Bidirectional fill with 2 mm overscan over three bars: a 0.5 mm gap stays a laser-off G1, a 10 mm gap becomes G0 travel.",
+  "layers": [
+    {
+      "id": "fill",
+      "mode": "fill",
+      "speed": 6000,
+      "power": 30,
+      "fill": { "interval": 1, "angle": 0, "bidirectional": true, "overscan": 2, "crossHatch": false }
+    }
+  ],
+  "objects": [
+    { "id": "bar-a", "layerId": "fill", "shapes": [{ "rect": [10, 10, 10, 4] }] },
+    { "id": "bar-b", "layerId": "fill", "shapes": [{ "rect": [20.5, 10, 10, 4] }] },
+    { "id": "bar-c", "layerId": "fill", "shapes": [{ "rect": [40.5, 10, 5, 4] }] }
+  ]
+}

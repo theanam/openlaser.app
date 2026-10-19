@@ -1,0 +1,11 @@
+{
+  "description": "Washer-like part with 0.1 mm kerf: the outline grows to 40.2 mm, the hole shrinks to 9.8 mm.",
+  "layers": [{ "id": "cut", "mode": "line", "speed": 300, "power": 100, "line": { "kerfOffset": 0.1 } }],
+  "objects": [
+    {
+      "id": "washer",
+      "layerId": "cut",
+      "shapes": [{ "rect": [10, 10, 40, 40] }, { "rect": [25, 25, 10, 10] }]
+    }
+  ]
+}

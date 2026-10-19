@@ -1,0 +1,5 @@
+{
+  "description": "30 x 20 mm rectangle cut, one pass, 80% at 600 mm/min.",
+  "layers": [{ "id": "cut", "mode": "line", "speed": 600, "power": 80, "passes": 1 }],
+  "objects": [{ "id": "rect", "layerId": "cut", "shapes": [{ "rect": [10, 10, 30, 20] }] }]
+}

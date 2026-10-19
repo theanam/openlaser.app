@@ -1,0 +1,22 @@
+{
+  "description": "Current-position origin with the centre anchor at machine position 100,80, air assist, user header/footer and return to origin.",
+  "profile": { "supportsAirAssist": true, "gcodeHeader": "G4 P0.2", "gcodeFooter": "G4 P0.1" },
+  "jobSettings": { "origin": "current-position", "anchor": "c", "returnToOrigin": true },
+  "machinePosition": { "x": 100, "y": 80 },
+  "layers": [{ "id": "cut", "mode": "line", "speed": 1000, "power": 60, "airAssist": true }],
+  "objects": [
+    {
+      "id": "tri",
+      "layerId": "cut",
+      "shapes": [
+        {
+          "poly": [
+            [0, 0],
+            [20, 0],
+            [10, 10]
+          ]
+        }
+      ]
+    }
+  ]
+}

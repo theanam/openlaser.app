@@ -1,0 +1,11 @@
+{
+  "description": "Outline with a circular hole and a square hole holding a small island; holes are cut before the shapes containing them. Design order lists the outline first.",
+  "tolerance": 0.05,
+  "layers": [{ "id": "cut", "mode": "line", "speed": 400, "power": 100, "passes": 2 }],
+  "objects": [
+    { "id": "outline", "layerId": "cut", "shapes": [{ "rect": [10, 10, 60, 40] }] },
+    { "id": "round-hole", "layerId": "cut", "shapes": [{ "circle": [25, 30, 6] }] },
+    { "id": "square-hole", "layerId": "cut", "shapes": [{ "rect": [45, 20, 20, 20] }] },
+    { "id": "island", "layerId": "cut", "shapes": [{ "rect": [52, 27, 6, 6] }] }
+  ]
+}

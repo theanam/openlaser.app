@@ -1,0 +1,188 @@
+/* openlaser.app design tokens
+   Drop into src/styles/tokens.css. Dark is the default app theme;
+   light follows prefers-color-scheme or [data-theme="light"]. */
+
+:root,
+:root[data-theme='dark'],
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Brand */
+  --ol-signal: #c0392b; /* brand red: logo, primary CTA, Stop, cut layer, burn */
+  --ol-signal-hover: #a93226;
+  --ol-signal-press: #962d22;
+  --ol-signal-tint: #2b1716; /* selected pill bg on dark */
+  --ol-signal-soft: #ffc2bd; /* burn highlight in preview, links hover */
+  --ol-on-signal: #ffffff;
+
+  /* Surfaces (graphite) */
+  --ol-bg: #0e0f11; /* app ground, inputs */
+  --ol-surface: #16181b; /* panels, top bar, rails */
+  --ol-surface-2: #1d2024; /* secondary buttons, active rows */
+  --ol-border: #2a2e33;
+  --ol-border-strong: #3a3f45;
+
+  /* Text */
+  --ol-text: #ecedee;
+  --ol-text-2: #c9cccf;
+  --ol-text-muted: #9ba1a6;
+  --ol-text-dim: #8a9097; /* ruler labels, units; min for small text */
+
+  /* Primary action (Start job) — deliberately NOT red so it never reads as Stop */
+  --ol-start-bg: #ecedee;
+  --ol-start-text: #0e0f11;
+
+  /* Semantic */
+  --ol-beam: #4cc9f0; /* travel moves, selection, focus ring */
+  --ol-go: #3dd68c; /* Idle, ok, homed */
+  --ol-go-tint: #12291d;
+  --ol-hold: #f2b33d; /* Hold, paused, warnings */
+  --ol-hold-tint: #2e2410;
+  --ol-stop: var(--ol-signal); /* Stop, Alarm */
+  --ol-photo: #b794f6; /* image layer default */
+
+  /* Bed canvas */
+  --ol-bed: #121417;
+  --ol-grid-minor: #1a1d21; /* every 10 mm */
+  --ol-grid-major: #23272c; /* every 50 mm */
+
+  /* Console */
+  --ol-console-sent: var(--ol-beam);
+  --ol-console-ok: var(--ol-go);
+  --ol-console-status: var(--ol-text-muted);
+  --ol-console-error: #f2685c;
+
+  /* Type */
+  --ol-font: 'Geist', 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ol-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --ol-fs-xs: 11px;
+  --ol-fs-sm: 12px;
+  --ol-fs-md: 13px; /* base UI size */
+  --ol-fs-lg: 15px;
+  --ol-fs-xl: 19px;
+
+  /* Shape & spacing (4px grid) */
+  --ol-radius-xs: 4px;
+  --ol-radius-sm: 7px;
+  --ol-radius-md: 10px;
+  --ol-radius-lg: 14px;
+  --ol-radius-xl: 18px;
+  --ol-space-1: 4px;
+  --ol-space-2: 8px;
+  --ol-space-3: 12px;
+  --ol-space-4: 16px;
+  --ol-space-6: 24px;
+
+  /* Layout */
+  --ol-topbar-h: 56px;
+  --ol-toolrail-w: 56px;
+  --ol-sidepanel-w: 340px;
+  --ol-selectionbar-h: 48px;
+  --ol-console-strip-h: 36px;
+  --ol-statusbar-h: 28px;
+  --ol-control-h: 36px;
+  --ol-cta-h: 44px;
+}
+
+:root[data-theme='light'],
+[data-theme='light'] {
+  color-scheme: light;
+  --ol-signal-tint: #fff1f0;
+  --ol-signal-soft: #f5cfcb;
+  --ol-bg: #f6f6f4;
+  --ol-surface: #ffffff;
+  --ol-surface-2: #f0f0ee;
+  --ol-border: #e3e4e2;
+  --ol-border-strong: #d5d7d4;
+  --ol-text: #111214;
+  --ol-text-2: #3d4247;
+  --ol-text-muted: #5e646b;
+  --ol-text-dim: #6b7178;
+  --ol-start-bg: #111214;
+  --ol-start-text: #ffffff;
+  --ol-beam: #1c7fa6;
+  --ol-go: #1e9e61;
+  --ol-go-tint: #e6f6ee;
+  --ol-hold: #b7791f;
+  --ol-hold-tint: #fdf3e1;
+  --ol-photo: #7c4ddb;
+  --ol-bed: #ffffff;
+  --ol-grid-minor: #f0f0ee;
+  --ol-grid-major: #e3e4e2;
+  --ol-console-error: #c0392b;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --ol-signal-tint: #fff1f0;
+    --ol-signal-soft: #f5cfcb;
+    --ol-bg: #f6f6f4;
+    --ol-surface: #ffffff;
+    --ol-surface-2: #f0f0ee;
+    --ol-border: #e3e4e2;
+    --ol-border-strong: #d5d7d4;
+    --ol-text: #111214;
+    --ol-text-2: #3d4247;
+    --ol-text-muted: #5e646b;
+    --ol-text-dim: #6b7178;
+    --ol-start-bg: #111214;
+    --ol-start-text: #ffffff;
+    --ol-beam: #1c7fa6;
+    --ol-go: #1e9e61;
+    --ol-go-tint: #e6f6ee;
+    --ol-hold: #b7791f;
+    --ol-hold-tint: #fdf3e1;
+    --ol-photo: #7c4ddb;
+    --ol-bed: #ffffff;
+    --ol-grid-minor: #f0f0ee;
+    --ol-grid-major: #e3e4e2;
+    --ol-console-error: #c0392b;
+  }
+}
+
+/* Additions for openlaser app chrome (not in the original handoff). */
+:root {
+  --ol-overlay: rgba(6, 7, 8, 0.62);
+  --ol-shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --ol-anchor-off: #4a5057;
+  --ol-signal-deep: #962d22;
+  --ol-layer-6: #f59a95;
+  --ol-layer-7: #7fb2ff;
+  --ol-layer-8: #e7e9eb;
+  --ol-signal-text: #ffc2bd;
+}
+
+/* Red text on --ol-signal-tint: soft on dark, full Signal on light. */
+:root[data-theme='light'],
+[data-theme='light'] {
+  --ol-signal-text: #c0392b;
+  --ol-overlay: rgba(17, 18, 20, 0.36);
+  --ol-shadow-pop: 0 12px 32px rgba(17, 18, 20, 0.14);
+}
+
+[data-theme='dark'] {
+  --ol-signal-text: #ffc2bd;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --ol-signal-text: #c0392b;
+    --ol-overlay: rgba(17, 18, 20, 0.36);
+    --ol-shadow-pop: 0 12px 32px rgba(17, 18, 20, 0.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ol-beam);
+  outline-offset: 2px;
+}

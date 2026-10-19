@@ -1,0 +1,17 @@
+{
+  "layer": {
+    "power": 60,
+    "minPower": 0,
+    "image": {
+      "dpi": 254,
+      "algorithm": "floyd-steinberg",
+      "bidirectional": true,
+      "overscan": 1.5
+    }
+  },
+  "object": {
+    "width": 2.4,
+    "height": 1.6,
+    "transform": [1, 0, 0, 1, 10, 20]
+  }
+}

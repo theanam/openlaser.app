@@ -1,0 +1,266 @@
+/* Base styles and shared control classes. Colors come only from tokens.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--ol-bg);
+  color: var(--ol-text);
+  font-family: var(--ol-font);
+  font-size: var(--ol-fs-md);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--ol-signal-soft);
+}
+
+[data-theme='light'] a,
+:root[data-theme='light'] a {
+  color: var(--ol-signal);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.mono {
+  font-family: var(--ol-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--ol-text-muted);
+}
+
+.dim {
+  color: var(--ol-text-dim);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ol-space-2);
+  height: var(--ol-control-h);
+  padding: 0 var(--ol-space-3);
+  border-radius: var(--ol-radius-md);
+  border: 1px solid var(--ol-border);
+  background: var(--ol-surface-2);
+  color: var(--ol-text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--ol-border-strong);
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.btn.signal {
+  background: var(--ol-signal);
+  border-color: var(--ol-signal);
+  color: var(--ol-on-signal);
+  font-weight: 600;
+}
+
+.btn.signal:hover:not(:disabled) {
+  background: var(--ol-signal-hover);
+}
+
+.btn.signal:active:not(:disabled) {
+  background: var(--ol-signal-press);
+}
+
+.btn.start {
+  background: var(--ol-start-bg);
+  border-color: var(--ol-start-bg);
+  color: var(--ol-start-text);
+  font-weight: 600;
+}
+
+.btn.cta {
+  height: var(--ol-cta-h);
+  font-size: 14px;
+}
+
+.btn.small {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--ol-radius-sm);
+  font-size: var(--ol-fs-sm);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--ol-text-2);
+  padding: 0;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--ol-surface-2);
+  color: var(--ol-text);
+}
+
+.icon-btn[aria-pressed='true'] {
+  background: var(--ol-border);
+  color: var(--ol-text);
+}
+
+.icon-btn.sm {
+  width: 28px;
+  height: 28px;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  height: var(--ol-control-h);
+  border-radius: 8px;
+  border: 1px solid var(--ol-border);
+  background: var(--ol-bg);
+  color: var(--ol-text);
+  padding: 0 10px;
+}
+
+.input:focus {
+  outline: 2px solid var(--ol-beam);
+  outline-offset: 1px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: var(--ol-fs-sm);
+  color: var(--ol-text-muted);
+}
+
+/* Segmented control */
+.segmented {
+  display: flex;
+  padding: 3px;
+  border-radius: var(--ol-radius-md);
+  background: var(--ol-bg);
+  border: 1px solid var(--ol-border);
+}
+
+.segmented button {
+  flex: 1;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--ol-radius-sm);
+  border: 0;
+  background: transparent;
+  color: var(--ol-text-muted);
+  font-weight: 500;
+  font-size: var(--ol-fs-sm);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--ol-border);
+  color: var(--ol-text);
+}
+
+/* Pills and badges */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font: 500 var(--ol-fs-xs) var(--ol-font-mono);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kbd {
+  font: 500 var(--ol-fs-xs) var(--ol-font-mono);
+  padding: 1px 6px;
+  border-radius: var(--ol-radius-xs);
+  border: 1px solid var(--ol-border);
+  background: var(--ol-surface);
+  color: var(--ol-text-2);
+}
+
+.divider-v {
+  width: 1px;
+  height: 24px;
+  background: var(--ol-border);
+  flex-shrink: 0;
+}
+
+/* Scrollbars stay quiet. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ol-border-strong) transparent;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+}

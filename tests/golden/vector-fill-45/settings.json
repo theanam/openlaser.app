@@ -1,0 +1,13 @@
+{
+  "description": "10 x 10 mm square filled at 45 degrees, 1 mm interval, unidirectional.",
+  "layers": [
+    {
+      "id": "fill",
+      "mode": "fill",
+      "speed": 2000,
+      "power": 50,
+      "fill": { "interval": 1, "angle": 45, "bidirectional": false, "overscan": 0, "crossHatch": false }
+    }
+  ],
+  "objects": [{ "id": "square", "layerId": "fill", "shapes": [{ "rect": [20, 20, 10, 10] }] }]
+}

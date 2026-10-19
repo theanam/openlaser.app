@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>openlaser · Laser control in your browser</title>
+    <meta
+      name="description"
+      content="Free, open source laser engraver and cutter control that runs in your browser. Import SVG, DXF and photos, set layers, preview, frame and burn on GRBL lasers over Web Serial. No install, works offline."
+    />
+    <meta
+      name="keywords"
+      content="laser engraver, laser cutter, GRBL, web serial, G-code sender, LightBurn alternative, LaserGRBL alternative, diode laser, DXF, SVG, image trace, dithering, open source"
+    />
+    <meta name="application-name" content="openlaser" />
+    <meta name="author" content="Anam Ahmed" />
+    <meta name="generator" content="openlaser" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0E0F11" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="apple-mobile-web-app-title" content="openlaser" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="msapplication-TileColor" content="#0E0F11" />
+    <meta name="msapplication-TileImage" content="./icon-192.png" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="canonical" href="https://openlaser.app/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="openlaser" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="openlaser · Your laser, one tab away" />
+    <meta
+      property="og:description"
+      content="Import art, set layers, preview, frame and burn on GRBL lasers straight from Chrome or Edge. Free, open source, works offline."
+    />
+    <meta property="og:url" content="https://openlaser.app/" />
+    <meta property="og:image" content="https://openlaser.app/og-image.png" />
+    <meta property="og:image:secure_url" content="https://openlaser.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The openlaser workspace with a bed, layers and machine controls" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="openlaser · Your laser, one tab away" />
+    <meta
+      name="twitter:description"
+      content="Free, open source laser control in your browser for GRBL engravers and cutters. No install, works offline."
+    />
+    <meta name="twitter:image" content="https://openlaser.app/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="The openlaser workspace with a bed, layers and machine controls"
+    />
+    <meta name="twitter:domain" content="openlaser.app" />
+    <meta name="twitter:url" content="https://openlaser.app/" />
+
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="mask-icon" href="./mark-mono.svg" color="#0E0F11" />
+    <link rel="author" href="https://github.com/theanam" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "openlaser",
+        "url": "https://openlaser.app/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Windows, macOS, Linux, ChromeOS",
+        "browserRequirements": "Requires a Chromium browser with Web Serial for machine control",
+        "description": "Browser-based laser engraver and cutter control for GRBL machines. Import SVG, DXF and photos, trace images, set layers, preview, frame and burn over Web Serial.",
+        "image": "https://openlaser.app/og-image.png",
+        "screenshot": "https://raw.githubusercontent.com/theanam/openlaser.app/main/docs/screenshot.png",
+        "codeRepository": "https://github.com/theanam/openlaser.app",
+        "isAccessibleForFree": true,
+        "inLanguage": "en",
+        "featureList": "GRBL control over Web Serial, SVG and DXF import, photo engraving with dithering, image tracing, text with Google Fonts, shape library, toolpath preview, framing, G-code export, offline PWA",
+        "author": { "@type": "Person", "name": "Anam Ahmed", "url": "https://github.com/theanam" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/MIT"
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript
+      >openlaser needs JavaScript to run. It is a laser engraver and cutter control app that works entirely in
+      your browser.</noscript
+    >
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

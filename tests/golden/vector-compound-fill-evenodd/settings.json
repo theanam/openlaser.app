@@ -1,0 +1,53 @@
+{
+  "description": "Text-like compound path (a block letter 'B' with two counters) filled with the even-odd rule, 1 mm interval.",
+  "layers": [
+    {
+      "id": "fill",
+      "mode": "fill",
+      "speed": 3000,
+      "power": 40,
+      "fill": { "interval": 1, "angle": 0, "bidirectional": true, "overscan": 0, "crossHatch": false }
+    }
+  ],
+  "objects": [
+    {
+      "id": "letter-b",
+      "layerId": "fill",
+      "shapes": [
+        {
+          "poly": [
+            [10, 10],
+            [22, 10],
+            [26, 14],
+            [26, 18],
+            [24, 20],
+            [26, 22],
+            [26, 26],
+            [22, 30],
+            [10, 30]
+          ]
+        },
+        {
+          "poly": [
+            [14, 13],
+            [20, 13],
+            [22, 15],
+            [22, 17],
+            [20, 18],
+            [14, 18]
+          ]
+        },
+        {
+          "poly": [
+            [14, 22],
+            [20, 22],
+            [22, 23],
+            [22, 25],
+            [20, 27],
+            [14, 27]
+          ]
+        }
+      ]
+    }
+  ]
+}

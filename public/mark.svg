@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <title>openlaser</title>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#0E0F11" stroke="#2A2E33" stroke-width="1.5"/>
+  <circle cx="24" cy="27" r="11" stroke="#ECEDEE" stroke-width="3.2"/>
+  <line x1="24" y1="7" x2="24" y2="22" stroke="#C0392B" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="24" cy="27" r="3.4" fill="#C0392B"/>
+</svg>

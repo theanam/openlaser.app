@@ -1,0 +1,35 @@
+{
+  // Peacock tints this window with the openlaser brand red (--ol-signal in src/styles/tokens.css).
+  // The colorCustomizations are Peacock's derived values: change peacock.color through
+  // "Peacock: Enter a Color" rather than editing them by hand.
+  "peacock.color": "#C0392B",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#d65548",
+    "activityBar.background": "#d65548",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#49d656",
+    "activityBarBadge.foreground": "#15202b",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#d65548",
+    "statusBar.background": "#c0392b",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#d65548",
+    "statusBarItem.remoteBackground": "#29b636",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#c0392b",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#c0392b99",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "activityBar.activeBorder": "#e7e7e7",
+    "activityBarTop.activeBackground": "#d65548",
+    "activityBarTop.activeBorder": "#e7e7e7",
+    "activityBarTop.background": "#d65548",
+    "activityBarTop.foreground": "#e7e7e7",
+    "activityBarTop.inactiveForeground": "#e7e7e799",
+    "commandCenter.foreground": "#e7e7e7",
+    "statusBar.debuggingBackground": "#c0392b",
+    "statusBar.debuggingForeground": "#e7e7e7",
+    "statusBar.inactiveBackground": "#c0392b"
+  }
+}
