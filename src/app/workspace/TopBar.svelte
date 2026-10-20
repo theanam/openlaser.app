@@ -4,15 +4,17 @@
   import Save from '@lucide/svelte/icons/save';
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import Redo2 from '@lucide/svelte/icons/redo-2';
-  import Ellipsis from '@lucide/svelte/icons/ellipsis';
+  import Menu from '@lucide/svelte/icons/menu';
+  import Plug from '@lucide/svelte/icons/plug';
   import CircleHelp from '@lucide/svelte/icons/circle-help';
-  import Printer from '@lucide/svelte/icons/printer';
   import FileCode from '@lucide/svelte/icons/file-code';
   import Logo from '$lib/ui/Logo.svelte';
   import GithubMark from '$lib/ui/GithubMark.svelte';
   import { REPO_URL } from '$lib/config/app';
+  import { isWebSerialSupported } from '$lib/machine';
   import { formatCombo } from '../lib/keys';
   import { editor } from '../state/editor.svelte';
+  import { machine } from '../state/machine.svelte';
   import { session } from '../state/session.svelte';
   import { route } from '../state/route.svelte';
   import { ui } from '../state/ui.svelte';
@@ -33,6 +35,7 @@
   );
 
   let editingName = $state(false);
+  const serial = isWebSerialSupported();
 
   function rename(event: Event) {
     const value = (event.currentTarget as HTMLInputElement).value.trim();
@@ -77,6 +80,29 @@
   >
     <Logo size={28} />
   </button>
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger class="menu-trigger" aria-label="Menu" data-testid="app-menu">
+      <Menu size={18} /><span>Menu</span>
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Portal>
+      <DropdownMenu.Content class="ol-menu" sideOffset={6} align="start">
+        {#each menu as item, i (i)}
+          {#if item === 'separator'}
+            <DropdownMenu.Separator class="ol-menu-sep" />
+          {:else}
+            <DropdownMenu.Item
+              class="ol-menu-item"
+              disabled={item.projectOnly && !editor.project}
+              onSelect={item.run}
+            >
+              <span>{item.label}</span>
+              {#if item.keys}<span class="ol-menu-keys mono">{formatCombo(item.keys)}</span>{/if}
+            </DropdownMenu.Item>
+          {/if}
+        {/each}
+      </DropdownMenu.Content>
+    </DropdownMenu.Portal>
+  </DropdownMenu.Root>
   <div class="divider-v"></div>
 
   <div class="doc">
@@ -154,29 +180,6 @@
     >
       <Redo2 size={18} />
     </button>
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger class="icon-btn" aria-label="More" title="More">
-        <Ellipsis size={18} />
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content class="ol-menu" sideOffset={6} align="start">
-          {#each menu as item, i (i)}
-            {#if item === 'separator'}
-              <DropdownMenu.Separator class="ol-menu-sep" />
-            {:else}
-              <DropdownMenu.Item
-                class="ol-menu-item"
-                disabled={item.projectOnly && !editor.project}
-                onSelect={item.run}
-              >
-                <span>{item.label}</span>
-                {#if item.keys}<span class="ol-menu-keys mono">{formatCombo(item.keys)}</span>{/if}
-              </DropdownMenu.Item>
-            {/if}
-          {/each}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
   </div>
 
   <div class="spacer"></div>
@@ -207,16 +210,15 @@
   >
     Export G-code
   </button>
-  <button
-    type="button"
-    class="icon-btn"
-    aria-label="Print template"
-    title="Print template ({formatCombo('Mod+P')})"
-    disabled={!editor.project}
-    onclick={() => actions.printDesign()}
-  >
-    <Printer size={18} />
-  </button>
+  {#if serial && !machine.connected}
+    <button
+      type="button"
+      class="btn signal small connect"
+      disabled={machine.connecting}
+      onclick={() => machine.connect('webserial')}
+      data-testid="topbar-connect"><Plug size={15} />Connect laser</button
+    >
+  {/if}
   <button type="button" class="icon-btn" aria-label="Help" title="Help" onclick={() => route.go('help')}>
     <CircleHelp size={18} />
   </button>
@@ -252,6 +254,29 @@
     padding: 2px;
     border-radius: var(--ol-radius-md);
     color: var(--ol-text);
+  }
+
+  :global(.menu-trigger) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin-left: -4px;
+    padding: 0 10px 0 8px;
+    border-radius: var(--ol-radius-md);
+    border: 1px solid var(--ol-border);
+    background: var(--ol-surface-2);
+    color: var(--ol-text);
+    font-weight: 500;
+  }
+
+  :global(.menu-trigger:hover),
+  :global(.menu-trigger[data-state='open']) {
+    border-color: var(--ol-border-strong);
+  }
+
+  .connect {
+    gap: 6px;
   }
 
   .doc {

@@ -64,3 +64,19 @@ test('Help covers a machine that is not showing up', async ({ page }) => {
   await expect(section).toContainText('Machine not showing up');
   await expect(section).toContainText('Install the USB driver');
 });
+
+test('the top bar has the menu after the logo and a connect button until a laser is connected', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByTestId('new-project').click();
+  await expect(page.getByRole('button', { name: 'Print template' })).toHaveCount(0);
+  await page.getByTestId('app-menu').click();
+  await expect(page.getByRole('menuitem', { name: /Print template/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  const connect = page.getByTestId('topbar-connect');
+  await expect(connect).toBeVisible();
+  await page.getByTestId('connect-virtual').click();
+  await expect(connect).toHaveCount(0);
+});
