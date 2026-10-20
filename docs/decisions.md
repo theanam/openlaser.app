@@ -147,3 +147,7 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 
 - **Text keeps its top edge across edits.** Re-outlining shifts the object by the difference in block height (line boxes from the font's ascender and descender). The height the current outlines were made for is stored as `TextObject.blockHeight`; measuring the tallest glyph instead made text creep down by the ascender gap on every edit. Text saved before the field existed uses the glyph measure once.
 - **Editing in place.** A textarea is laid over the text object with a CSS matrix built from the bed transform and the object transform (`text-edit.ts`), so it pans, zooms and rotates with the outlines. The canvas skips drawing that object while it is edited; the textarea shows the live text in the layer's ink, and outlines update underneath as you type. CSS centres glyphs in the line box while the outliner puts the first baseline one ascender down, so the box is shifted by half the difference. Esc, Ctrl/⌘+Enter or a click elsewhere ends editing; text left empty is deleted.
+
+## Aspect ratio
+
+- **Proportions are kept by default** for text, images and imported or traced art (SVG, DXF, traces, outlines): their proportions are the design. Rectangles, ellipses (`VectorObject.drawn`) and library shapes are drawn to size and stretch freely. The chain button overrides the default for the current selection only; Shift while dragging a handle flips the setting for that drag.

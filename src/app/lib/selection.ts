@@ -81,3 +81,12 @@ export function displayRotation(objects: SceneObject[]): number {
 }
 
 export { multiply };
+
+/**
+ * Whether resizing keeps proportions by default: on for text, images and imported or traced art,
+ * whose proportions are the design; off for rectangles, ellipses and library shapes, which are
+ * drawn to size.
+ */
+export function keepsAspectByDefault(objects: readonly SceneObject[]): boolean {
+  return objects.some((o) => o.kind !== 'vector' || (!o.drawn && !o.shape));
+}

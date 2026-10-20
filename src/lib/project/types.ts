@@ -105,6 +105,8 @@ export interface VectorObject extends BaseObject {
   paths: PathData[];
   /** Set for objects made with the Shapes tool, so their parameters stay editable. */
   shape?: ShapeSpec;
+  /** Drawn on the bed with the rectangle or ellipse tool: free to stretch, unlike imported art. */
+  drawn?: boolean;
 }
 
 /** A parametric shape from the shape library; `paths` is regenerated from it. */

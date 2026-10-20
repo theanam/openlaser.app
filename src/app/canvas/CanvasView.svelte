@@ -321,7 +321,11 @@
         break;
       }
       case 'scale':
-        commitTransforms(d.originals, scaleFromDrag(d.handle, d.pivot, d.start, bedPoint, event.shiftKey));
+        // Shift flips the selection's aspect setting for this drag.
+        commitTransforms(
+          d.originals,
+          scaleFromDrag(d.handle, d.pivot, d.start, bedPoint, editor.keepAspect !== event.shiftKey),
+        );
         break;
       case 'rotate': {
         let delta = angleAround(d.center, bedPoint) - d.startAngle;

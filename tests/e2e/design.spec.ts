@@ -244,3 +244,27 @@ test('outlines several objects as one cut line', async ({ page }) => {
   await expect(page.getByTestId('status-bar')).toContainText('1 selected');
   await expect(page.getByTestId('layer-row').filter({ hasText: 'Outline' })).toHaveCount(1);
 });
+
+test('imported art keeps its proportions by default; drawn shapes stretch', async ({ page }) => {
+  await newProject(page);
+  const lock = page.getByRole('button', { name: /Keep aspect ratio/ });
+  await page.getByTestId('tool-rect').click();
+  await dragOnCanvas(page, [0.4, 0.4], [0.5, 0.5]);
+  await expect(lock).toHaveAttribute('aria-pressed', 'false');
+
+  await importFile(page, 'coaster.svg');
+  await page.getByTestId('vector-import-confirm').click();
+  await expect(lock).toHaveAttribute('aria-pressed', 'true');
+  const w = page.getByTestId('sel-w');
+  const h = page.getByTestId('sel-h');
+  const ratio = Number(await w.inputValue()) / Number(await h.inputValue());
+  await w.fill('45');
+  await w.press('Enter');
+  await expect
+    .poll(async () => Number(await w.inputValue()) / Number(await h.inputValue()))
+    .toBeCloseTo(ratio, 2);
+
+  // Unlinking sticks for this selection.
+  await lock.click();
+  await expect(lock).toHaveAttribute('aria-pressed', 'false');
+});

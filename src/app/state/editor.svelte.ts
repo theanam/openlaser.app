@@ -8,6 +8,7 @@ import { createProject } from '$lib/project/factory';
 import { History } from '$lib/project/history';
 import { makeId } from '$lib/project/ids';
 import * as ops from '$lib/project/operations';
+import { keepsAspectByDefault } from '../lib/selection';
 import type { Anchor, Asset, Id, Layer, LayerMode, Project, SceneObject } from '$lib/project/types';
 
 export type Tool = 'select' | 'pan' | 'rect' | 'ellipse' | 'shape' | 'text' | 'measure';
@@ -29,8 +30,20 @@ export class Editor {
   shapeKind = $state('star');
   /** Reference point for the X/Y/W/H fields and scaling. */
   anchor = $state<Anchor>('bl');
-  /** Off by default so W and H edit independently; the chain button turns it on. */
-  keepAspect = $state(false);
+  /** The chain button's choice, for the selection it was made on; other selections use their default. */
+  private aspectChoice = $state<{ selection: string; keep: boolean } | null>(null);
+
+  /** Keep proportions when resizing: on for text, images and imported art unless the user unlinks. */
+  get keepAspect(): boolean {
+    const key = [...this.selection].sort().join(' ');
+    if (this.aspectChoice?.selection === key) return this.aspectChoice.keep;
+    const project = this.project;
+    return project ? keepsAspectByDefault(project.objects.filter((o) => this.selection.has(o.id))) : false;
+  }
+
+  set keepAspect(keep: boolean) {
+    this.aspectChoice = { selection: [...this.selection].sort().join(' '), keep };
+  }
   view = $state<ViewMode>('design');
   gcode = $state.raw<GcodeDocument | null>(null);
   /** Changes since the last save to a file. */

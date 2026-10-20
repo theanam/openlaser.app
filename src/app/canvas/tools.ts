@@ -27,8 +27,8 @@ export function shapeObject(shape: DrawnShape, r: Rect, layerId: Id, id: Id): Ve
     visible: true,
     transform: translation(r.minX, r.minY),
   };
-  if (shape === 'rect') return { ...base, name: 'Rectangle', paths: [rectanglePath(w, h)] };
-  if (shape === 'ellipse') return { ...base, name: 'Ellipse', paths: [ellipsePath(w, h)] };
+  if (shape === 'rect') return { ...base, name: 'Rectangle', drawn: true, paths: [rectanglePath(w, h)] };
+  if (shape === 'ellipse') return { ...base, name: 'Ellipse', drawn: true, paths: [ellipsePath(w, h)] };
   if (!isShapeKind(shape.library)) return null;
   const params = defaultParams(shape.library);
   return {
