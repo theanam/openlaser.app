@@ -19,11 +19,5 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
-      - run: pnpm exec playwright install --with-deps chromium
+      # End-to-end tests run locally before pushing to main (see CLAUDE.md).
       - run: pnpm build
-      - run: pnpm e2e
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report
