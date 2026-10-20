@@ -57,3 +57,10 @@ test('the shortcut sheet opens with ?', async ({ page }) => {
   await page.keyboard.press('?');
   await expect(page.getByTestId('shortcuts-dialog')).toBeVisible();
 });
+
+test('Help covers a machine that is not showing up', async ({ page }) => {
+  await page.goto('/#/help');
+  const section = page.getByTestId('help-connect');
+  await expect(section).toContainText('Machine not showing up');
+  await expect(section).toContainText('Install the USB driver');
+});

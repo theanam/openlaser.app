@@ -19,6 +19,8 @@
   import { route } from '../state/route.svelte';
   import { ui } from '../state/ui.svelte';
   import PageShell from './PageShell.svelte';
+  import ConnectTroubleshooter from '../connect/ConnectTroubleshooter.svelte';
+  import Unplug from '@lucide/svelte/icons/unplug';
 
   const topics: Array<{ icon: Component; title: string; items: string[] }> = [
     {
@@ -27,7 +29,6 @@
       items: [
         'Use Chrome, Edge, Opera or Brave on a desktop. Machine control needs Web Serial.',
         'Connect laser, then pick the USB port. Most GRBL lasers use 115200 baud.',
-        'No port listed? Install the CH340 or CP210x driver. On Linux, add yourself to the dialout group and log in again.',
         'Try the virtual machine to practise without hardware.',
       ],
     },
@@ -146,6 +147,11 @@
       </ul>
     </section>
   {/each}
+
+  <section id="machine-not-showing-up" data-testid="help-connect">
+    <h2><Unplug size={18} />Machine not showing up</h2>
+    <ConnectTroubleshooter />
+  </section>
 
   <section>
     <h2><Keyboard size={18} />Keyboard shortcuts</h2>

@@ -23,6 +23,7 @@
   import { route } from '../state/route.svelte';
   import { session } from '../state/session.svelte';
   import { ui } from '../state/ui.svelte';
+  import ConnectHelpButton from '../connect/ConnectHelpButton.svelte';
   import * as actions from '../actions';
 
   const serial = isWebSerialSupported();
@@ -191,11 +192,7 @@
           </div>
         </dl>
         <div class="rule"></div>
-        <p class="tip">
-          Laser not showing up? Install the CH340 or CP210x driver, and on Linux add yourself to the <span
-            class="mono accent">dialout</span
-          > group.
-        </p>
+        <ConnectHelpButton />
       </div>
     </aside>
   </main>
@@ -514,15 +511,6 @@
   .rule {
     height: 1px;
     background: var(--ol-border);
-  }
-
-  .tip {
-    line-height: 1.55;
-    color: var(--ol-text-2);
-  }
-
-  .accent {
-    color: var(--ol-signal-text);
   }
 
   .foot {

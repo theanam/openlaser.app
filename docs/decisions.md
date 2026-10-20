@@ -119,3 +119,9 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 - **Colors:** true color, then ACI, then BYLAYER, with BYBLOCK and layer 0 inheriting from the INSERT. ACI 7 shows black. Each color becomes a line layer through the SVG mapping, so the dialog and layer matching are shared.
 - **Chaining:** open pieces of one color whose endpoints meet (within 1e-4 drawing units) are joined, and a chain that returns to its start becomes a closed shape so fills and kerf offsets work on CAD outlines.
 - **Bed contrast:** the canvas draws each layer in an ink mixed toward white (dark bed) or black (light bed) until it reaches 4.5:1 against the bed (`src/app/canvas/ink.ts`). The layer keeps its own color, so color matching on later imports still works.
+
+## Connection help
+
+- **“Laser not showing up?”** opens a four-step walkthrough (power, USB or Bluetooth, driver, last checks) from the Machine panel and the start screen, and as a Help section. Closing the port picker without a choice shows a toast that links to it.
+- **Driver steps follow the user agent** (Windows, macOS, Linux, ChromeOS) with tabs for the others. Links go to the chip makers: WCH for CH340/CH341, Silicon Labs for CP210x. Linux covers the dialout group and brltty grabbing CH340 ports.
+- **Bluetooth:** the port picker runs without filters, so paired Bluetooth serial ports (Chrome 117+) are listed. Wi-Fi is out of scope.

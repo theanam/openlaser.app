@@ -10,11 +10,14 @@
   let pos = $state({ x: -9999, y: -9999 });
   let tipEl = $state<HTMLDivElement | null>(null);
   let current: HTMLElement | null = null;
+  /** Hovered or focused, waiting out the delay. */
+  let pending: HTMLElement | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastHidden = 0;
 
   async function show(el: HTMLElement) {
-    const label = tooltipText(el);
+    pending = null;
+    const label = el.isConnected ? tooltipText(el) : null;
     if (!label) return;
     current = el;
     text = label;
@@ -27,8 +30,9 @@
   }
 
   function schedule(el: HTMLElement) {
-    if (el === current) return;
+    if (el === current || el === pending) return;
     hide();
+    pending = el;
     tooltipText(el); // Takes over `title` right away so the native tooltip never appears.
     const warm = performance.now() - lastHidden < WARM_MS;
     timer = setTimeout(() => void show(el), warm ? 0 : DELAY_MS);
@@ -37,6 +41,7 @@
   function hide() {
     if (timer) clearTimeout(timer);
     timer = null;
+    pending = null;
     if (!current && text === null) return;
     if (current) lastHidden = performance.now();
     current = null;
@@ -48,12 +53,14 @@
     const over = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return;
       const el = tooltipTarget(e.target as Element);
+      // Off any tooltip target: also cancels one still waiting out its delay.
       if (el) schedule(el);
-      else if (current) hide();
+      else hide();
     };
     const out = (e: PointerEvent) => {
       const to = e.relatedTarget as Element | null;
-      if (current && (!to || !current.contains(to))) hide();
+      const active = current ?? pending;
+      if (active && (!to || !active.contains(to))) hide();
     };
     const focus = (e: FocusEvent) => {
       const el = tooltipTarget(e.target as Element);
@@ -63,8 +70,17 @@
     // must not change.
     const dismiss = () => queueMicrotask(hide);
     const key = (e: KeyboardEvent) => e.key === 'Escape' && hide();
+    // Safety net for a missed pointerout (a control re-rendered or removed under the pointer):
+    // a hover tooltip lasts only while its control is still under the pointer.
+    const move = (e: PointerEvent) => {
+      const active = current ?? pending;
+      if (!active || e.pointerType === 'touch') return;
+      const under = e.target instanceof Node && active.contains(e.target);
+      if (!active.isConnected || (!under && !active.matches(':focus-visible'))) hide();
+    };
     document.addEventListener('pointerover', over);
     document.addEventListener('pointerout', out);
+    document.addEventListener('pointermove', move, { passive: true });
     document.addEventListener('focusin', focus);
     document.addEventListener('focusout', dismiss);
     document.addEventListener('pointerdown', dismiss, true);
@@ -73,6 +89,7 @@
     return () => {
       document.removeEventListener('pointerover', over);
       document.removeEventListener('pointerout', out);
+      document.removeEventListener('pointermove', move);
       document.removeEventListener('focusin', focus);
       document.removeEventListener('focusout', dismiss);
       document.removeEventListener('pointerdown', dismiss, true);

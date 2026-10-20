@@ -9,6 +9,7 @@ import Heart from '@lucide/svelte/icons/heart';
 import Usb from '@lucide/svelte/icons/usb';
 import Cpu from '@lucide/svelte/icons/cpu';
 import Plug from '@lucide/svelte/icons/plug';
+import Unplug from '@lucide/svelte/icons/unplug';
 import ScanSearch from '@lucide/svelte/icons/scan-search';
 import FileCode from '@lucide/svelte/icons/file-code';
 import Image from '@lucide/svelte/icons/image';
@@ -97,8 +98,9 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Cpu, text: 'Virtual machine for safe dry runs' },
       { icon: ScanSearch, text: 'Recognises your machine and its bed size' },
       { icon: Plug, text: 'One-click reconnect to known ports' },
+      { icon: Unplug, text: 'Step-by-step help when the laser is missing' },
     ],
-    features: ['web-serial', 'virtual-machine', 'grbl-firmwares', 'machine-detect'],
+    features: ['web-serial', 'virtual-machine', 'grbl-firmwares', 'machine-detect', 'connect-help'],
   },
   {
     id: 'import',

@@ -166,3 +166,20 @@ test('the console follows new lines, and auto-scroll can be turned off', async (
   await page.waitForTimeout(600);
   expect(await log.evaluate((el) => el.scrollTop)).toBe(0);
 });
+
+test('walks through a laser that is not showing up', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('new-project').click();
+  await page.getByTestId('connect-help-open').click();
+  const dialog = page.getByTestId('connect-help-dialog');
+  await expect(dialog).toContainText('Power on the laser');
+  await dialog.getByRole('button', { name: 'Bluetooth' }).click();
+  await expect(dialog).toContainText('Pair the laser');
+  await dialog.getByTestId('connect-platform').getByRole('button', { name: 'Linux' }).click();
+  await expect(dialog).toContainText('sudo usermod -aG dialout $USER');
+  await dialog.getByTestId('connect-platform').getByRole('button', { name: 'Windows' }).click();
+  await expect(dialog).toContainText('Device Manager');
+  await dialog.getByRole('button', { name: 'Try the virtual machine' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByTestId('machine-state')).toHaveText(/ALARM|IDLE/i, { timeout: 15_000 });
+});

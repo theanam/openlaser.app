@@ -13,6 +13,8 @@ class Ui {
   preferencesOpen = $state(false);
   deviceSettingsOpen = $state(false);
   shortcutsOpen = $state(false);
+  /** “Laser not showing up?” walkthrough. */
+  connectHelpOpen = $state(false);
   vectorImport = $state.raw<PendingVectorImport | null>(null);
   printOpen = $state(false);
   /** Image being traced, when the Trace dialog is open. */

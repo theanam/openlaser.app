@@ -10,6 +10,7 @@ export const NOTABLE_FEATURES = [
   'virtual-machine',
   'grbl-firmwares',
   'machine-detect',
+  'connect-help',
   'console-panel',
   'svg-import',
   'dxf-import',

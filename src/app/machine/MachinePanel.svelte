@@ -16,6 +16,7 @@
   import { editor } from '../state/editor.svelte';
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
+  import ConnectHelpButton from '../connect/ConnectHelpButton.svelte';
   import AnchorPicker from '../workspace/AnchorPicker.svelte';
   import JogPad from './JogPad.svelte';
   import Overrides from './Overrides.svelte';
@@ -96,11 +97,7 @@
       >
         <Cpu size={16} />Virtual machine
       </button>
-      <p class="tip">
-        Laser not listed? Install the CH340 or CP210x driver. On Linux, join the <span class="mono"
-          >dialout</span
-        > group.
-      </p>
+      <ConnectHelpButton />
     </div>
   {:else}
     <div class="conn">
@@ -273,7 +270,6 @@
     gap: 8px;
   }
 
-  .tip,
   .note {
     font-size: var(--ol-fs-sm);
     color: var(--ol-text-muted);

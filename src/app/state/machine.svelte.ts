@@ -27,6 +27,7 @@ import type { Vec2 } from '$lib/geometry/types';
 import { confirm } from '$lib/ui/confirm.svelte';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
+import { ui } from './ui.svelte';
 import { setJobSettings } from '$lib/project/operations';
 import { editor } from './editor.svelte';
 import { boundsKey, jobSummary, type JobSummary } from '../lib/job-summary';
@@ -198,7 +199,13 @@ class MachineController {
         }
       }
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'NotFoundError') return; // Picker cancelled.
+      if (error instanceof DOMException && error.name === 'NotFoundError') {
+        // Picker closed: often because the laser was missing from it.
+        toast.info('No port chosen.', {
+          action: { label: 'Laser not showing up?', run: () => (ui.connectHelpOpen = true) },
+        });
+        return;
+      }
       toast.error(`Could not open the port: ${errorMessage(error)}`);
       return;
     }
