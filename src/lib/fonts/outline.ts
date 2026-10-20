@@ -3,6 +3,7 @@
 import type { PathData, Segment, Vec2 } from '../geometry/types';
 import type { TextObject } from '../project/types';
 import { getFontBytes } from './loader';
+import { loadOpentype } from './opentype';
 
 /** The slice of opentype.js's Font this module uses (opentype.js ships no type declarations). */
 export type OtCommand =
@@ -118,18 +119,13 @@ export function textToPaths(spec: TextLayoutSpec, font: OtFont): TextOutline {
   return { paths, width, height };
 }
 
-type OpentypeModule = { parse(buffer: ArrayBuffer): OtFont };
-let otModule: Promise<OpentypeModule> | null = null;
-/** opentype.js is loaded on first use so it stays out of the start-up bundle. */
-const loadOpentype = () =>
-  // @ts-expect-error opentype.js ships no type declarations; the module is narrowed to OpentypeModule below.
-  (otModule ??= import('opentype.js').then((m: unknown) => {
-    // The UMD build (picked under the "browser" condition) exposes the API on `default` only.
-    const mod = m as Partial<OpentypeModule> & { default?: OpentypeModule };
-    return (mod.parse ? mod : mod.default) as OpentypeModule;
-  }));
-
 const parsed = new Map<string, Promise<OtFont | null>>();
+
+/** Drops parsed faces of a family, so the next outline reads its current source (an upload, say). */
+export function forgetParsedFamily(family: string): void {
+  for (const key of parsed.keys())
+    if (key.split('|')[0]!.toLowerCase() === family.toLowerCase()) parsed.delete(key);
+}
 
 function parsedFont(family: string, weight: number, italic: boolean): Promise<OtFont | null> {
   const key = `${family}|${weight}|${italic}`;

@@ -4,6 +4,7 @@
   import Plug from '@lucide/svelte/icons/plug';
   import Download from '@lucide/svelte/icons/download';
   import Layers from '@lucide/svelte/icons/layers';
+  import PenTool from '@lucide/svelte/icons/pen-tool';
   import Image from '@lucide/svelte/icons/image';
   import Play from '@lucide/svelte/icons/play';
   import Scan from '@lucide/svelte/icons/scan';
@@ -41,6 +42,16 @@
         'Convert text to paths in your editor before exporting SVG.',
         'DXF imports lines, polylines, arcs, circles, ellipses, splines and blocks. Units come from the file and can be changed in the import dialog. Explode text and hatches to outlines in your CAD tool first.',
         'Open (⌘O) takes .olaser projects and G-code files (.gcode, .nc, .ngc), which run as they are.',
+      ],
+    },
+    {
+      icon: PenTool,
+      title: 'Text and outlines',
+      items: [
+        'The font picker lists every Google Font, plus Uploaded and System tabs. Upload TTF, OTF or WOFF files; they stay in this browser.',
+        'System fonts need Chrome or Edge: open the System tab and allow font access once.',
+        'Text keeps its outlines in the project, so it burns the same on a computer without the font.',
+        'Outline (O) draws one cut line around everything selected. A logo and a key-ring hole selected together get a single outline around both.',
       ],
     },
     {

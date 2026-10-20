@@ -14,6 +14,7 @@ import {
   type CatalogFont,
   type FontStyle,
 } from './catalog';
+import { hasLocalFamily, localFontBytes } from './local';
 
 export type FontRef = { family: string; weight: number; style: FontStyle };
 
@@ -151,6 +152,8 @@ function faceBytes(face: Face): Promise<Uint8Array | null> {
 /** TrueType bytes for a font, for outlining. Null when unavailable (offline and not cached). */
 export async function getFontBytes(font: FontRef): Promise<Uint8Array | null> {
   try {
+    // Uploaded and system fonts first: a local family wins over a catalogue family of the same name.
+    if (hasLocalFamily(font.family)) return await localFontBytes(font);
     return await faceBytes(await resolveFace(font));
   } catch {
     return null;

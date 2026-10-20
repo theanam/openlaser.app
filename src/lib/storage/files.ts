@@ -44,6 +44,16 @@ export const IMAGE_FILES: FileKind = {
   },
 };
 
+export const FONT_FILES: FileKind = {
+  description: 'Fonts',
+  accept: {
+    'font/ttf': ['.ttf'],
+    'font/otf': ['.otf'],
+    'font/woff': ['.woff'],
+    'font/collection': ['.ttc'],
+  },
+};
+
 export const GCODE_FILES: FileKind = {
   description: 'G-code',
   accept: { 'text/plain': ['.gcode', '.nc', '.gc', '.ngc', '.txt'] },

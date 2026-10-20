@@ -14,12 +14,14 @@
   import { editor, type Tool } from '../state/editor.svelte';
   import ShapeGlyph from '../inspector/ShapeGlyph.svelte';
   import ShapePicker from '../inspector/ShapePicker.svelte';
+  import OutlineTool from './OutlineTool.svelte';
 
   type Entry =
     | { id: Tool; label: string; key: string; icon: Component; design: boolean }
     | 'divider'
     | 'shapes'
-    | 'image';
+    | 'image'
+    | 'outline';
 
   const tools: Entry[] = [
     { id: 'select', label: 'Select', key: 'V', icon: MousePointer2, design: true },
@@ -30,6 +32,8 @@
     'shapes',
     { id: 'text', label: 'Text', key: 'T', icon: Type, design: true },
     'image',
+    'divider',
+    'outline',
     { id: 'measure', label: 'Measure', key: 'M', icon: Ruler, design: false },
   ];
 
@@ -51,6 +55,8 @@
         onclick={() => actions.importArt()}
         data-testid="tool-image"><ImagePlus size={18} /></button
       >
+    {:else if tool === 'outline'}
+      <OutlineTool disabled={!designing} />
     {:else if tool === 'shapes'}
       <Popover.Root bind:open={pickerOpen}>
         <Popover.Trigger

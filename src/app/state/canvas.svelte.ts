@@ -1,5 +1,5 @@
 /** Canvas viewport state shared with the zoom control, status bar and shortcuts. */
-import type { Rect, Vec2 } from '$lib/geometry/types';
+import type { PathData, Rect, Vec2 } from '$lib/geometry/types';
 import { clampZoom, fitBed, fitRect, zoomAt, type BedFrame, type View } from '../canvas/viewport';
 
 class CanvasState {
@@ -11,6 +11,8 @@ class CanvasState {
   fitted = false;
   /** Measure tool result. */
   measure = $state<{ from: Vec2; to: Vec2 } | null>(null);
+  /** Outline tool preview in bed mm, while its options are open. */
+  outlinePreview = $state.raw<PathData[] | null>(null);
 
   fit(bed: BedFrame): void {
     this.view = fitBed(this.size, bed, 40);

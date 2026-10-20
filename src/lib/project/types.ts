@@ -148,6 +148,11 @@ export interface TextObject extends BaseObject {
    * line at the top. Regenerated when the text or its style changes; empty until the font loads.
    */
   paths: PathData[];
+  /**
+   * Height of the laid-out block (line boxes, not glyph extents) that `paths` were made for, so a
+   * re-outline keeps the block's top edge in place. Missing on text saved before it was recorded.
+   */
+  blockHeight?: number;
 }
 
 export interface Asset {

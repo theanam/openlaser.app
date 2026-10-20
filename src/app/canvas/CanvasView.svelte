@@ -3,7 +3,7 @@
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
   import Maximize from '@lucide/svelte/icons/maximize';
-  import { multiply, rotationAbout, translation } from '$lib/geometry/mat2d';
+  import { IDENTITY, multiply, rotationAbout, translation } from '$lib/geometry/mat2d';
   import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
   import { setObjectTransforms } from '$lib/project/operations';
   import { makeId } from '$lib/project/ids';
@@ -102,6 +102,7 @@
       canvas.view,
       canvas.size,
       canvas.measure,
+      canvas.outlinePreview,
       bed,
       drag,
     ];
@@ -175,6 +176,14 @@
           ctx.stroke(screenPath(ghost, canvas.view, bed));
         }
       }
+    }
+    if (canvas.outlinePreview?.length) {
+      ctx.save();
+      ctx.setLineDash([6, 4]);
+      ctx.strokeStyle = palette.signal;
+      ctx.lineWidth = 1.5;
+      ctx.stroke(screenPath({ paths: canvas.outlinePreview, transform: IDENTITY }, canvas.view, bed));
+      ctx.restore();
     }
     if (canvas.measure) drawMeasure(ctx, canvas.view, bed, canvas.measure.from, canvas.measure.to, palette);
 

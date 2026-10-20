@@ -224,3 +224,23 @@ test('the anchor button opens a grid of large targets', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-label', 'Anchor: center');
 });
+
+test('outlines several objects as one cut line', async ({ page }) => {
+  await newProject(page);
+  await expect(page.getByTestId('tool-outline')).toBeDisabled();
+  await page.getByTestId('tool-ellipse').click();
+  await dragOnCanvas(page, [0.4, 0.4], [0.52, 0.56]);
+  await page.getByTestId('tool-ellipse').click();
+  await dragOnCanvas(page, [0.545, 0.455], [0.58, 0.505]);
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.press('o');
+  const menu = page.getByTestId('outline-menu');
+  await expect(menu).toContainText('2 objects');
+  await menu.getByTestId('outline-offset').fill('10');
+  await menu.getByTestId('outline-offset').press('Enter');
+  await menu.getByTestId('outline-apply').click();
+  await expect(menu).toBeHidden();
+  await expect(page.getByTestId('status-bar')).toContainText('3 objects');
+  await expect(page.getByTestId('status-bar')).toContainText('1 selected');
+  await expect(page.getByTestId('layer-row').filter({ hasText: 'Outline' })).toHaveCount(1);
+});

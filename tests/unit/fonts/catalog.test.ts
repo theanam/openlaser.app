@@ -164,3 +164,32 @@ describe('loadCatalog', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('local font categories', () => {
+  it('filters uploaded and system fonts and keeps them out of the Google categories', async () => {
+    const { filterFonts } = await import('$lib/fonts/catalog');
+    const list = [
+      { id: 'a', family: 'Alpha', category: 'sans' as const, weights: [400], italic: false },
+      {
+        id: 'b',
+        family: 'Mine',
+        category: 'sans' as const,
+        weights: [400],
+        italic: false,
+        source: 'uploaded' as const,
+      },
+      {
+        id: 'c',
+        family: 'Arial',
+        category: 'sans' as const,
+        weights: [400],
+        italic: false,
+        source: 'system' as const,
+      },
+    ];
+    expect(filterFonts(list, '', 'uploaded').map((f) => f.family)).toEqual(['Mine']);
+    expect(filterFonts(list, '', 'system').map((f) => f.family)).toEqual(['Arial']);
+    expect(filterFonts(list, '', 'sans').map((f) => f.family)).toEqual(['Alpha']);
+    expect(filterFonts(list, '', 'all')).toHaveLength(3);
+  });
+});

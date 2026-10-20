@@ -235,6 +235,13 @@ export const SHORTCUTS: Shortcut[] = [
     run: () => (editor.tool = 'ellipse'),
   },
   {
+    keys: ['O'],
+    label: 'Outline selection',
+    group: 'Tools',
+    when: hasSelection,
+    run: () => (ui.outlineOpen = true),
+  },
+  {
     keys: ['M'],
     label: 'Measure tool',
     group: 'Tools',

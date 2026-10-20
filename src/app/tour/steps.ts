@@ -9,6 +9,8 @@ import Heart from '@lucide/svelte/icons/heart';
 import Usb from '@lucide/svelte/icons/usb';
 import Cpu from '@lucide/svelte/icons/cpu';
 import Plug from '@lucide/svelte/icons/plug';
+import Upload from '@lucide/svelte/icons/upload';
+import SquircleDashed from '@lucide/svelte/icons/squircle-dashed';
 import Unplug from '@lucide/svelte/icons/unplug';
 import ScanSearch from '@lucide/svelte/icons/scan-search';
 import FileCode from '@lucide/svelte/icons/file-code';
@@ -143,14 +145,16 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 'text-shapes',
     title: 'Text and shapes',
-    body: 'Set text in any Google Font and draw from a library of parametric shapes.',
+    body: 'Set text in any Google Font, your installed fonts or your own files, and draw from a library of parametric shapes.',
     art: 'text-shapes',
     points: [
       { icon: Type, text: 'Every Google Font, with live previews by category' },
+      { icon: Upload, text: 'Upload TTF, OTF or WOFF files, or use installed fonts' },
       { icon: Shapes, text: 'Stars, gears, arrows, hearts and 20 more, all adjustable' },
       { icon: Spline, text: 'Text and shapes burn as clean vector outlines' },
+      { icon: SquircleDashed, text: 'Outline a selection at any offset, for key rings and stickers' },
     ],
-    features: ['text-tool', 'google-fonts', 'shape-library'],
+    features: ['text-tool', 'google-fonts', 'local-fonts', 'shape-library', 'outline-tool'],
   },
   {
     id: 'design',

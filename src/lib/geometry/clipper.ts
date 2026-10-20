@@ -75,6 +75,20 @@ export function offsetRings(rings: Vec2[][], delta: number, options: OffsetOptio
   return fromPaths(result);
 }
 
+/** Outlines open polylines as closed regions `delta` wide on each side, with round ends. */
+export function offsetOpen(lines: Vec2[][], delta: number, options: OffsetOptions = {}): Vec2[][] {
+  if (delta <= 0 || lines.length === 0) return [];
+  const result = inflatePaths(
+    toPaths(lines),
+    delta * CLIPPER_SCALE,
+    toJoinType(options.join ?? 'round'),
+    EndType.Round,
+    options.miterLimit ?? 2,
+    (options.arcTolerance ?? 0.01) * CLIPPER_SCALE,
+  );
+  return fromPaths(result);
+}
+
 function toPaths(rings: Vec2[][]): Paths64 {
   return rings.map((ring): Path64 =>
     ring.map((p) => ({ x: Math.round(p.x * CLIPPER_SCALE), y: Math.round(p.y * CLIPPER_SCALE) })),

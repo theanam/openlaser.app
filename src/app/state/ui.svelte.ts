@@ -1,6 +1,7 @@
 /** Which overlays are open. Kept apart from the editor so dialogs never touch project state directly. */
 import type { DxfDrawing } from '$lib/import/dxf';
 import type { SvgImportResult } from '$lib/import/svg';
+import { DEFAULT_CONTOUR, type ContourOptions } from '$lib/project/contour';
 
 /** An SVG or DXF waiting in the import dialog for its color → layer choices. */
 export type PendingVectorImport =
@@ -15,6 +16,9 @@ class Ui {
   shortcutsOpen = $state(false);
   /** “Laser not showing up?” walkthrough. */
   connectHelpOpen = $state(false);
+  /** Outline tool popover and its settings, kept for the session. */
+  outlineOpen = $state(false);
+  outline = $state<ContourOptions>({ ...DEFAULT_CONTOUR });
   vectorImport = $state.raw<PendingVectorImport | null>(null);
   printOpen = $state(false);
   /** Image being traced, when the Trace dialog is open. */

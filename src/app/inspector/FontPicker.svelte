@@ -3,17 +3,20 @@
   import Search from '@lucide/svelte/icons/search';
   import Check from '@lucide/svelte/icons/check';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import Upload from '@lucide/svelte/icons/upload';
+  import X from '@lucide/svelte/icons/x';
+  import HardDrive from '@lucide/svelte/icons/hard-drive';
   import { onMount } from 'svelte';
   import {
     FONT_CATEGORIES,
     filterFonts,
     findFont,
-    loadCatalog,
     type CatalogFont,
     type FontCategory,
     type FontCategoryId,
   } from '$lib/fonts/catalog';
   import { loadPreviewCss } from '$lib/fonts/loader';
+  import { fonts } from '../state/fonts.svelte';
 
   interface Props {
     value: string;
@@ -36,30 +39,36 @@
   const ROW = 38;
   const VIEW = 320;
   let open = $state(false);
-  let fonts = $state.raw<CatalogFont[]>([]);
   let query = $state('');
   let category = $state<FontCategoryId>('all');
   let scrollTop = $state(0);
   let listEl = $state<HTMLDivElement | null>(null);
 
-  onMount(() => {
-    void loadCatalog().then((list) => (fonts = list));
-  });
+  onMount(() => void fonts.init());
 
-  const results = $derived(filterFonts(fonts, query, category, projectFonts));
+  const all = $derived(fonts.all);
+  const results = $derived(filterFonts(all, query, category, projectFonts));
   const first = $derived(Math.max(0, Math.floor(scrollTop / ROW) - 4));
   const last = $derived(Math.min(results.length, Math.ceil((scrollTop + VIEW) / ROW) + 4));
   const rows = $derived(results.slice(first, last));
-  const current = $derived(findFont(fonts, value));
+  const current = $derived(findFont(all, value));
+  const SOURCE_LABEL = { uploaded: 'Uploaded', system: 'System' } as const;
+  const label = (f: CatalogFont) => (f.source ? SOURCE_LABEL[f.source] : CATEGORY_LABEL[f.category]);
 
   // Previews load as their rows scroll into view.
   $effect(() => {
-    for (const f of rows) loadPreviewCss(f);
+    for (const f of rows) if (!f.source) loadPreviewCss(f);
   });
 
   function pick(font: CatalogFont) {
     open = false;
     onpick(font);
+  }
+
+  async function upload() {
+    const family = await fonts.upload();
+    const added = family ? findFont(fonts.all, family) : undefined;
+    if (added) pick(added);
   }
 
   function onOpenChange(next: boolean) {
@@ -79,7 +88,7 @@
 <Popover.Root {open} {onOpenChange}>
   <Popover.Trigger class="font-trigger" aria-label="Font: {value}" data-testid="font-picker">
     <span class="font-name" style="font-family: '{value}', var(--ol-font)">{value}</span>
-    <span class="cat mono">{current ? CATEGORY_LABEL[current.category] : ''}</span>
+    <span class="cat mono">{current ? label(current) : ''}</span>
     <ChevronDown size={14} />
   </Popover.Trigger>
   <Popover.Portal>
@@ -89,8 +98,8 @@
         <!-- svelte-ignore a11y_autofocus -->
         <input
           autofocus
-          placeholder={fonts.length > 10
-            ? `Search ${fonts.length.toLocaleString('en-US')} fonts`
+          placeholder={all.length > 10
+            ? `Search ${all.length.toLocaleString('en-US')} fonts`
             : 'Search fonts'}
           aria-label="Search fonts"
           bind:value={query}
@@ -130,20 +139,61 @@
                 role="option"
                 aria-selected={f.family === value}
                 class="row"
+                class:removable={f.source === 'uploaded'}
                 style="top: {(first + i) * ROW}px"
                 onclick={() => pick(f)}
               >
                 <span class="preview" style="font-family: '{f.family}', var(--ol-font)">{f.family}</span>
                 <span class="meta"
-                  >{#if f.family === value}<Check size={14} />{:else}{CATEGORY_LABEL[f.category]}{/if}</span
+                  >{#if f.family === value}<Check size={14} />{:else}{label(f)}{/if}</span
                 >
               </button>
+              {#if f.source === 'uploaded'}
+                <button
+                  type="button"
+                  class="icon-btn sm remove"
+                  style="top: {(first + i) * ROW + 5}px"
+                  aria-label="Remove {f.family}"
+                  onclick={() => void fonts.remove(f.family)}><X size={13} /></button
+                >
+              {/if}
             {/each}
+          </div>
+        {:else if category === 'system' && !query}
+          <div class="empty" data-testid="system-fonts">
+            {#if fonts.system === 'unsupported'}
+              <p>
+                This browser keeps installed fonts private. Chrome and Edge can list them, or upload the font
+                file.
+              </p>
+            {:else if fonts.system === 'denied'}
+              <p>Font access is blocked. Allow “Fonts” in this site’s settings, then try again.</p>
+              <button type="button" class="btn small" onclick={() => void fonts.loadSystem()}
+                ><HardDrive size={14} />Try again</button
+              >
+            {:else if fonts.system === 'loading'}
+              <p>Reading installed fonts…</p>
+            {:else}
+              <p>Use fonts installed on this computer.</p>
+              <button
+                type="button"
+                class="btn small"
+                onclick={() => void fonts.loadSystem()}
+                data-testid="system-fonts-load"><HardDrive size={14} />Show installed fonts</button
+              >
+            {/if}
+          </div>
+        {:else if category === 'uploaded' && !query}
+          <div class="empty">
+            <p>Add TTF, OTF or WOFF files. They stay in this browser for next time.</p>
           </div>
         {:else}
           <p class="none">No fonts match.</p>
         {/if}
       </div>
+      <button type="button" class="btn upload" onclick={() => void upload()} data-testid="font-upload"
+        ><Upload size={14} />Upload font</button
+      >
     </Popover.Content>
   </Popover.Portal>
 </Popover.Root>
@@ -282,6 +332,36 @@
 
   .row[aria-selected='true'] .meta {
     color: var(--ol-signal);
+  }
+
+  .remove {
+    position: absolute;
+    right: 34px;
+    opacity: 0;
+  }
+
+  .row.removable:hover + .remove,
+  .remove:hover,
+  .remove:focus-visible {
+    opacity: 1;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 10px;
+    color: var(--ol-text-muted);
+    line-height: 1.5;
+  }
+
+  .empty p {
+    margin: 0;
+  }
+
+  .upload {
+    width: 100%;
   }
 
   .none {

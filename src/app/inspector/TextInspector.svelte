@@ -6,7 +6,8 @@
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
   import { onMount } from 'svelte';
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { findFont, loadCatalog, nearestWeight, styleLabel, type CatalogFont } from '$lib/fonts/catalog';
+  import { findFont, nearestWeight, styleLabel, type CatalogFont } from '$lib/fonts/catalog';
+  import { fonts } from '../state/fonts.svelte';
   import type { TextAlign, TextObject } from '$lib/project/types';
   import { editor } from '../state/editor.svelte';
   import { textOutlines } from '../state/text.svelte';
@@ -14,12 +15,9 @@
 
   let { object }: { object: TextObject } = $props();
 
-  let catalog = $state.raw<CatalogFont[]>([]);
-  onMount(() => {
-    void loadCatalog().then((list) => (catalog = list));
-  });
+  onMount(() => void fonts.init());
 
-  const font = $derived(findFont(catalog, object.fontFamily));
+  const font = $derived(findFont(fonts.all, object.fontFamily));
   const weights = $derived(font?.weights ?? [400, 700]);
   const canItalic = $derived(font?.italic ?? true);
   const projectFonts = $derived([

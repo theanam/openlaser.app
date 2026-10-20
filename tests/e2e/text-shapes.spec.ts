@@ -77,3 +77,77 @@ test('the console sits in the side panel and is always visible', async ({ page }
   expect(consoleBox.x).toBeGreaterThanOrEqual(panel.x - 1);
   expect(consoleBox.y).toBeGreaterThan(panel.y);
 });
+
+async function addText(page: import('@playwright/test').Page) {
+  await newProject(page);
+  await page.getByTestId('tool-text').click();
+  const box = (await page.getByTestId('bed-canvas').boundingBox())!;
+  await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.3);
+  await page.keyboard.type('Key');
+}
+
+test('uploads a font file and sets text in it', async ({ page }) => {
+  await addText(page);
+  await page.getByTestId('font-picker').click();
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByTestId('font-upload').click(),
+  ]);
+  expect(await chooser.element().getAttribute('accept')).toContain('.ttf');
+  await chooser.setFiles({ name: 'MyFont.ttf', mimeType: 'font/ttf', buffer: TTF });
+  await expect(page.getByTestId('font-picker')).toContainText('Geist');
+  await expect(page.getByTestId('font-picker')).toContainText('Uploaded');
+  await expect.poll(async () => Number(await page.getByTestId('sel-w').inputValue())).toBeGreaterThan(5);
+
+  // Kept for the next visit.
+  await page.reload();
+  await page.getByTestId('tool-select').waitFor();
+  await page.getByTestId('tool-text').click();
+  const box = (await page.getByTestId('bed-canvas').boundingBox())!;
+  await page.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.6);
+  await page.getByTestId('font-picker').click();
+  await page.getByRole('button', { name: 'Uploaded', exact: true }).click();
+  await expect(page.getByRole('option', { name: /Geist/ })).toBeVisible();
+});
+
+test('lists installed system fonts once allowed', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as { queryLocalFonts: () => Promise<unknown[]> }).queryLocalFonts = async () => [
+      {
+        family: 'Workshop Sans',
+        fullName: 'Workshop Sans',
+        postscriptName: 'WorkshopSans',
+        style: 'Regular',
+        blob: async () => new Blob(),
+      },
+    ];
+  });
+  await addText(page);
+  await page.getByTestId('font-picker').click();
+  await page.getByRole('button', { name: 'System', exact: true }).click();
+  await page.getByTestId('system-fonts-load').click();
+  await expect(page.getByRole('option', { name: /Workshop Sans/ })).toBeVisible();
+});
+
+test('editing text keeps it where it is', async ({ page }) => {
+  await newProject(page);
+  await page.getByTestId('tool-text').click();
+  const box = (await page.getByTestId('bed-canvas').boundingBox())!;
+  await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.3);
+  const field = page.getByTestId('text-content');
+  await page.keyboard.type('HI');
+  await expect.poll(async () => Number(await page.getByTestId('sel-w').inputValue())).toBeGreaterThan(5);
+  // Flat-bottomed capitals sit exactly on the baseline, so the block's bottom edge must not move as letters are added.
+  const y = async () => Number(await page.getByTestId('sel-y').inputValue());
+  const width = async () => Number(await page.getByTestId('sel-w').inputValue());
+  // The first outline replaces the size estimate shown while the font loads; measure after it.
+  await expect(page.getByLabel('Loading font')).toHaveCount(0);
+  let before = await width();
+  const start = await y();
+  for (const letter of ['L', 'T', 'E', 'F']) {
+    await field.press(`Shift+${letter}`);
+    await expect.poll(width).toBeGreaterThan(before);
+    before = await width();
+    expect(await y()).toBeCloseTo(start, 2);
+  }
+});

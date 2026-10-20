@@ -129,3 +129,20 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 ## Analytics
 
 - **Google Analytics on the public site only.** `scripts/gtag.ts` injects the gtag snippet at build time when `OPENLASER_GTAG_ID` is set, which only the Pages workflow does. Dev, CI, e2e and self-hosted builds carry no tag. The ID is validated so nothing else can be injected.
+
+## Outline tool
+
+- **One outline around the selection, always.** Each object's area is taken even-odd (as it burns), all objects are merged non-zero, then offset with Clipper2. Open lines join as strokes as wide as the offset; images and unloaded text count as their frame.
+- **Separate parts are bridged.** When the offset leaves more than one outer edge, the outline is closed morphologically (grow, then shrink, round joins) with the smallest radius that leaves one edge, found by doubling and bisection, then eased ×3 so bridges are broad curves. Parts too far apart for that fall back to the convex hull. The outline never comes closer to any object than the offset.
+- **Defaults:** 3 mm, round corners, outer edge only (holes dropped: key-ring blanks and sticker cuts). Negative offsets inset.
+- **Result:** one vector object in bed coordinates on an "Outline" line layer, created when missing and reused after that. Preview is drawn dashed in the cut colour while the options are open.
+
+## Local fonts
+
+- **Uploaded fonts** (TTF, OTF, WOFF, TTC) are parsed with opentype.js and stored in IndexedDB (`openlaser-user-fonts`), so they come back on the next visit. WOFF2 is refused: opentype.js cannot read it.
+- **System fonts** use the Local Font Access API (Chrome and Edge). The first listing asks permission from a click; afterwards they load at startup when the permission is already granted. Faces are read on demand. Collections (.ttc, common on macOS) are split in `sfnt.ts` and the face matching the PostScript name is used.
+- **Precedence:** a local family wins over a Google family with the same name. Text keeps its outlines in the project, so a project still burns on a machine without the font; editing that text there falls back to the cached outlines until the font is available.
+
+## Text position
+
+- **Text keeps its top edge across edits.** Re-outlining shifts the object by the difference in block height (line boxes from the font's ascender and descender). The height the current outlines were made for is stored as `TextObject.blockHeight`; measuring the tallest glyph instead made text creep down by the ascender gap on every edit. Text saved before the field existed uses the glyph measure once.

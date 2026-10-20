@@ -28,7 +28,8 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 - **Layers** in line, fill and image modes, with speed, power, passes, kerf offset, fill angle, cross-hatch and overscan.
 - **Image tracing** that turns logos, line art and photos into clean vector layers to cut or engrave, with a live preview.
 - **Photo engraving** with Floyd–Steinberg, Atkinson, Jarvis, Stucki, Bayer, threshold and grayscale, previewed live on the bed.
-- **Text in any Google Font**, picked from a searchable list with live previews, burned as clean vector outlines.
+- **Text in any Google Font**, an installed system font or your own TTF, OTF or WOFF files, picked from a searchable list with live previews and burned as clean vector outlines.
+- **Outline tool** that draws one cut line around a selection at any offset: a logo and its key-ring hole get a single outline.
 - **Shape library** with stars, gears, arrows, hearts, callouts and more, each with adjustable parameters, plus rectangle, ellipse and measure tools.
 - **Exact placement** with X, Y, W, H and angle fields and a 9-point anchor.
 - **Preview** every burn and travel move, scrub through the job, and see a time estimate.

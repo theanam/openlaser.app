@@ -36,6 +36,8 @@ const styleKey = (t: TextStyle) =>
 /** Height of the text block as currently drawn (outlines, or the estimate while loading). */
 function blockHeight(t: TextObject): number {
   if (!t.paths.length) return textPlaceholderSize(t).height;
+  if (t.blockHeight !== undefined) return t.blockHeight;
+  // Text saved before blockHeight existed: the tallest glyph is the closest measure there is.
   let maxY = 0;
   for (const p of t.paths) {
     maxY = Math.max(maxY, p.start.y);
@@ -105,6 +107,18 @@ class TextOutlines {
     }
   }
 
+  /** Re-outlines text set in `family`, after that font was uploaded, removed or became available. */
+  refreshFamily(family: string): void {
+    const project = editor.project;
+    if (!project) return;
+    const wanted = family.toLowerCase();
+    for (const o of project.objects) {
+      if (o.kind !== 'text' || o.fontFamily.toLowerCase() !== wanted) continue;
+      this.failed.delete(styleKey(o));
+      this.schedule(o.id, 0);
+    }
+  }
+
   private schedule(id: Id, delayMs: number): void {
     clearTimeout(this.timers.get(id));
     this.timers.set(
@@ -144,7 +158,9 @@ class TextOutlines {
     const shift = blockHeight(object) - height;
     const transform =
       Math.abs(shift) > 1e-9 ? multiply(object.transform, translation(0, shift)) : object.transform;
-    editor.commit((p) => updateObject(p, object.id, { paths, transform }), { record: false });
+    editor.commit((p) => updateObject(p, object.id, { paths, transform, blockHeight: height }), {
+      record: false,
+    });
   }
 }
 

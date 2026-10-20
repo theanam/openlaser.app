@@ -20,6 +20,7 @@
   import { session } from './state/session.svelte';
   import { hasSeenTour } from './state/tour';
   import { ui } from './state/ui.svelte';
+  import { fonts } from './state/fonts.svelte';
   import { installShortcuts } from './shortcuts';
   import { installLaunchQueue, installPwa } from './pwa.svelte';
   import { machine } from './state/machine.svelte';
@@ -44,6 +45,8 @@
     const uninstall = installShortcuts();
     void (async () => {
       try {
+        // Uploaded fonts register in the background, before any text needs re-outlining.
+        void fonts.init();
         await Promise.all([preferences.load(), profiles.load(), session.refreshRecents()]);
         const restored = await session.restorable();
         if (restored) {

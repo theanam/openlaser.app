@@ -4,7 +4,7 @@
 
 export type FontCategory = 'sans' | 'serif' | 'display' | 'handwriting' | 'mono';
 /** Category filter ids: the five font categories plus the virtual "all" and "project" lists. */
-export type FontCategoryId = 'all' | 'project' | FontCategory;
+export type FontCategoryId = 'all' | 'project' | 'uploaded' | 'system' | FontCategory;
 export type FontStyle = 'normal' | 'italic';
 
 export type CatalogFont = {
@@ -22,11 +22,15 @@ export type CatalogFont = {
    * (@fontsource/geist-sans registers "Geist Sans", while Google Fonts calls the family "Geist").
    */
   cssFamily?: string;
+  /** Fonts from the user's machine: uploaded files or installed system fonts. */
+  source?: 'uploaded' | 'system';
 };
 
 export const FONT_CATEGORIES: { id: FontCategoryId; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'project', label: 'In this project' },
+  { id: 'uploaded', label: 'Uploaded' },
+  { id: 'system', label: 'System' },
   { id: 'sans', label: 'Sans' },
   { id: 'serif', label: 'Serif' },
   { id: 'display', label: 'Display' },
@@ -126,7 +130,8 @@ export function filterFonts(
   if (cat === 'project') {
     const used = new Set([...(projectFonts ?? [])].map((f) => f.toLowerCase()));
     inCat = list.filter((f) => used.has(f.family.toLowerCase()));
-  } else if (cat !== 'all') inCat = list.filter((f) => f.category === cat);
+  } else if (cat === 'uploaded' || cat === 'system') inCat = list.filter((f) => f.source === cat);
+  else if (cat !== 'all') inCat = list.filter((f) => f.category === cat && !f.source);
   if (!q) return [...inCat];
   const starts: CatalogFont[] = [];
   const word: CatalogFont[] = [];
