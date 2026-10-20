@@ -27,6 +27,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm build
+        env:
+          # Analytics ship on the public site only.
+          OPENLASER_GTAG_ID: G-PX75J5ZJBS
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

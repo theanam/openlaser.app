@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
+import { gtag } from './scripts/gtag';
 
 const PORT = 5190;
 
@@ -22,6 +23,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     svelte(),
+    gtag(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
@@ -59,12 +61,20 @@ export default defineConfig(({ mode }) => ({
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/fontsource\//,
             handler: 'CacheFirst',
-            options: { cacheName: 'fontsource-ttf', expiration: { maxEntries: 200 }, cacheableResponse: { statuses: [0, 200] } },
+            options: {
+              cacheName: 'fontsource-ttf',
+              expiration: { maxEntries: 200 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
           },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
             handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-font-previews', expiration: { maxEntries: 2000 }, cacheableResponse: { statuses: [0, 200] } },
+            options: {
+              cacheName: 'google-font-previews',
+              expiration: { maxEntries: 2000 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
           },
         ],
       },

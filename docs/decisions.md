@@ -125,3 +125,7 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 - **“Laser not showing up?”** opens a four-step walkthrough (power, USB or Bluetooth, driver, last checks) from the Machine panel and the start screen, and as a Help section. Closing the port picker without a choice shows a toast that links to it.
 - **Driver steps follow the user agent** (Windows, macOS, Linux, ChromeOS) with tabs for the others. Links go to the chip makers: WCH for CH340/CH341, Silicon Labs for CP210x. Linux covers the dialout group and brltty grabbing CH340 ports.
 - **Bluetooth:** the port picker runs without filters, so paired Bluetooth serial ports (Chrome 117+) are listed. Wi-Fi is out of scope.
+
+## Analytics
+
+- **Google Analytics on the public site only.** `scripts/gtag.ts` injects the gtag snippet at build time when `OPENLASER_GTAG_ID` is set, which only the Pages workflow does. Dev, CI, e2e and self-hosted builds carry no tag. The ID is validated so nothing else can be injected.
