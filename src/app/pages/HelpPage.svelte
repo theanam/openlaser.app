@@ -48,6 +48,7 @@
       icon: PenTool,
       title: 'Text and outlines',
       items: [
+        'Click with the Text tool and type right on the bed. Double-click a text, or select it and press Enter, to edit it in place; Esc or a click elsewhere finishes. Emptied text is removed.',
         'The font picker lists every Google Font, plus Uploaded and System tabs. Upload TTF, OTF or WOFF files; they stay in this browser.',
         'System fonts need Chrome or Edge: open the System tab and allow font access once.',
         'Text keeps its outlines in the project, so it burns the same on a computer without the font.',

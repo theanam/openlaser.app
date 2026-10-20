@@ -28,6 +28,13 @@ const designing = () => editor.project !== null && editor.view === 'design';
 const hasSelection = () => designing() && editor.selection.size > 0;
 const nudgeStep = 1;
 
+/** The one selected text object's id, when exactly one text is selected. */
+function selectedText(): string | null {
+  if (editor.selection.size !== 1) return null;
+  const [id] = editor.selection;
+  return editor.project?.objects.find((o) => o.id === id && o.kind === 'text' && !o.locked)?.id ?? null;
+}
+
 function bed() {
   const p = profiles.active;
   return { width: p.bedWidth, height: p.bedHeight, originCorner: p.originCorner };
@@ -93,6 +100,13 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: ['Mod+C'], label: 'Copy', group: 'Edit', when: hasSelection, run: () => actions.copySelection() },
   { keys: ['Mod+X'], label: 'Cut', group: 'Edit', when: hasSelection, run: () => actions.cutSelection() },
   { keys: ['Mod+V'], label: 'Paste', group: 'Edit', when: designing, run: () => actions.paste() },
+  {
+    keys: ['Enter'],
+    label: 'Edit selected text',
+    group: 'Edit',
+    when: () => designing() && selectedText() !== null,
+    run: () => canvas.editText(selectedText()!),
+  },
   {
     keys: ['Mod+D'],
     label: 'Duplicate',

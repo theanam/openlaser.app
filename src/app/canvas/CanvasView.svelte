@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
   import Maximize from '@lucide/svelte/icons/maximize';
@@ -44,6 +44,7 @@
   import { cursorFor, marqueeHits, shapeObject, type DrawnShape } from './tools';
   import { textOutlines } from '../state/text.svelte';
   import { ui } from '../state/ui.svelte';
+  import TextEditOverlay from './TextEditOverlay.svelte';
 
   let host: HTMLDivElement;
   let el: HTMLCanvasElement;
@@ -103,6 +104,7 @@
       canvas.size,
       canvas.measure,
       canvas.outlinePreview,
+      canvas.editingTextId,
       bed,
       drag,
     ];
@@ -121,6 +123,7 @@
     const { width, height } = canvas.size;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const palette = readPalette(el);
+    bedColor = palette.bed;
     drawBed(ctx, canvas.view, bed, palette, canvas.size);
 
     const project = editor.project;
@@ -147,6 +150,7 @@
         bed,
         (object, layer) => images.look(object, layer, project.assets[object.assetId]),
         palette,
+        canvas.editingTextId,
       );
       if (ui.hoverLayerId) drawLayerHighlight(ctx, project, ui.hoverLayerId, canvas.view, bed, palette);
       if (selectionBounds) {
@@ -245,9 +249,8 @@
       // Keep the browser from focusing the canvas on mouse-down, which would steal the caret.
       event.preventDefault();
       el.releasePointerCapture(event.pointerId);
-      textOutlines.create(bedPoint);
+      canvas.editText(textOutlines.create(bedPoint), true);
       editor.tool = 'select';
-      void focusTextField();
       return;
     }
     const handle = hitHandle(screen, selectionHandles());
@@ -358,22 +361,12 @@
     if (d.kind === 'shape') createShape(d.shape, normalizeRect(d.start, d.current));
   }
 
-  /** Puts the caret in the text inspector, with the placeholder text selected. */
-  async function focusTextField() {
-    await tick();
-    // After the click finishes, so nothing pulls focus back to the canvas.
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    const field = document.querySelector<HTMLTextAreaElement>('[data-testid="text-content"]');
-    field?.focus();
-    field?.select();
-  }
-
   function ondblclick(event: MouseEvent) {
     if (!designing) return;
     const hit = hitAt(local(event));
-    if (hit?.kind === 'text') {
+    if (hit?.kind === 'text' && !hit.locked) {
       editor.select([hit.id]);
-      void focusTextField();
+      canvas.editText(hit.id);
     }
   }
 
@@ -468,6 +461,9 @@
     if (editor.project) images.prune(new Set(editor.project.objects.map((o) => o.id)));
   });
 
+  /** Bed colour from the theme, for the in-place text editor's ink. */
+  let bedColor = $state('#121417');
+
   const empty = $derived(designing && editor.project !== null && editor.project.objects.length === 0);
 </script>
 
@@ -487,6 +483,8 @@
     oncontextmenu={(e) => e.preventDefault()}
     {ondblclick}
   ></canvas>
+
+  <TextEditOverlay {bed} {bedColor} />
 
   {#if empty}
     <p class="empty" data-testid="empty-hint">Import art with the Image tool, or drop files here</p>

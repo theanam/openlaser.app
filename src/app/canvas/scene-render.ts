@@ -128,12 +128,14 @@ export function drawObjects(
   bed: BedFrame,
   images: (object: ImageObject, layer: Layer) => ImageLook,
   palette: Palette,
+  /** Object drawn by something else right now (text being edited in place). */
+  skip: string | null = null,
 ): void {
   const layers = new Map(project.layers.map((l) => [l.id, l]));
   const toScreen = bedToScreenMatrix(view, bed);
   for (const object of project.objects) {
     const layer = layers.get(object.layerId);
-    if (!object.visible || !layer || !layer.visible) continue;
+    if (!object.visible || !layer || !layer.visible || object.id === skip) continue;
     const ink = inkOn(layer.color, palette.bed);
     if (object.kind === 'text' && object.paths.length === 0) {
       drawTextPlaceholder(ctx, object, toScreen, ink);

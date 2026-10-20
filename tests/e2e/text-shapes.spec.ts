@@ -21,10 +21,10 @@ test('the text tool sets text in a Google Font and burns its outlines', async ({
   await page.getByTestId('tool-text').click();
   const box = (await page.getByTestId('bed-canvas').boundingBox())!;
   await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.3);
-  const field = page.getByTestId('text-content');
-  await expect(field).toBeFocused();
+  // Typing happens right on the bed; the inspector mirrors it.
+  await expect(page.getByTestId('text-edit')).toBeFocused();
   await page.keyboard.type('Laser');
-  await expect(field).toHaveValue('Laser');
+  await expect(page.getByTestId('text-content')).toHaveValue('Laser');
   await expect(page.getByTestId('tool-select')).toHaveAttribute('aria-pressed', 'true');
   // Outlines arrive: the selection gets a real width.
   await expect.poll(async () => Number(await page.getByTestId('sel-w').inputValue())).toBeGreaterThan(10);
@@ -83,6 +83,7 @@ async function addText(page: import('@playwright/test').Page) {
   await page.getByTestId('tool-text').click();
   const box = (await page.getByTestId('bed-canvas').boundingBox())!;
   await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.3);
+  await expect(page.getByTestId('text-edit')).toBeFocused();
   await page.keyboard.type('Key');
 }
 
@@ -135,6 +136,7 @@ test('editing text keeps it where it is', async ({ page }) => {
   const box = (await page.getByTestId('bed-canvas').boundingBox())!;
   await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.3);
   const field = page.getByTestId('text-content');
+  await expect(page.getByTestId('text-edit')).toBeFocused();
   await page.keyboard.type('HI');
   await expect.poll(async () => Number(await page.getByTestId('sel-w').inputValue())).toBeGreaterThan(5);
   // Flat-bottomed capitals sit exactly on the baseline, so the block's bottom edge must not move as letters are added.
@@ -150,4 +152,42 @@ test('editing text keeps it where it is', async ({ page }) => {
     before = await width();
     expect(await y()).toBeCloseTo(start, 2);
   }
+});
+
+test('edits text in place on the bed', async ({ page }) => {
+  await newProject(page);
+  await page.getByTestId('tool-text').click();
+  const box = (await page.getByTestId('bed-canvas').boundingBox())!;
+  const at = { x: box.x + box.width * 0.3, y: box.y + box.height * 0.3 };
+  await page.mouse.click(at.x, at.y);
+  const editor = page.getByTestId('text-edit');
+  await expect(editor).toBeFocused();
+  // The placeholder is selected, so typing replaces it.
+  await page.keyboard.type('Sign');
+  await expect(editor).toHaveValue('Sign');
+  await page.keyboard.press('Escape');
+  await expect(editor).toHaveCount(0);
+  await expect(page.getByTestId('text-content')).toHaveValue('Sign');
+  await expect(page.getByTestId('status-bar')).toContainText('1 selected');
+
+  // Enter on a selected text opens it again with the caret at the end.
+  await page.keyboard.press('Enter');
+  await expect(editor).toBeFocused();
+  await page.keyboard.type(' here');
+  await expect(page.getByTestId('text-content')).toHaveValue('Sign here');
+  await page.keyboard.press('Escape');
+
+  // Double-click works too, and the editor sits over the text.
+  await expect.poll(async () => Number(await page.getByTestId('sel-w').inputValue())).toBeGreaterThan(20);
+  await page.mouse.dblclick(at.x + 8, at.y + 6);
+  await expect(editor).toBeFocused();
+  const overlay = (await editor.boundingBox())!;
+  expect(Math.abs(overlay.x - at.x)).toBeLessThan(12);
+
+  // Clearing the text and leaving removes the object.
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.press('Backspace');
+  await page.mouse.click(box.x + box.width * 0.8, box.y + box.height * 0.8);
+  await expect(editor).toHaveCount(0);
+  await expect(page.getByTestId('status-bar')).toContainText('0 objects');
 });

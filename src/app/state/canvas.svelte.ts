@@ -11,8 +11,17 @@ class CanvasState {
   fitted = false;
   /** Measure tool result. */
   measure = $state<{ from: Vec2; to: Vec2 } | null>(null);
+  /** Text object being edited in place on the bed. */
+  editingTextId = $state<string | null>(null);
+  /** Select the whole text when editing starts (a fresh placeholder), else put the caret at the end. */
+  selectTextOnEdit = false;
   /** Outline tool preview in bed mm, while its options are open. */
   outlinePreview = $state.raw<PathData[] | null>(null);
+
+  editText(id: string, selectAll = false): void {
+    this.selectTextOnEdit = selectAll;
+    this.editingTextId = id;
+  }
 
   fit(bed: BedFrame): void {
     this.view = fitBed(this.size, bed, 40);
