@@ -202,3 +202,25 @@ test('Open takes projects and G-code only', async ({ page }) => {
   expect(accept).not.toContain('.svg');
   expect(accept).not.toContain('.png');
 });
+
+test('the anchor button opens a grid of large targets', async ({ page }) => {
+  await newProject(page);
+  await page.getByTestId('tool-rect').click();
+  await dragOnCanvas(page, [0.4, 0.4], [0.5, 0.5]);
+  const trigger = page.getByTestId('anchor-trigger').first();
+  await trigger.click();
+  const cells = page.getByRole('radiogroup', { name: 'Anchor' }).getByRole('radio');
+  await expect(cells).toHaveCount(9);
+  const box = (await cells.first().boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(44);
+  await page.getByRole('radio', { name: 'Anchor: bottom right' }).click();
+  await expect(cells).toHaveCount(0);
+  await expect(trigger).toHaveAttribute('aria-label', 'Anchor: bottom right');
+
+  await trigger.click();
+  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowUp');
+  await expect(page.getByRole('radio', { name: 'Anchor: center' })).toHaveAttribute('aria-checked', 'true');
+  await page.keyboard.press('Escape');
+  await expect(trigger).toHaveAttribute('aria-label', 'Anchor: center');
+});

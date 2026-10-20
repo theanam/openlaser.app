@@ -67,6 +67,13 @@ export function formatCombo(spec: string, apple = isApple()): string {
 }
 
 /** True when the event comes from a text field, where shortcuts must stay out of the way. */
+/** Widgets that use arrow keys themselves (radio grids, menus, lists, tabs). */
+const ARROW_WIDGETS = '[role="radiogroup"], [role="menu"], [role="listbox"], [role="tablist"]';
+
+export function ownsArrowKeys(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(ARROW_WIDGETS) !== null;
+}
+
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;

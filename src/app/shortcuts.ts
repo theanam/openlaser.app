@@ -3,7 +3,7 @@
  * open file, zoom) are captured and remapped to app commands. Shortcuts stay out of text fields,
  * except Esc during a job: Stop must be instant wherever focus is.
  */
-import { isTypingTarget, matches } from './lib/keys';
+import { isTypingTarget, matches, ownsArrowKeys } from './lib/keys';
 import { editor } from './state/editor.svelte';
 import { canvas } from './state/canvas.svelte';
 import { machine } from './state/machine.svelte';
@@ -255,9 +255,10 @@ function dialogOpen(): boolean {
 
 export function handleKeydown(event: KeyboardEvent): boolean {
   const typing = isTypingTarget(event.target);
+  const arrowWidget = event.key.startsWith('Arrow') && ownsArrowKeys(event.target);
   for (const shortcut of SHORTCUTS) {
     if (!shortcut.keys.some((k) => matches(event, k))) continue;
-    if (typing && !shortcut.global) continue;
+    if ((typing || arrowWidget) && !shortcut.global) continue;
     if (!shortcut.global && dialogOpen()) continue;
     if (shortcut.when && !shortcut.when()) continue;
     event.preventDefault();
