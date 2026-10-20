@@ -21,6 +21,7 @@ import {
   VECTOR_FILES,
   type FileKind,
   GCODE_FILES,
+  RUIDA_FILES,
   PROJECT_FILES,
   extensionOf,
   openFiles,
@@ -30,7 +31,7 @@ import {
 } from '$lib/storage/files';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
-import { parseGcodeInWorker } from './lib/cam-client';
+import { compileRdInWorker, parseGcodeInWorker } from './lib/cam-client';
 import { placeCentered } from './lib/placement';
 import { commandFor, fileKind, looksLikeProject, type FileKindId } from './lib/file-kind';
 import { boundsOf } from './lib/selection';
@@ -319,7 +320,43 @@ export async function openGcodeText(name: string, text: string): Promise<void> {
 
 // ------------------------------------------------------------------ export and print
 
-export async function exportGcode(): Promise<void> {
+/** Export: a .rd file for Ruida machines (run from a USB stick), G-code for everything else. */
+export function exportJob(): Promise<void> {
+  // An opened G-code file stays G-code, whatever the machine.
+  return profiles.active.controller === 'ruida' && editor.project ? exportRuida() : exportGcode();
+}
+
+async function exportRuida(): Promise<void> {
+  const project = editor.project;
+  if (!project) {
+    toast.info('Open a project to export a job.');
+    return;
+  }
+  try {
+    const { bytes, warnings } = await compileRdInWorker({ project, profile: profiles.active });
+    const blocking = warnings.find((w) => w.blocking);
+    if (blocking || bytes.length === 0) {
+      toast.warning(blocking?.message ?? 'The job is empty. Turn on output for a layer with objects.');
+      return;
+    }
+    if (warnings.some((w) => w.code === 'out-of-bounds')) toast.warning('Some moves fall outside the bed.');
+    const outcome = await saveFileAs(
+      safeFileName(baseName(project.name), '.rd'),
+      new Blob([bytes.slice()], { type: 'application/octet-stream' }),
+      RUIDA_FILES,
+      { id: 'rd' },
+    );
+    if (outcome.status === 'saved')
+      toast.success(`Exported ${outcome.handle.name}. Copy it to a USB stick for the laser.`);
+    else if (outcome.status === 'downloaded')
+      toast.success('Job downloaded. Copy it to a USB stick for the laser.');
+    else if (outcome.status === 'failed') toast.error(outcome.reason);
+  } catch (error) {
+    toast.error(`Could not export: ${errorMessage(error)}`);
+  }
+}
+
+async function exportGcode(): Promise<void> {
   try {
     const job = await preview.ensure();
     if (!job) {

@@ -11,9 +11,10 @@
   import Layers from '@lucide/svelte/icons/layers';
   import { duration } from '../lib/format';
   import { machine, type SafetyChoice } from '../state/machine.svelte';
+  import { profiles } from '../state/profiles.svelte';
   import HazardArt, { type Hazard } from './safety/HazardArt.svelte';
 
-  const HAZARDS: Array<{ id: Hazard; title: string; text: string }> = [
+  const BASE_HAZARDS: Array<{ id: Hazard; title: string; text: string }> = [
     {
       id: 'eyes',
       title: 'Laser safety glasses on',
@@ -32,15 +33,23 @@
     },
   ];
 
+  const WATER = {
+    id: 'water' as const,
+    title: 'Water cooling running',
+    text: 'Coolant flowing through the tube. A dry CO₂ tube cracks in seconds.',
+  };
+  /** CO₂ tubes need coolant: their machines get a fifth check. */
+  const HAZARDS = $derived(profiles.active.laserType === 'co2' ? [...BASE_HAZARDS, WATER] : BASE_HAZARDS);
+
   const request = $derived(machine.safetyRequest);
-  let checked = $state<Record<Hazard, boolean>>({ eyes: false, fumes: false, attend: false, fire: false });
+  let checked = $state<Partial<Record<Hazard, boolean>>>({});
   let startButton = $state<HTMLButtonElement | null>(null);
 
   $effect(() => {
     if (!request) return;
     // Later jobs in a session show the hazards already confirmed: one click to go.
     const pre = !request.firstThisSession;
-    checked = { eyes: pre, fumes: pre, attend: pre, fire: pre };
+    checked = Object.fromEntries(HAZARDS.map((h) => [h.id, pre]));
   });
 
   const ready = $derived(HAZARDS.every((h) => checked[h.id]));
@@ -120,7 +129,7 @@
             <button
               type="button"
               role="checkbox"
-              aria-checked={checked[h.id]}
+              aria-checked={checked[h.id] === true}
               class="hazard"
               onclick={() => toggle(h.id)}
               data-testid="safety-check"

@@ -14,7 +14,12 @@ import { burnBounds, translateToolpaths } from './toolpath';
 import type { CamWarning, CompileInput, JobPlan, JobStats, Toolpath } from './types';
 
 export function compileJob(input: CompileInput): JobPlan {
-  const { project, profile } = input;
+  const { profile } = input;
+  // Ruida jobs run from the controller's panel at bed positions; there is no live head to anchor to.
+  const project =
+    profile.controller === 'ruida'
+      ? { ...input.project, jobSettings: { ...input.project.jobSettings, origin: 'absolute' as const } }
+      : input.project;
   const options = { ...DEFAULT_GCODE_OPTIONS, ...input.gcode };
   const tolerance = input.tolerance ?? DEFAULT_TOLERANCE;
   const warnings: CamWarning[] = [];
@@ -30,7 +35,10 @@ export function compileJob(input: CompileInput): JobPlan {
     });
     warnings.push(...result.warnings);
     if (!result.toolpath) continue;
-    designToolpaths.push(result.toolpath);
+    // CO₂ tubes stop firing when M4 scales power down at corners: they burn at constant power.
+    designToolpaths.push(
+      profile.constantPower ? { ...result.toolpath, laserMode: 'constant' } : result.toolpath,
+    );
     position = toolpathEnd(result.toolpath);
     const speed = speedWarning(layer, input.limits);
     if (speed) warnings.push(speed);

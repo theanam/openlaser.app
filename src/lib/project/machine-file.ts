@@ -46,6 +46,12 @@ export function parseMachineProfile(text: string): MachineProfile {
   if (!['bl', 'tl', 'tr', 'br'].includes(profile.originCorner)) {
     throw new MachineFileError('The origin corner must be bl, tl, tr or br.');
   }
+  const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
+    allowed.includes(value as T) ? (value as T) : fallback;
+  profile.laserType = pick(profile.laserType, ['diode', 'co2'], 'diode');
+  profile.controller = pick(profile.controller, ['grbl', 'ruida'], 'grbl');
+  profile.speedUnit = pick(profile.speedUnit, ['mm/min', 'mm/s'], 'mm/min');
+  profile.constantPower = profile.constantPower === true;
   profile.framePowerPercent = Math.min(Math.max(profile.framePowerPercent, 0), MAX_FRAME_POWER_PERCENT);
   return profile;
 }

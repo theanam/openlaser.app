@@ -52,8 +52,10 @@ export interface EmitResult {
 }
 
 export function emitGcode(toolpaths: readonly Toolpath[], settings: EmitSettings): EmitResult {
-  const writer = new GcodeWriter(settings);
-  writer.raw('G90', 'G21', 'M4 S0');
+  // Start in the first toolpath's laser mode, so a constant-power (CO₂) job never switches.
+  const firstMode = toolpaths[0]?.laserMode === 'constant' ? 'M3' : 'M4';
+  const writer = new GcodeWriter(settings, firstMode);
+  writer.raw('G90', 'G21', `${firstMode} S0`);
   writer.raw(...userLines(settings.header));
   if (settings.airAssist) writer.raw('M8');
 
@@ -83,7 +85,7 @@ class GcodeWriter {
   readonly lines: string[] = [];
   readonly moves: Move[] = [];
   private motion: 'G0' | 'G1' | null = null;
-  private mode: 'M3' | 'M4' = 'M4';
+  private mode: 'M3' | 'M4';
   private x: string | null = null;
   private y: string | null = null;
   private f: string | null = null;
@@ -93,7 +95,8 @@ class GcodeWriter {
   private readonly optimize: boolean;
   private readonly leadingZero: boolean;
 
-  constructor(settings: EmitSettings) {
+  constructor(settings: EmitSettings, mode: 'M3' | 'M4' = 'M4') {
+    this.mode = mode;
     this.optimize = settings.options.optimize;
     this.leadingZero = settings.options.leadingZero;
     this.posX = settings.start.x;

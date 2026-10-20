@@ -54,6 +54,11 @@ export const FONT_FILES: FileKind = {
   },
 };
 
+export const RUIDA_FILES: FileKind = {
+  description: 'Ruida job',
+  accept: { 'application/octet-stream': ['.rd'] },
+};
+
 export const GCODE_FILES: FileKind = {
   description: 'G-code',
   accept: { 'text/plain': ['.gcode', '.nc', '.gc', '.ngc', '.txt'] },

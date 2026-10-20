@@ -100,9 +100,17 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Cpu, text: 'Virtual machine for safe dry runs' },
       { icon: ScanSearch, text: 'Recognises your machine and its bed size' },
       { icon: Plug, text: 'One-click reconnect to known ports' },
+      { icon: Usb, text: 'CO₂ lasers too: GRBL over USB, Ruida through a .rd file' },
       { icon: Unplug, text: 'Step-by-step help when the laser is missing' },
     ],
-    features: ['web-serial', 'virtual-machine', 'grbl-firmwares', 'machine-detect', 'connect-help'],
+    features: [
+      'web-serial',
+      'virtual-machine',
+      'grbl-firmwares',
+      'machine-detect',
+      'connect-help',
+      'co2-lasers',
+    ],
   },
   {
     id: 'import',

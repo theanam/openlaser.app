@@ -3,6 +3,8 @@
  * delays previews; a newer compile supersedes an older one by restarting that worker.
  */
 import type {
+  CompileRdRequest,
+  CompileRdResult,
   CompileRequest,
   CompileResult,
   DitherRequest,
@@ -78,6 +80,10 @@ const previewChannel = new WorkerChannel();
 export function compileInWorker(request: Omit<CompileRequest, 'type' | 'id'>): Promise<CompileResult> {
   if (compileChannel.busy) compileChannel.restart();
   return compileChannel.request<CompileResult>({ type: 'compile', ...request });
+}
+
+export function compileRdInWorker(request: Omit<CompileRdRequest, 'type' | 'id'>): Promise<CompileRdResult> {
+  return compileChannel.request<CompileRdResult>({ type: 'compile-rd', ...request });
 }
 
 export function parseGcodeInWorker(text: string, maxS: number): Promise<ParseGcodeResult> {

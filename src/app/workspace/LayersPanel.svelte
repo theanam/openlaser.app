@@ -20,6 +20,7 @@
   import { confirm } from '$lib/ui/confirm.svelte';
   import { editor } from '../state/editor.svelte';
   import { layerSummary } from '../lib/layers';
+  import { profiles } from '../state/profiles.svelte';
   import ColorSwatch from './ColorSwatch.svelte';
   import LayerSettings from './LayerSettings.svelte';
 
@@ -196,7 +197,7 @@
                 >{layer.name}</span
               >
             {/if}
-            <span class="summary mono">{layerSummary(layer)}</span>
+            <span class="summary mono">{layerSummary(layer, profiles.active.speedUnit)}</span>
           </div>
           {#if editor.selection.size > 0 && !(selectedLayerIds.size === 1 && selectedLayerIds.has(layer.id))}
             <button

@@ -17,6 +17,7 @@
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
   import ConnectHelpButton from '../connect/ConnectHelpButton.svelte';
+  import RuidaPanel from './RuidaPanel.svelte';
   import AnchorPicker from '../workspace/AnchorPicker.svelte';
   import JogPad from './JogPad.svelte';
   import Overrides from './Overrides.svelte';
@@ -59,6 +60,8 @@
   function setOrigin(patch: Partial<JobSettings>) {
     editor.commit((p) => setJobSettings(p, patch));
   }
+  /** Ruida machines take exported files; there is nothing to connect to. */
+  const ruida = $derived(profiles.active.controller === 'ruida' && !machine.connected);
 </script>
 
 <section class="machine" aria-label="Machine" data-testid="machine-panel">
@@ -69,7 +72,9 @@
 
   <MachineSwitcher />
 
-  {#if !machine.connected}
+  {#if ruida}
+    <RuidaPanel />
+  {:else if !machine.connected}
     <div class="connect">
       {#if serial}
         <button
@@ -193,7 +198,7 @@
     {/if}
   {/if}
 
-  {#if jobSettings && !running}
+  {#if jobSettings && !running && !ruida}
     <div class="origin-block" data-testid="job-origin">
       <div class="origin-head">
         <h3>Job origin</h3>

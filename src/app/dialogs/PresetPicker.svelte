@@ -1,7 +1,13 @@
 <script lang="ts">
   import Search from '@lucide/svelte/icons/search';
   import Check from '@lucide/svelte/icons/check';
-  import { groupByBrand, presetName, searchPresets, type MachinePreset } from '$lib/project/machine-presets';
+  import {
+    groupByBrand,
+    presetName,
+    searchPresets,
+    type MachinePreset,
+    machineKind,
+  } from '$lib/project/machine-presets';
 
   interface Props {
     /** Name of the highlighted preset. */
@@ -38,7 +44,9 @@
           class="item"
           onclick={() => onselect(p)}
         >
-          <span>{p.model}</span>
+          <span
+            >{p.model}{#if machineKind(p)}<span class="kind">{machineKind(p)}</span>{/if}</span
+          >
           <span class="mono dim">{p.bedWidth} × {p.bedHeight}</span>
           <span class="tick"
             >{#if selected === name}<Check size={14} />{/if}</span
@@ -52,6 +60,12 @@
 </div>
 
 <style>
+  .kind {
+    margin-left: 8px;
+    font-size: var(--ol-fs-xs);
+    color: var(--ol-signal-text);
+  }
+
   .picker {
     display: flex;
     flex-direction: column;

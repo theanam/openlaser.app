@@ -18,6 +18,7 @@
   import ConsolePanel from '../machine/ConsolePanel.svelte';
   import JobControls from '../machine/JobControls.svelte';
   import { machine } from '../state/machine.svelte';
+  import { profiles } from '../state/profiles.svelte';
   import StatusBar from './StatusBar.svelte';
 
   // Text from opened projects gets its outlines as soon as its fonts are reachable.
@@ -77,7 +78,9 @@
       {#if machine.connected}
         <JobControls />
       {/if}
-      <ErrorBoundary name="Console" compact><ConsolePanel /></ErrorBoundary>
+      {#if profiles.active.controller !== 'ruida' || machine.connected}
+        <ErrorBoundary name="Console" compact><ConsolePanel /></ErrorBoundary>
+      {/if}
     </aside>
   </div>
   <footer class="foot">

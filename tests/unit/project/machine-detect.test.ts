@@ -44,3 +44,12 @@ describe('machine detection', () => {
     expect(isGenericProfileName('Two Trees TS3')).toBe(false);
   });
 });
+
+describe('CO₂ presets in detection', () => {
+  it('never guesses a CO₂ machine from bed size alone', async () => {
+    const { detectPresets } = await import('$lib/project/machine-detect');
+    const hits = detectPresets({ text: 'Grbl 1.1h', travelX: 300, travelY: 200 });
+    expect(hits.map((h) => h.preset.laserType ?? 'diode')).not.toContain('co2');
+    expect(hits.some((h) => h.preset.controller === 'ruida')).toBe(false);
+  });
+});

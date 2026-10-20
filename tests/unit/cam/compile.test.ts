@@ -267,3 +267,18 @@ describe('compileJob', () => {
     expect(compileJob(compileInput(p))).toEqual(compileJob(compileInput(p)));
   });
 });
+
+describe('constant power (CO₂)', () => {
+  it('burns with M3 from the start and never switches to M4', () => {
+    const input = compileInput(
+      project(
+        [layer({ id: 'cut', speed: 600, power: 80 })],
+        [vectorObject('r', 'cut', [rectPath(10, 10, 30, 20)])],
+      ),
+    );
+    const plan = compileJob({ ...input, profile: profile({ constantPower: true }) });
+    expect(plan.gcode.slice(0, 3)).toEqual(['G90', 'G21', 'M3 S0']);
+    expect(plan.gcode.some((l) => l.startsWith('M4'))).toBe(false);
+    expect(compileJob(input).gcode[2]).toBe('M4 S0');
+  });
+});

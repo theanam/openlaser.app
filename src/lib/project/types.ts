@@ -200,4 +200,16 @@ export interface MachineProfile {
   supportsAirAssist: boolean;
   gcodeHeader: string;
   gcodeFooter: string;
+  /** Source type: CO₂ tubes need constant power and show speeds in mm/s by default. */
+  laserType: LaserType;
+  /** GRBL machines connect over USB; Ruida (most CO₂ DSP controllers) run exported .rd files. */
+  controller: LaserController;
+  /** Burn with M3 (constant power) instead of M4 (power follows speed). On for CO₂ tubes. */
+  constantPower: boolean;
+  /** How speeds are shown and typed. Stored values stay mm/min. */
+  speedUnit: SpeedUnit;
 }
+
+export type LaserType = 'diode' | 'co2';
+export type LaserController = 'grbl' | 'ruida';
+export type SpeedUnit = 'mm/min' | 'mm/s';

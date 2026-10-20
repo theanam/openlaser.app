@@ -15,6 +15,7 @@
   import { formatCombo } from '../lib/keys';
   import { editor } from '../state/editor.svelte';
   import { machine } from '../state/machine.svelte';
+  import { profiles } from '../state/profiles.svelte';
   import { session } from '../state/session.svelte';
   import { route } from '../state/route.svelte';
   import { ui } from '../state/ui.svelte';
@@ -36,6 +37,9 @@
 
   let editingName = $state(false);
   const serial = isWebSerialSupported();
+  /** Ruida controllers run .rd files from a USB stick; they never connect here. */
+  const ruida = $derived(profiles.active.controller === 'ruida' && !editor.gcode);
+  const exportLabel = $derived(ruida ? 'Export .rd' : 'Export G-code');
 
   function rename(event: Event) {
     const value = (event.currentTarget as HTMLInputElement).value.trim();
@@ -204,13 +208,13 @@
   <button
     type="button"
     class="btn ghost"
-    onclick={() => actions.exportGcode()}
-    title="Export G-code ({formatCombo('Mod+E')})"
+    onclick={() => actions.exportJob()}
+    title="{exportLabel} ({formatCombo('Mod+E')})"
     data-testid="export-gcode"
   >
-    Export G-code
+    {exportLabel}
   </button>
-  {#if serial && !machine.connected}
+  {#if serial && !machine.connected && !ruida}
     <button
       type="button"
       class="btn signal small connect"

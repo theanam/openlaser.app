@@ -50,8 +50,19 @@ export function defaultMachineProfile(overrides: Partial<MachineProfile> = {}): 
     supportsAirAssist: false,
     gcodeHeader: '',
     gcodeFooter: '',
+    laserType: 'diode',
+    controller: 'grbl',
+    constantPower: false,
+    speedUnit: 'mm/min',
     ...overrides,
   };
+}
+
+/** Defaults that follow from the laser type, applied when a profile switches type or comes from a preset. */
+export function laserTypeDefaults(laserType: MachineProfile['laserType']): Partial<MachineProfile> {
+  return laserType === 'co2'
+    ? { laserType, constantPower: true, speedUnit: 'mm/s', supportsAirAssist: true }
+    : { laserType, constantPower: false, speedUnit: 'mm/min' };
 }
 
 export { MACHINE_PRESETS } from './machine-presets';

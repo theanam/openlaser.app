@@ -64,7 +64,8 @@ export function detectPresets(
   const text = squash(fp.text);
   const results: DetectedPreset[] = [];
   for (const preset of presets) {
-    if (preset.brand === GENERIC_BRAND) continue;
+    // Ruida machines never connect over GRBL, so a GRBL handshake can't be one of them.
+    if (preset.brand === GENERIC_BRAND || preset.controller === 'ruida') continue;
     let score = 0;
     const reasons: string[] = [];
     const aliases = BRAND_ALIASES[preset.brand] ?? [squash(preset.brand)];
@@ -78,6 +79,9 @@ export function detectPresets(
       score += brandHit ? 5 : 2;
       reasons.push('model in firmware info');
     }
+    // A GRBL handshake looks the same from a CO₂ machine and a diode one: CO₂ presets need their
+    // name in the firmware text, so a matching bed size alone never guesses a tube laser.
+    if (preset.laserType === 'co2' && score === 0) continue;
     if (fp.travelX !== null && fp.travelY !== null) {
       const dx = Math.abs(fp.travelX - preset.bedWidth);
       const dy = Math.abs(fp.travelY - preset.bedHeight);

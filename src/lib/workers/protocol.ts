@@ -21,6 +21,19 @@ export interface CompileResult {
   moves: MoveList;
 }
 
+/** A Ruida .rd job file for the same project, for machines that run jobs from a USB stick. */
+export interface CompileRdRequest {
+  type: 'compile-rd';
+  id: number;
+  project: Project;
+  profile: MachineProfile;
+}
+
+export interface CompileRdResult {
+  bytes: Uint8Array;
+  warnings: CamWarning[];
+}
+
 export interface ParseGcodeRequest {
   type: 'parse-gcode';
   id: number;
@@ -52,8 +65,8 @@ export interface DitherResult {
   burn: Uint8ClampedArray;
 }
 
-export type WorkerRequest = CompileRequest | ParseGcodeRequest | DitherRequest;
+export type WorkerRequest = CompileRequest | CompileRdRequest | ParseGcodeRequest | DitherRequest;
 
 export type WorkerResponse =
-  | { id: number; ok: true; result: CompileResult | ParseGcodeResult | DitherResult }
+  | { id: number; ok: true; result: CompileResult | CompileRdResult | ParseGcodeResult | DitherResult }
   | { id: number; ok: false; error: string };

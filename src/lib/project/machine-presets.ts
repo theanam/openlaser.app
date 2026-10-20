@@ -5,7 +5,12 @@
  * the size the controller reports in $130/$131. Air assist is set only where the maker documents
  * M8 control. Machines with non-GRBL stock firmware (xTool, Jinsoku app firmware, Snapmaker,
  * LaserPecker) are left out.
+ *
+ * CO₂ machines on Ruida controllers (home at the top right) run exported .rd files; sizes from the
+ * makers' spec pages (Thunder Laser, Aeon, OMTech), checked 2026-10. A K40 with a GRBL board
+ * connects like any GRBL laser.
  */
+import { laserTypeDefaults } from './factory';
 import type { MachineProfile } from './types';
 
 export interface MachinePreset {
@@ -16,14 +21,45 @@ export interface MachinePreset {
   bedHeight: number;
   originCorner?: MachineProfile['originCorner'];
   supportsAirAssist?: boolean;
+  /** Diode unless set. */
+  laserType?: MachineProfile['laserType'];
+  /** GRBL unless set. */
+  controller?: MachineProfile['controller'];
 }
 
 export const GENERIC_BRAND = 'Generic';
+
+/** A CO₂ machine on a Ruida controller: home top right, air assist on board. */
+function ruida(brand: string, model: string, bedWidth: number, bedHeight: number): MachinePreset {
+  return { brand, model, bedWidth, bedHeight, originCorner: 'tr', laserType: 'co2', controller: 'ruida' };
+}
 
 export const MACHINE_PRESETS: readonly MachinePreset[] = [
   { brand: GENERIC_BRAND, model: 'GRBL laser 400 × 400', bedWidth: 400, bedHeight: 400 },
   { brand: GENERIC_BRAND, model: 'GRBL laser 300 × 300', bedWidth: 300, bedHeight: 300 },
   { brand: GENERIC_BRAND, model: 'GRBL laser 200 × 200', bedWidth: 200, bedHeight: 200 },
+  ruida(GENERIC_BRAND, 'CO₂ Ruida 600 × 400', 600, 400),
+  ruida(GENERIC_BRAND, 'CO₂ Ruida 900 × 600', 900, 600),
+  ruida(GENERIC_BRAND, 'CO₂ Ruida 1300 × 900', 1300, 900),
+  { brand: GENERIC_BRAND, model: 'CO₂ GRBL 600 × 400', bedWidth: 600, bedHeight: 400, laserType: 'co2' },
+  {
+    brand: 'K40',
+    model: 'CO₂ with GRBL board',
+    bedWidth: 300,
+    bedHeight: 200,
+    originCorner: 'tl',
+    laserType: 'co2',
+  },
+  ruida('Thunder Laser', 'Nova 24', 600, 400),
+  ruida('Thunder Laser', 'Nova 35', 900, 600),
+  ruida('Thunder Laser', 'Nova 51', 1300, 900),
+  ruida('Thunder Laser', 'Nova 63', 1600, 1000),
+  ruida('Aeon', 'Mira 5', 500, 300),
+  ruida('Aeon', 'Mira 7', 700, 500),
+  ruida('Aeon', 'Mira 9', 900, 600),
+  ruida('OMTech', '60W 16 × 24', 600, 400),
+  ruida('OMTech', '20 × 28', 700, 500),
+  ruida('OMTech', '100W 24 × 40', 1000, 600),
   { brand: 'Two Trees', model: 'TS3', bedWidth: 300, bedHeight: 200 },
   { brand: 'Two Trees', model: 'TS2 10W / 20W', bedWidth: 450, bedHeight: 410 },
   { brand: 'Two Trees', model: 'TS2 Max (450 × 900)', bedWidth: 450, bedHeight: 900 },
@@ -85,14 +121,22 @@ export function presetName(preset: Pick<MachinePreset, 'brand' | 'model'>): stri
   return preset.brand === GENERIC_BRAND ? `Generic ${preset.model}` : `${preset.brand} ${preset.model}`;
 }
 
+/** "CO₂", "CO₂ · Ruida", or nothing for diode GRBL machines: a tag beside the machine name. */
+export function machineKind(m: Pick<MachinePreset, 'laserType' | 'controller'>): string {
+  const parts = [m.laserType === 'co2' ? 'CO₂' : '', m.controller === 'ruida' ? 'Ruida' : ''];
+  return parts.filter(Boolean).join(' · ');
+}
+
 /** Profile fields a preset sets. */
 export function presetProfileFields(preset: MachinePreset): Partial<MachineProfile> {
   return {
     name: presetName(preset),
     bedWidth: preset.bedWidth,
     bedHeight: preset.bedHeight,
+    ...laserTypeDefaults(preset.laserType ?? 'diode'),
     originCorner: preset.originCorner ?? 'bl',
-    supportsAirAssist: preset.supportsAirAssist ?? false,
+    supportsAirAssist: preset.supportsAirAssist ?? preset.laserType === 'co2',
+    controller: preset.controller ?? 'grbl',
   };
 }
 

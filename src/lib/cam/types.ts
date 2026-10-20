@@ -61,7 +61,7 @@ export interface Toolpath {
   feed: number;
   runs: ToolpathRun[];
   airAssist: boolean;
-  /** 'dynamic' = M4 (default). 'constant' = M3, used only by framing with power. */
+  /** 'dynamic' = M4 (default). 'constant' = M3: framing with power, and profiles set to constant power (CO₂). */
   laserMode?: 'dynamic' | 'constant';
 }
 

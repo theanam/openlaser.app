@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 import { compileJob } from '../cam';
+import { emitRuida } from '../cam/ruida';
 import { ditherPreview } from '../cam/raster';
 import type { MoveList, RasterSource } from '../cam/types';
 import { parseGcode, splitGcodeLines, validateGcodeLines } from '../import/gcode';
@@ -59,6 +60,19 @@ async function handle(
         moves,
       };
       return { response: { id: request.id, ok: true, result }, transfer: moveTransfer(moves) };
+    }
+    case 'compile-rd': {
+      const assets = await decodeProjectAssets(request.project);
+      const plan = compileJob({ project: request.project, assets, profile: request.profile });
+      const layers = new Map(request.project.layers.map((l) => [l.id, { color: l.color }]));
+      const bytes =
+        plan.toolpaths.length > 0
+          ? emitRuida(plan.toolpaths, { layers, airAssist: request.profile.supportsAirAssist })
+          : new Uint8Array();
+      return {
+        response: { id: request.id, ok: true, result: { bytes, warnings: plan.warnings } },
+        transfer: [bytes.buffer],
+      };
     }
     case 'parse-gcode': {
       const lines = splitGcodeLines(request.text);

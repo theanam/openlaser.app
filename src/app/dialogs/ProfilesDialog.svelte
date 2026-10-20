@@ -12,7 +12,7 @@
   import { confirm } from '$lib/ui/confirm.svelte';
   import { toast } from '$lib/ui/toasts.svelte';
   import { errorMessage } from '$lib/ui/errors';
-  import { defaultMachineProfile, MAX_FRAME_POWER_PERCENT } from '$lib/project/factory';
+  import { defaultMachineProfile, laserTypeDefaults, MAX_FRAME_POWER_PERCENT } from '$lib/project/factory';
   import { presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
   import PresetPicker from './PresetPicker.svelte';
   import { makeId } from '$lib/project/ids';
@@ -90,6 +90,8 @@
       toast.success(`Saved ${selected.name}`);
     else if (outcome.status === 'failed') toast.error(outcome.reason);
   }
+  /** GRBL-only settings (S range, baud, jogging, framing, G-code) hide for Ruida machines. */
+  const grbl = $derived(selected.controller === 'grbl');
 </script>
 
 <Dialog bind:open={ui.profilesOpen} title="Machine profiles" width={720} testid="profiles-dialog">
@@ -163,6 +165,50 @@
             onchange={(e) => patch({ name: e.currentTarget.value.trim() || selected.name })}
           /></label
         >
+        <div class="kinds">
+          <div class="field">
+            Laser
+            <div class="segmented" role="group" aria-label="Laser type" data-testid="profile-laser-type">
+              <button
+                type="button"
+                aria-pressed={selected.laserType === 'diode'}
+                onclick={() => patch(laserTypeDefaults('diode'))}>Diode</button
+              >
+              <button
+                type="button"
+                aria-pressed={selected.laserType === 'co2'}
+                onclick={() => patch(laserTypeDefaults('co2'))}>CO₂</button
+              >
+            </div>
+          </div>
+          <div class="field">
+            Controller
+            <div class="segmented" role="group" aria-label="Controller" data-testid="profile-controller">
+              <button
+                type="button"
+                aria-pressed={selected.controller === 'grbl'}
+                onclick={() => patch({ controller: 'grbl' })}>GRBL</button
+              >
+              <button
+                type="button"
+                aria-pressed={selected.controller === 'ruida'}
+                onclick={() => patch({ controller: 'ruida', originCorner: 'tr' })}>Ruida</button
+              >
+            </div>
+          </div>
+          <div class="field">
+            Speeds in
+            <div class="segmented" role="group" aria-label="Speed unit">
+              {#each ['mm/min', 'mm/s'] as const as unit (unit)}
+                <button
+                  type="button"
+                  aria-pressed={selected.speedUnit === unit}
+                  onclick={() => patch({ speedUnit: unit })}>{unit}</button
+                >
+              {/each}
+            </div>
+          </div>
+        </div>
         <div class="grid">
           <NumberField
             label="Bed width"
@@ -180,48 +226,50 @@
             max={3000}
             onchange={(v) => patch({ bedHeight: v })}
           />
-          <NumberField
-            label="Max S ($30)"
-            value={selected.maxS}
-            min={1}
-            max={100000}
-            onchange={(v) => patch({ maxS: v })}
-          />
-          <NumberField
-            label="Baud rate"
-            value={selected.baudRate}
-            min={1200}
-            max={2000000}
-            onchange={(v) => patch({ baudRate: v })}
-          />
-          <NumberField
-            label="Jog speed"
-            unit="mm/min"
-            value={selected.defaultJogSpeed}
-            min={1}
-            max={60000}
-            step={100}
-            onchange={(v) => patch({ defaultJogSpeed: v })}
-          />
-          <NumberField
-            label="Frame speed"
-            unit="mm/min"
-            value={selected.frameSpeed}
-            min={1}
-            max={60000}
-            step={100}
-            onchange={(v) => patch({ frameSpeed: v })}
-          />
-          <NumberField
-            label="Frame power"
-            unit="%"
-            decimals={1}
-            value={selected.framePowerPercent}
-            min={0}
-            max={MAX_FRAME_POWER_PERCENT}
-            step={0.5}
-            onchange={(v) => patch({ framePowerPercent: v })}
-          />
+          {#if grbl}
+            <NumberField
+              label="Max S ($30)"
+              value={selected.maxS}
+              min={1}
+              max={100000}
+              onchange={(v) => patch({ maxS: v })}
+            />
+            <NumberField
+              label="Baud rate"
+              value={selected.baudRate}
+              min={1200}
+              max={2000000}
+              onchange={(v) => patch({ baudRate: v })}
+            />
+            <NumberField
+              label="Jog speed"
+              unit="mm/min"
+              value={selected.defaultJogSpeed}
+              min={1}
+              max={60000}
+              step={100}
+              onchange={(v) => patch({ defaultJogSpeed: v })}
+            />
+            <NumberField
+              label="Frame speed"
+              unit="mm/min"
+              value={selected.frameSpeed}
+              min={1}
+              max={60000}
+              step={100}
+              onchange={(v) => patch({ frameSpeed: v })}
+            />
+            <NumberField
+              label="Frame power"
+              unit="%"
+              decimals={1}
+              value={selected.framePowerPercent}
+              min={0}
+              max={MAX_FRAME_POWER_PERCENT}
+              step={0.5}
+              onchange={(v) => patch({ framePowerPercent: v })}
+            />
+          {/if}
         </div>
         <div class="field">
           Origin (0,0)
@@ -236,33 +284,42 @@
           </div>
         </div>
         <div class="toggles">
+          {#if grbl}
+            <Toggle
+              label="Constant power (M3)"
+              checked={selected.constantPower}
+              onchange={(c) => patch({ constantPower: c })}
+            />
+            <Toggle
+              label="Warn without laser mode ($32)"
+              checked={selected.laserModeRequired}
+              onchange={(c) => patch({ laserModeRequired: c })}
+            />
+          {/if}
           <Toggle
-            label="Warn without laser mode ($32)"
-            checked={selected.laserModeRequired}
-            onchange={(c) => patch({ laserModeRequired: c })}
-          />
-          <Toggle
-            label="Air assist (M8)"
+            label={grbl ? 'Air assist (M8)' : 'Air assist'}
             checked={selected.supportsAirAssist}
             onchange={(c) => patch({ supportsAirAssist: c })}
           />
         </div>
-        <div class="grid">
-          <label class="field"
-            >G-code header<textarea
-              class="input mono area"
-              value={selected.gcodeHeader}
-              onchange={(e) => patch({ gcodeHeader: e.currentTarget.value })}
-            ></textarea></label
-          >
-          <label class="field"
-            >G-code footer<textarea
-              class="input mono area"
-              value={selected.gcodeFooter}
-              onchange={(e) => patch({ gcodeFooter: e.currentTarget.value })}
-            ></textarea></label
-          >
-        </div>
+        {#if grbl}
+          <div class="grid">
+            <label class="field"
+              >G-code header<textarea
+                class="input mono area"
+                value={selected.gcodeHeader}
+                onchange={(e) => patch({ gcodeHeader: e.currentTarget.value })}
+              ></textarea></label
+            >
+            <label class="field"
+              >G-code footer<textarea
+                class="input mono area"
+                value={selected.gcodeFooter}
+                onchange={(e) => patch({ gcodeFooter: e.currentTarget.value })}
+              ></textarea></label
+            >
+          </div>
+        {/if}
       </div>
     {/key}
   </div>
@@ -277,6 +334,12 @@
 </Dialog>
 
 <style>
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+
   .layout {
     display: flex;
     gap: 20px;

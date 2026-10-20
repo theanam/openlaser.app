@@ -4,7 +4,12 @@
   import Check from '@lucide/svelte/icons/check';
   import Settings2 from '@lucide/svelte/icons/settings-2';
   import { defaultMachineProfile } from '$lib/project/factory';
-  import { presetName, presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
+  import {
+    machineKind,
+    presetName,
+    presetProfileFields,
+    type MachinePreset,
+  } from '$lib/project/machine-presets';
   import { toast } from '$lib/ui/toasts.svelte';
   import PresetPicker from '../dialogs/PresetPicker.svelte';
   import { machine } from '../state/machine.svelte';
@@ -27,12 +32,15 @@
     }
     toast.success(`Machine set to ${name}`);
   }
+  const details = $derived(
+    [`${active.bedWidth} × ${active.bedHeight} mm`, machineKind(active)].filter(Boolean).join(' · '),
+  );
 </script>
 
 <div class="switcher" data-testid="machine-switcher">
   <div class="current">
     <span class="name" data-testid="machine-name">{active.name}</span>
-    <span class="mono muted small">{active.bedWidth} × {active.bedHeight} mm</span>
+    <span class="mono muted small">{details}</span>
   </div>
   <Popover.Root bind:open>
     <Popover.Trigger

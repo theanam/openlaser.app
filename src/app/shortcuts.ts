@@ -69,10 +69,10 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: ['Mod+I'], label: 'Import image or SVG', group: 'File', run: () => void actions.importArt() },
   {
     keys: ['Mod+E'],
-    label: 'Export G-code',
+    label: 'Export job (G-code or .rd)',
     group: 'File',
     when: () => editor.hasDocument,
-    run: () => void actions.exportGcode(),
+    run: () => void actions.exportJob(),
   },
   {
     keys: ['Mod+P'],

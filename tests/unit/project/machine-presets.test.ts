@@ -22,8 +22,9 @@ describe('machine presets', () => {
     for (const p of MACHINE_PRESETS) {
       expect(p.bedWidth).toBeGreaterThanOrEqual(100);
       expect(p.bedHeight).toBeGreaterThanOrEqual(100);
-      expect(p.bedWidth).toBeLessThanOrEqual(1000);
-      expect(p.bedHeight).toBeLessThanOrEqual(1000);
+      // Large-format CO₂ machines reach 1600 mm.
+      expect(p.bedWidth).toBeLessThanOrEqual(1700);
+      expect(p.bedHeight).toBeLessThanOrEqual(1700);
     }
   });
 
@@ -49,6 +50,24 @@ describe('machine presets', () => {
       bedWidth: 380,
       bedHeight: 385,
       originCorner: 'bl',
+      supportsAirAssist: true,
+      laserType: 'diode',
+      controller: 'grbl',
+      constantPower: false,
+      speedUnit: 'mm/min',
+    });
+  });
+
+  it('sets CO₂ Ruida machines up for .rd export with constant power and mm/s', () => {
+    const nova = MACHINE_PRESETS.find((p) => p.brand === 'Thunder Laser' && p.model === 'Nova 35')!;
+    expect(presetProfileFields(nova)).toMatchObject({
+      bedWidth: 900,
+      bedHeight: 600,
+      originCorner: 'tr',
+      laserType: 'co2',
+      controller: 'ruida',
+      constantPower: true,
+      speedUnit: 'mm/s',
       supportsAirAssist: true,
     });
   });

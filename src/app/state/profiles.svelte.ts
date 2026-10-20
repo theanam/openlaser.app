@@ -13,7 +13,8 @@ class Profiles {
   }
 
   async load(): Promise<void> {
-    let list = await listProfiles();
+    // Profiles saved by older versions gain fields added since, at their defaults.
+    let list = (await listProfiles()).map((p) => defaultMachineProfile({ ...p }));
     if (list.length === 0) {
       const profile = defaultMachineProfile();
       await saveProfile(profile);

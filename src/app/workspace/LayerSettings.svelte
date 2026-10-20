@@ -16,6 +16,7 @@
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
   import { withMode } from '../lib/layers';
+  import { CO2_MIN_FIRING_PERCENT, speedFromUnit, speedToUnit } from '../lib/units';
 
   let { layer }: { layer: Layer } = $props();
 
@@ -31,6 +32,11 @@
     editor.project?.objects.some(
       (o) => o.layerId === layer.id && (layer.mode === 'image' ? o.kind !== 'image' : o.kind === 'image'),
     ) ?? false,
+  );
+
+  const speedUnit = $derived(profiles.active.speedUnit);
+  const weakForTube = $derived(
+    profiles.active.laserType === 'co2' && layer.power > 0 && layer.power < CO2_MIN_FIRING_PERCENT,
   );
 
   /** Common laser power levels; any other value can still be typed. */
@@ -84,12 +90,13 @@
   <div class="grid">
     <NumberField
       label="Speed"
-      unit="mm/min"
-      value={layer.speed}
-      min={1}
-      max={maxRate}
-      step={10}
-      onchange={(v, l) => set({ speed: v }, l, 'speed')}
+      unit={speedUnit}
+      value={speedToUnit(layer.speed, speedUnit)}
+      decimals={speedUnit === 'mm/s' ? 1 : 0}
+      min={speedToUnit(1, speedUnit)}
+      max={speedToUnit(maxRate, speedUnit)}
+      step={speedUnit === 'mm/s' ? 1 : 10}
+      onchange={(v, l) => set({ speed: speedFromUnit(v, speedUnit) }, l, 'speed')}
       testid="layer-speed"
     />
     <NumberField
@@ -111,6 +118,11 @@
       step={1}
       onchange={(v, l) => set({ passes: v }, l, 'passes')}
     />
+    {#if weakForTube}
+      <p class="tube-hint" data-testid="co2-power-hint">
+        CO₂ tubes rarely fire below {CO2_MIN_FIRING_PERCENT}%.
+      </p>
+    {/if}
 
     {#if layer.mode === 'line'}
       <NumberField
@@ -301,6 +313,13 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+  }
+
+  .tube-hint {
+    grid-column: 1 / -1;
+    margin: -4px 0 0;
+    font-size: var(--ol-fs-sm);
+    color: var(--ol-hold);
   }
 
   .toggles {

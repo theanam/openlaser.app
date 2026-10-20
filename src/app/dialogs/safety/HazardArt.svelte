@@ -1,6 +1,6 @@
 <script lang="ts" module>
   /** Illustrations for the pre-flight hazard cards. Drawn with tokens so they suit both themes. */
-  export type Hazard = 'eyes' | 'fumes' | 'attend' | 'fire';
+  export type Hazard = 'eyes' | 'fumes' | 'attend' | 'fire' | 'water';
 </script>
 
 <script lang="ts">
@@ -54,6 +54,14 @@
     <circle cx="41" cy="51" r="2" class="spark" />
     <path d="M18 18c6-10 18-10 24 0-6 10-18 10-24 0z" class="eye" />
     <circle cx="30" cy="18" r="4" class="pupil look" />
+  {:else if hazard === 'water'}
+    <!-- A laser tube with coolant flowing through its jacket. -->
+    <rect x="6" y="22" width="60" height="18" rx="9" class="frame" />
+    <rect x="12" y="27" width="48" height="8" rx="4" class="coolant" />
+    <path d="M14 31h44" class="flow" fill="none" stroke-width="2" stroke-linecap="round" />
+    <path d="M66 31h8" class="beam" stroke-width="3" stroke-linecap="round" />
+    <path d="M18 22v-8h10M54 40v8H44" class="pipe" fill="none" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M30 10c0 3-3 4-3 6a3 3 0 0 0 6 0c0-2-3-3-3-6z" class="drop" />
   {:else}
     <!-- A small flame and an extinguisher ready beside it. -->
     <path
@@ -142,6 +150,25 @@
     fill-opacity: 0.85;
   }
 
+  .coolant {
+    fill: var(--ol-beam);
+    fill-opacity: 0.35;
+  }
+
+  .flow {
+    stroke: var(--ol-beam);
+    stroke-dasharray: 4 4;
+    animation: flow 1s linear infinite;
+  }
+
+  .pipe {
+    stroke: var(--ol-text-muted);
+  }
+
+  .drop {
+    fill: var(--ol-beam);
+  }
+
   .hose {
     stroke: var(--ol-text-muted);
   }
@@ -154,6 +181,12 @@
     animation: flicker 0.9s ease-in-out infinite alternate;
     transform-origin: 50% 100%;
     transform-box: fill-box;
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -8;
+    }
   }
 
   @keyframes rise {

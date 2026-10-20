@@ -4,6 +4,7 @@
   import Plug from '@lucide/svelte/icons/plug';
   import Download from '@lucide/svelte/icons/download';
   import Layers from '@lucide/svelte/icons/layers';
+  import Flame from '@lucide/svelte/icons/flame';
   import PenTool from '@lucide/svelte/icons/pen-tool';
   import Image from '@lucide/svelte/icons/image';
   import Play from '@lucide/svelte/icons/play';
@@ -102,6 +103,16 @@
         'An alarm shows what happened and what to do. Unlock ($X) clears it once the cause is fixed.',
         'The console shows every line sent and received. Download the log when reporting a hardware bug.',
         'Device settings lists $$ values with descriptions and saves a backup file.',
+      ],
+    },
+    {
+      icon: Flame,
+      title: 'CO₂ lasers',
+      items: [
+        'Pick your machine in the Machine panel. CO₂ machines burn at constant power (M3) and show speeds in mm/s; change either under Machine profiles.',
+        'CO₂ tubes on a GRBL board connect over USB like any other laser, and the safety check adds water cooling.',
+        'Ruida controllers (Thunder, Aeon, OMTech and most other CO₂ machines) run exported .rd files: Export .rd, copy it to a USB stick, then load, frame and start it on the laser’s panel.',
+        'Ruida jobs use bed positions: the job burns where it sits on screen.',
       ],
     },
     {
