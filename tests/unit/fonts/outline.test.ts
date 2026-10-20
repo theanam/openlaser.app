@@ -174,3 +174,31 @@ describe('outlineText', () => {
     expect(await outlineText(obj)).toBeNull();
   });
 });
+
+describe('overlapping glyph contours', () => {
+  const area = async (paths: import('$lib/geometry/types').PathData[], rule: 'evenodd' | 'nonzero') => {
+    const { union } = await import('$lib/geometry/clipper');
+    const { flattenPath } = await import('$lib/geometry/path');
+    const { signedArea } = await import('$lib/geometry/polygon');
+    const rings = union(
+      paths.map((p) => flattenPath(p, undefined, 0.005).points),
+      rule,
+    );
+    return rings.reduce((n, r) => n + signedArea(r), 0);
+  };
+  const spec = { fontSize: 20, align: 'left' as const, lineHeight: 1.2, letterSpacing: 0 };
+
+  it('merges a "t" whose bar crosses its stem, so it burns solid by either fill rule', async () => {
+    const { paths } = textToPaths({ ...spec, text: 't' }, font);
+    const evenOdd = await area(paths, 'evenodd');
+    const nonZero = await area(paths, 'nonzero');
+    expect(Math.abs(evenOdd)).toBeGreaterThan(1);
+    expect(Math.abs(evenOdd - nonZero)).toBeLessThan(Math.abs(nonZero) * 0.002);
+  });
+
+  it('keeps the curves of glyphs without overlaps', () => {
+    const { paths } = textToPaths({ ...spec, text: 'o' }, font);
+    expect(paths).toHaveLength(2);
+    expect(paths.some((p) => p.segments.some((s) => s.type === 'C'))).toBe(true);
+  });
+});

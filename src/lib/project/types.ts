@@ -155,6 +155,8 @@ export interface TextObject extends BaseObject {
    * re-outline keeps the block's top edge in place. Missing on text saved before it was recorded.
    */
   blockHeight?: number;
+  /** TEXT_OUTLINE_VERSION the paths were made with; older text is re-outlined on open. */
+  outlineVersion?: number;
 }
 
 export interface Asset {

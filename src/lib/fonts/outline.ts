@@ -1,5 +1,8 @@
 /* Text to outlines: the paths CAM burns for a TextObject.
    textToPaths is pure (font in, PathData out); outlineText fetches and parses the face. */
+import { union } from '../geometry/clipper';
+import { flattenPath } from '../geometry/path';
+import { signedArea } from '../geometry/polygon';
 import type { PathData, Segment, Vec2 } from '../geometry/types';
 import type { TextObject } from '../project/types';
 import { getFontBytes } from './loader';
@@ -26,6 +29,14 @@ export type OtFont = {
     options?: OtRenderOptions,
   ): { commands: OtCommand[] };
   getAdvanceWidth(text: string, fontSize: number, options?: OtRenderOptions): number;
+  /** One path per glyph, laid out as getPath would. */
+  getPaths(
+    text: string,
+    x: number,
+    y: number,
+    fontSize: number,
+    options?: OtRenderOptions,
+  ): Array<{ commands: OtCommand[] }>;
 };
 
 export type TextLayoutSpec = Pick<TextObject, 'text' | 'fontSize' | 'align' | 'lineHeight' | 'letterSpacing'>;
@@ -88,6 +99,40 @@ function commandsToPaths(commands: readonly OtCommand[], map: (x: number, y: num
 }
 
 /**
+ * Bumped when outlines change shape for the same text and font, so saved text is re-outlined
+ * once on open. 2: overlapping glyph contours merged.
+ */
+export const TEXT_OUTLINE_VERSION = 2;
+
+/** Flattening tolerance for merged glyphs, mm: far below a laser spot. */
+const GLYPH_TOLERANCE = 0.005;
+
+/**
+ * Fonts fill glyphs by the non-zero rule, so contours may overlap: the bar of a "t" crosses its
+ * stem. Burned even-odd, an overlap would be a hole, and cut as lines it would add strokes inside
+ * the letter. Glyphs with overlaps are merged into clean outlines; the rest keep their curves.
+ */
+function solidGlyph(paths: PathData[]): PathData[] {
+  if (paths.length < 2) return paths;
+  const rings = paths.map((p) => flattenPath(p, undefined, GLYPH_TOLERANCE).points);
+  const merged = union(rings, 'nonzero');
+  const areas = (list: Vec2[][]) => list.map((r) => Math.abs(signedArea(r))).sort((a, b) => a - b);
+  const before = areas(rings);
+  const after = areas(merged);
+  const unchanged =
+    before.length === after.length &&
+    before.every((a, i) => Math.abs(a - after[i]!) <= Math.max(1e-6, a * 1e-3));
+  if (unchanged) return paths;
+  return merged
+    .filter((r) => r.length >= 3)
+    .map((ring) => ({
+      closed: true,
+      start: ring[0]!,
+      segments: ring.slice(1).map((to) => ({ type: 'L' as const, to })),
+    }));
+}
+
+/**
  * Lay out and outline a text block in object space (mm, Y-up). The block spans
  * (0,0)–(width,height): width is the widest line's advance, height is one line box
  * (ascender − descender) plus (lines − 1) line pitches, and the first line sits at the top.
@@ -114,7 +159,9 @@ export function textToPaths(spec: TextLayoutSpec, font: OtFont): TextOutline {
     const slack = width - widths[i];
     const x = spec.align === 'center' ? slack / 2 : spec.align === 'right' ? slack : 0;
     const baseline = ascent + i * pitch;
-    paths.push(...commandsToPaths(font.getPath(line, x, baseline, size, opts).commands, flip));
+    for (const glyph of font.getPaths(line, x, baseline, size, opts)) {
+      paths.push(...solidGlyph(commandsToPaths(glyph.commands, flip)));
+    }
   });
   return { paths, width, height };
 }

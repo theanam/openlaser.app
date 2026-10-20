@@ -67,6 +67,21 @@ function acceptString(kinds: FileKind[]): string {
   return kinds.flatMap((k) => [...Object.keys(k.accept), ...Object.values(k.accept).flat()]).join(',');
 }
 
+/**
+ * Filters for the native picker. It opens on the first filter only, so with several kinds the
+ * first one covers all of them; each kind follows as its own filter for narrowing down.
+ */
+export function pickerTypes(kinds: FileKind[]): FileKind[] {
+  if (kinds.length < 2) return kinds.map((k) => ({ description: k.description, accept: k.accept }));
+  const accept: Record<string, string[]> = {};
+  for (const kind of kinds) {
+    for (const [mime, extensions] of Object.entries(kind.accept)) {
+      accept[mime] = [...new Set([...(accept[mime] ?? []), ...extensions])];
+    }
+  }
+  return [{ description: kinds.map((k) => k.description).join(' and '), accept }, ...kinds];
+}
+
 export async function openFiles(
   kinds: FileKind[],
   options: { multiple?: boolean; id?: string } = {},
@@ -76,7 +91,7 @@ export async function openFiles(
       const handles = await window.showOpenFilePicker!({
         id: options.id,
         multiple: options.multiple ?? false,
-        types: kinds.map((k) => ({ description: k.description, accept: k.accept })),
+        types: pickerTypes(kinds),
         excludeAcceptAllOption: false,
       });
       return Promise.all(

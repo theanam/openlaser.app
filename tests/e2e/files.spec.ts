@@ -54,3 +54,26 @@ test('exports G-code', async ({ page }) => {
   const text = readFileSync(await download.path(), 'utf8');
   expect(text.startsWith('G90\nG21\nM4 S0')).toBe(true);
 });
+
+test('native pickers open on a filter that accepts every kind they take', async ({ page }) => {
+  // Runs after prepare(), which removes the picker: put back a stub that records its filters.
+  await page.addInitScript(() => {
+    (window as unknown as { showOpenFilePicker: (o: unknown) => Promise<never> }).showOpenFilePicker = async (
+      options,
+    ) => {
+      (window as unknown as { pickerOptions: unknown[] }).pickerOptions ??= [];
+      (window as unknown as { pickerOptions: unknown[] }).pickerOptions.push(options);
+      throw new DOMException('cancelled', 'AbortError');
+    };
+  });
+  await newProject(page);
+  await page.getByTestId('tool-image').click();
+  await page.keyboard.press('ControlOrMeta+o');
+  const firstFilters = await page.evaluate(() =>
+    (
+      window as unknown as { pickerOptions: Array<{ types: Array<{ accept: Record<string, string[]> }> }> }
+    ).pickerOptions.map((o) => Object.values(o.types[0]!.accept).flat()),
+  );
+  expect(firstFilters[0]).toEqual(expect.arrayContaining(['.svg', '.dxf', '.png', '.jpg', '.jpeg', '.webp']));
+  expect(firstFilters[1]).toEqual(expect.arrayContaining(['.olaser', '.gcode', '.nc']));
+});
