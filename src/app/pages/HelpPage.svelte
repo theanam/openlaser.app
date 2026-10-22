@@ -62,7 +62,7 @@
       items: [
         'Line follows paths: cuts and scores. Kerf offset grows outlines and shrinks holes.',
         'Fill engraves the inside of closed shapes with scanlines at any angle.',
-        'Layers run top to bottom. Drag rows to reorder. The bolt toggles output, the eye toggles visibility.',
+        'Layers run top to bottom. Drag rows to reorder. Objects sit under their layer and drag between layers. The bolt toggles output, the eye toggles visibility. Deleting a layer asks where its objects go.',
         'Drag any field label left or right to scrub its value. Fields accept math like 100/3.',
       ],
     },

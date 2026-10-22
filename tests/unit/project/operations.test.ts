@@ -123,25 +123,23 @@ describe('project operations', () => {
   });
 });
 
-describe('layers are never empty', () => {
-  it('drops layers without objects', async () => {
-    const { dropEmptyLayers } = await import('$lib/project/operations');
-    let p = base();
-    p = addLayer(p, layer('lonely'));
-    expect(dropEmptyLayers(p).layers.map((l) => l.id)).toEqual(['a', 'b']);
-    expect(dropEmptyLayers(removeObjects(p, new Set(['r1']))).layers.map((l) => l.id)).toEqual(['b']);
+describe('layers persist', () => {
+  it('keeps a layer when its last object goes', () => {
+    const p = removeObjects(base(), new Set(['r1']));
+    expect(p.layers.map((l) => l.id)).toEqual(['a', 'b']);
   });
 
-  it('returns the same project when nothing is empty', async () => {
-    const { dropEmptyLayers } = await import('$lib/project/operations');
-    const p = base();
-    expect(dropEmptyLayers(p)).toBe(p);
+  it('moves a deleted layer\'s objects to the chosen layer', () => {
+    const p = removeLayer(base(), 'a', 'b');
+    expect(p.layers.map((l) => l.id)).toEqual(['b']);
+    expect(p.objects.map((o) => [o.id, o.layerId])).toEqual([
+      ['r1', 'b'],
+      ['r2', 'b'],
+    ]);
   });
 
-  it('moves objects to a new layer in one step', async () => {
-    const { moveObjectsToNewLayer, dropEmptyLayers } = await import('$lib/project/operations');
-    const next = dropEmptyLayers(moveObjectsToNewLayer(base(), new Set(['r1', 'r2']), layer('c')));
-    expect(next.layers.map((l) => l.id)).toEqual(['c']);
-    expect(next.objects.every((o) => o.layerId === 'c')).toBe(true);
+  it('keeps an empty layer that was added on purpose', () => {
+    const p = addLayer(base(), layer('lonely'));
+    expect(p.layers.map((l) => l.id)).toEqual(['a', 'b', 'lonely']);
   });
 });

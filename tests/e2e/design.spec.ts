@@ -141,7 +141,7 @@ test('power has a preset dropdown and still takes typed values', async ({ page }
   await expect(page.getByTestId('layer-row')).toContainText('37%');
 });
 
-test('layers are never empty: click selects their objects, + moves the selection to a new layer', async ({
+test('layers hold objects: + adds a layer, rows list objects, delete asks where they go', async ({
   page,
 }) => {
   await newProject(page);
@@ -150,23 +150,57 @@ test('layers are never empty: click selects their objects, + moves the selection
   await page.getByTestId('tool-ellipse').click();
   await dragOnCanvas(page, [0.5, 0.5], [0.6, 0.6]);
   const rows = page.getByTestId('layer-row');
+  const objects = page.getByTestId('object-row');
   await expect(rows).toHaveCount(1);
-  await expect(page.getByTestId('new-layer')).toBeEnabled();
+  await expect(objects).toHaveCount(2);
 
-  // Ellipse is selected: move it to a new fill layer.
+  // + adds an empty layer; the selected ellipse moves there with the row's button.
   await page.getByTestId('new-layer').click();
-  await page.getByRole('menuitem', { name: 'New fill layer' }).click();
+  await page.getByRole('menuitem', { name: 'Fill layer' }).click();
   await expect(rows).toHaveCount(2);
+  await expect(rows.nth(1)).toContainText('Drag objects here');
+  await objects.last().click();
+  await rows.nth(1).hover();
+  await rows.nth(1).getByRole('button', { name: /Move selection to/ }).click();
+  await expect(rows.nth(1).getByTestId('object-row')).toHaveCount(1);
+  await expect(rows.first().getByTestId('object-row')).toHaveCount(1);
 
-  // Clicking the first layer selects what is on it.
+  // Dragging an object row onto another layer moves it; undo brings it back.
+  await rows.first().getByTestId('object-row').dragTo(rows.nth(1));
+  await expect(rows.nth(1).getByTestId('object-row')).toHaveCount(2);
+  await expect(rows.first()).toContainText('Drag objects here');
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(rows.first().getByTestId('object-row')).toHaveCount(1);
+
+  // Clicking a layer selects what is on it; an object row selects that object.
   await rows.first().click();
   await expect(page.getByTestId('status-bar')).toContainText('1 selected');
+  await rows.nth(1).getByTestId('object-row').click();
+  await expect(page.getByTestId('status-bar')).toContainText('1 selected');
 
-  // Deleting the last object on a layer removes the layer too.
+  // Deleting the last object on a layer keeps the layer.
   await page.keyboard.press('Delete');
+  await expect(rows).toHaveCount(2);
+  await expect(page.getByTestId('status-bar')).toContainText('1 object');
+
+  // Deleting a layer with objects asks where they go.
+  await rows.first().hover();
+  await rows.first().getByRole('button', { name: /^Delete/ }).click();
+  const dialog = page.getByTestId('delete-layer-dialog');
+  await expect(dialog).toContainText('Move its 1 object to');
+  await expect(dialog.getByTestId('delete-layer-destination')).toHaveCount(1);
+  await dialog.getByTestId('delete-layer-confirm').click();
   await expect(rows).toHaveCount(1);
-  await page.keyboard.press('Escape');
-  await expect(page.getByTestId('new-layer')).toBeDisabled();
+  await expect(page.getByTestId('status-bar')).toContainText('1 object');
+  await expect(rows.first().getByTestId('object-row')).toHaveCount(1);
+
+  // With no layer that fits, the dialog says the objects go too.
+  await rows.first().hover();
+  await rows.first().getByRole('button', { name: /^Delete/ }).click();
+  await expect(dialog).toContainText('will be deleted');
+  await dialog.getByTestId('delete-layer-confirm').click();
+  await expect(rows).toHaveCount(0);
+  await expect(page.getByTestId('status-bar')).toContainText('0 objects');
 });
 
 test('the Image tool sits with the other tools and takes SVG and images', async ({ page }) => {

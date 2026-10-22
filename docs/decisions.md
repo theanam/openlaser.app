@@ -29,6 +29,7 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 - **Clicking a layer selects everything on it** (and makes it active), so its objects show on the bed with the selection box and size. Hovering a layer row makes its objects glow. Rows offer "Move selection here" when other objects are selected.
 - **Cut and paste keep layers:** the clipboard carries the copied objects' layers, so a layer removed by Cut comes back with its settings on paste.
 - **Trace layers group by power** (5 % steps, darkest first). A layer is a set of burn settings, so colors that burn alike share one; a 24-color photo trace lands on a handful of layers.
+- **Layers persist and hold objects (supersedes "Layers are never empty").** A layer is a set of burn settings that stays until deleted, so + adds an empty layer and deleting the last object keeps its layer. The Layers panel lists each layer's objects under it; objects drag from one layer to another, and object rows select, hide and glow on the bed like layer rows. Deleting a layer with objects asks where they go (`deleteDestinations`: layers that fit every object, same mode first, nearest in run order first); only when no other layer fits does the dialog say the objects go too. Images fit image layers, vectors and text fit line and fill layers. A trace that replaces its photo still removes the photo's layer when that empties it.
 
 ## CAM (vector)
 

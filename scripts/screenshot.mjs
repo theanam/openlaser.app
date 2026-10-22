@@ -112,6 +112,9 @@ await page.getByTestId('bed-canvas').focus();
 await page.keyboard.press('ControlOrMeta+a');
 await page.waitForTimeout(2600);
 await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.2);
+// Unlock scrolled the side column to the machine panel; show the layers again.
+await page.locator('aside > div').first().evaluate((el) => (el.scrollTop = 0));
+await page.waitForTimeout(200);
 await page.screenshot({ path: `${root}docs/screenshot.png` });
 console.log('wrote docs/screenshot.png');
 

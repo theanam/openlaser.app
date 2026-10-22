@@ -133,9 +133,9 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Spline, text: 'Line for cuts and scores, with kerf offset' },
       { icon: PaintBucket, text: 'Fill engraves areas at any angle, with cross-hatch' },
       { icon: Layers, text: 'Each SVG or DXF color lands on its own layer' },
-      { icon: MousePointerClick, text: 'Click a layer to select everything it burns' },
+      { icon: MousePointerClick, text: 'Objects sit under their layer; drag them to another' },
     ],
-    features: ['layers', 'line-mode', 'fill-mode'],
+    features: ['layers', 'layer-objects', 'line-mode', 'fill-mode'],
   },
   {
     id: 'photos',

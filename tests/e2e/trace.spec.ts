@@ -45,7 +45,7 @@ test('line art traces to one cut layer and can keep the image', async ({ page })
   await expect(page.getByTestId('status-bar')).toContainText('2 objects');
 });
 
-test('a photo trace lands on a few layers, and deleting it leaves no empty layers', async ({ page }) => {
+test('a photo trace lands on a few layers that stay when their objects go', async ({ page }) => {
   await newProject(page);
   await importFile(page, 'portrait.png');
   await expect(page.getByTestId('image-inspector')).toBeVisible();
@@ -61,7 +61,8 @@ test('a photo trace lands on a few layers, and deleting it leaves no empty layer
 
   await page.keyboard.press('ControlOrMeta+a');
   await page.keyboard.press('Delete');
-  await expect(rows).toHaveCount(0);
-  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.getByTestId('status-bar')).toContainText('0 objects');
   await expect(rows).toHaveCount(count);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.getByTestId('object-row')).toHaveCount(count);
 });

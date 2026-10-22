@@ -80,8 +80,7 @@ export class Editor {
     if (next === current) return;
     // `record: false` is for derived data (text outlines) that follows an edit already on the stack.
     if (options.record !== false) this.history.record(current, options.coalesce ?? null);
-    // A layer only exists while it has something on it.
-    this.project = { ...ops.dropEmptyLayers(next), updatedAt: new Date().toISOString() };
+    this.project = { ...next, updatedAt: new Date().toISOString() };
     this.dirty = true;
     this.historyTick++;
     this.pruneSelection();
@@ -125,7 +124,7 @@ export class Editor {
   }
 
   open(project: Project, file: { name?: string | null; handle?: FileSystemFileHandle | null } = {}): void {
-    this.project = ops.dropEmptyLayers(project);
+    this.project = project;
     this.gcode = null;
     this.selection = new Set();
     this.activeLayerId = project.layers[0]?.id ?? null;
@@ -189,7 +188,7 @@ export class Editor {
   /**
    * The layer new art of this mode goes on: the active layer when it fits, else the first such
    * layer, else a new one. A new layer is returned uncommitted, so it is added in the same step as
-   * its objects (layers are never empty).
+   * its objects and one undo removes both.
    */
   layerFor(mode: LayerMode): { id: Id; created: Layer | null } {
     const project = this.project;
@@ -212,6 +211,14 @@ export class Editor {
     this.activeLayerId = id;
     this.select(objects.map((o) => o.id));
     return objects;
+  }
+
+  /** Adds an empty layer and makes it active; objects are dragged onto it in the Layers panel. */
+  addLayer(mode: LayerMode): Layer {
+    const layer = this.makeLayer(mode);
+    this.commit((p) => ops.addLayer(p, layer));
+    this.activeLayerId = layer.id;
+    return layer;
   }
 
   makeLayer(mode: LayerMode, color?: string): Layer {

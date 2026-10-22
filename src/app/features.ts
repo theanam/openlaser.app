@@ -19,6 +19,7 @@ export const NOTABLE_FEATURES = [
   'gcode-sender',
   'drag-drop',
   'layers',
+  'layer-objects',
   'line-mode',
   'fill-mode',
   'image-mode',

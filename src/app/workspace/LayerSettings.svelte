@@ -3,6 +3,7 @@
   import Toggle from '$lib/ui/Toggle.svelte';
   import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
   import { DEFAULT_FILL_SETTINGS, DEFAULT_LINE_SETTINGS } from '$lib/import/layer-defaults';
+  import { layerAccepts } from '$lib/project/layer-fit';
   import { updateLayer } from '$lib/project/operations';
   import type {
     DitherAlgorithm,
@@ -29,9 +30,7 @@
       : 60000,
   );
   const mismatched = $derived(
-    editor.project?.objects.some(
-      (o) => o.layerId === layer.id && (layer.mode === 'image' ? o.kind !== 'image' : o.kind === 'image'),
-    ) ?? false,
+    editor.project?.objects.some((o) => o.layerId === layer.id && !layerAccepts(layer.mode, o.kind)) ?? false,
   );
 
   const speedUnit = $derived(profiles.active.speedUnit);

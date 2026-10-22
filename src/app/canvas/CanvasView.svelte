@@ -19,7 +19,7 @@
     drawBed,
     drawDashedRect,
     drawLaserHead,
-    drawLayerHighlight,
+    drawObjectHighlight,
     drawObjects,
     drawRulers,
     readPalette,
@@ -84,6 +84,13 @@
   );
   const selectionBounds = $derived(boundsOf(selection));
   const rotatable = $derived(selection.length > 0 && selection.every((o) => o.kind !== 'image'));
+  /** Objects that glow because their row in the Layers panel is hovered. */
+  const highlighted = $derived.by((): ReadonlySet<string> => {
+    if (ui.hoverObjectId) return new Set([ui.hoverObjectId]);
+    const layerId = ui.hoverLayerId;
+    if (!layerId || !editor.project) return new Set();
+    return new Set(editor.project.objects.filter((o) => o.layerId === layerId).map((o) => o.id));
+  });
 
   function invalidate() {
     if (frame) return;
@@ -108,7 +115,7 @@
       bed,
       drag,
     ];
-    void [preview.result, preview.scrub, machine.headPosition, hoverHandle, ui.hoverLayerId];
+    void [preview.result, preview.scrub, machine.headPosition, hoverHandle, highlighted];
     invalidate();
   });
 
@@ -152,7 +159,7 @@
         palette,
         canvas.editingTextId,
       );
-      if (ui.hoverLayerId) drawLayerHighlight(ctx, project, ui.hoverLayerId, canvas.view, bed, palette);
+      if (highlighted.size) drawObjectHighlight(ctx, project, highlighted, canvas.view, bed, palette);
       if (selectionBounds) {
         const box = selectionBox(bedRectToScreen(canvas.view, bed, selectionBounds));
         drawSelection(ctx, box, selectionHandles(), palette);

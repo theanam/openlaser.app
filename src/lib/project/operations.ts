@@ -30,13 +30,17 @@ export function updateLayer(project: Project, id: Id, patch: Partial<Omit<Layer,
   return { ...project, layers: project.layers.map((l) => (l.id === id ? { ...l, ...patch } : l)) };
 }
 
-/** Removes a layer and every object on it. */
-export function removeLayer(project: Project, id: Id): Project {
-  return removeUnusedAssets({
-    ...project,
-    layers: project.layers.filter((l) => l.id !== id),
-    objects: project.objects.filter((o) => o.layerId !== id),
-  });
+/** Removes a layer. Its objects move to `moveTo` when given, otherwise they go too. */
+export function removeLayer(project: Project, id: Id, moveTo: Id | null = null): Project {
+  const layers = project.layers.filter((l) => l.id !== id);
+  if (moveTo !== null) {
+    return {
+      ...project,
+      layers,
+      objects: project.objects.map((o) => (o.layerId === id ? { ...o, layerId: moveTo } : o)),
+    };
+  }
+  return removeUnusedAssets({ ...project, layers, objects: project.objects.filter((o) => o.layerId !== id) });
 }
 
 export function moveLayer(project: Project, from: number, to: number): Project {
@@ -129,16 +133,4 @@ export function removeUnusedAssets(project: Project): Project {
 
 export function setJobSettings(project: Project, patch: Partial<Project['jobSettings']>): Project {
   return { ...project, jobSettings: { ...project.jobSettings, ...patch } };
-}
-
-/** Layers exist only while they hold objects; this drops the rest. */
-export function dropEmptyLayers(project: Project): Project {
-  const used = new Set(project.objects.map((o) => o.layerId));
-  if (project.layers.every((l) => used.has(l.id))) return project;
-  return { ...project, layers: project.layers.filter((l) => used.has(l.id)) };
-}
-
-/** Creates `layer` and moves the given objects onto it, in one step. */
-export function moveObjectsToNewLayer(project: Project, ids: ReadonlySet<Id>, layer: Layer): Project {
-  return setObjectsLayer(addLayer(project, layer), ids, layer.id);
 }

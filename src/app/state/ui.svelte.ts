@@ -25,6 +25,8 @@ class Ui {
   traceImageId = $state<string | null>(null);
   /** Layer under the pointer in the Layers panel; its objects glow on the bed. */
   hoverLayerId = $state<string | null>(null);
+  /** Object under the pointer in the Layers panel. */
+  hoverObjectId = $state<string | null>(null);
   /** Set while the browser print runs, so the print sheet renders. */
   printing = $state(false);
   print = $state<{ scale: 'actual' | 'fit' }>({ scale: 'actual' });

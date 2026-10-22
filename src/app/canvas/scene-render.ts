@@ -321,23 +321,25 @@ export function drawDashedRect(ctx: CanvasRenderingContext2D, r: Rect, color: st
 
 export type { SceneObject };
 
-/** Soft glow around every object on one layer (the layer under the pointer in the Layers panel). */
-export function drawLayerHighlight(
+/** Glow in each layer's own ink around the given objects (a row hovered in the Layers panel). */
+export function drawObjectHighlight(
   ctx: CanvasRenderingContext2D,
   project: Project,
-  layerId: string,
+  ids: ReadonlySet<string>,
   view: View,
   bed: BedFrame,
   palette: Palette,
 ): void {
   const toScreen = bedToScreenMatrix(view, bed);
+  const layers = new Map(project.layers.map((l) => [l.id, l]));
   ctx.save();
-  ctx.strokeStyle = palette.beam;
   ctx.globalAlpha = 0.45;
   ctx.lineWidth = 6;
   ctx.lineJoin = 'round';
   for (const object of project.objects) {
-    if (object.layerId !== layerId || !object.visible) continue;
+    if (!ids.has(object.id) || !object.visible) continue;
+    const layer = layers.get(object.layerId);
+    ctx.strokeStyle = layer ? inkOn(layer.color, palette.bed) : palette.beam;
     if ((object.kind === 'vector' || object.kind === 'text') && object.paths.length) {
       ctx.stroke(screenPath(object, view, bed));
     } else {
