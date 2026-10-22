@@ -5,9 +5,11 @@
     disabled?: boolean;
     onchange: (checked: boolean) => void;
     testid?: string;
+    /** What the switch does, shown as a tooltip when it is hovered. */
+    hint?: string;
   }
 
-  let { label, checked, disabled = false, onchange, testid }: Props = $props();
+  let { label, checked, disabled = false, onchange, testid, hint }: Props = $props();
 </script>
 
 <button
@@ -17,6 +19,7 @@
   aria-checked={checked}
   {disabled}
   data-testid={testid}
+  title={hint}
   onclick={() => onchange(!checked)}
 >
   <span class="track" aria-hidden="true"><span class="thumb"></span></span>

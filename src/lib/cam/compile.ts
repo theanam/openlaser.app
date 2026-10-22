@@ -50,7 +50,15 @@ export function compileJob(input: CompileInput): JobPlan {
       message: 'Nothing to burn: no output layer has visible objects.',
       blocking: true,
     });
-    return { toolpaths: [], gcode: [], bounds: null, stats: emptyStats(), warnings };
+    return {
+      toolpaths: [],
+      gcode: [],
+      bounds: null,
+      offset: { x: 0, y: 0 },
+      layerStarts: [],
+      stats: emptyStats(),
+      warnings,
+    };
   }
 
   const offset = originOffset(
@@ -61,7 +69,7 @@ export function compileJob(input: CompileInput): JobPlan {
   );
   const toolpaths = translateToolpaths(designToolpaths, offset.x, offset.y);
   const origin = jobOrigin(project.jobSettings, input.machinePosition);
-  const { lines, moves } = emitGcode(toolpaths, {
+  const { lines, moves, layerStarts } = emitGcode(toolpaths, {
     maxS: profile.maxS,
     header: profile.gcodeHeader,
     footer: profile.gcodeFooter,
@@ -78,6 +86,8 @@ export function compileJob(input: CompileInput): JobPlan {
     toolpaths,
     gcode: lines,
     bounds: movesBurnBounds(moves),
+    offset,
+    layerStarts,
     stats: jobStats(lines, moves, input.limits),
     warnings,
   };

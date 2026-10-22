@@ -1,5 +1,5 @@
 /** Draws the bed, grid and design objects onto a 2D canvas in screen space. */
-import { multiply } from '$lib/geometry/mat2d';
+import { multiply, translation } from '$lib/geometry/mat2d';
 import type { Mat2D, PathData, Rect, Vec2 } from '$lib/geometry/types';
 import type { ImageObject, Layer, Project, SceneObject, TextObject } from '$lib/project/types';
 import { textPlaceholderSize, type OutlinedObject } from '$lib/project/outline';
@@ -154,6 +154,67 @@ export function drawObjects(
       drawImageObject(ctx, object, layer, toScreen, images(object, layer), palette);
     }
   }
+}
+
+/**
+ * Faint impression of the design where the running job burns it: the output layers' objects moved
+ * by the job's origin offset. Shows where a user or current origin put the job on the bed.
+ */
+export function drawJobGhost(
+  ctx: CanvasRenderingContext2D,
+  project: Project,
+  offset: Vec2,
+  view: View,
+  bed: BedFrame,
+  palette: Palette,
+): void {
+  const layers = new Map(project.layers.map((l) => [l.id, l]));
+  const shift = translation(offset.x, offset.y);
+  const toScreen = multiply(bedToScreenMatrix(view, bed), shift);
+  ctx.save();
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 1;
+  for (const object of project.objects) {
+    const layer = layers.get(object.layerId);
+    if (!object.visible || !layer?.output) continue;
+    const ink = inkOn(layer.color, palette.bed);
+    if ((object.kind === 'vector' || object.kind === 'text') && object.paths.length) {
+      const path = screenPath(
+        { paths: object.paths, transform: multiply(shift, object.transform) },
+        view,
+        bed,
+      );
+      if (layer.mode === 'fill') {
+        ctx.fillStyle = ink;
+        ctx.fill(path, 'evenodd');
+      }
+      ctx.strokeStyle = ink;
+      ctx.stroke(path);
+    } else {
+      const size =
+        object.kind === 'image'
+          ? { width: object.width, height: object.height }
+          : object.kind === 'text'
+            ? textPlaceholderSize(object)
+            : null;
+      if (!size) continue;
+      const m = multiply(toScreen, object.transform);
+      const corners = [
+        { x: 0, y: 0 },
+        { x: size.width, y: 0 },
+        { x: size.width, y: size.height },
+        { x: 0, y: size.height },
+      ].map((p) => applyM(m, p));
+      ctx.setLineDash([4, 3]);
+      ctx.strokeStyle = ink;
+      ctx.beginPath();
+      corners.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+      ctx.closePath();
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  ctx.restore();
 }
 
 /** Dashed box with the text while its font loads. */

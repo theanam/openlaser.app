@@ -84,8 +84,14 @@ describe('emitGcode', () => {
 
   it('uses M3 for constant-power toolpaths and returns to M4', () => {
     const frame: Toolpath = { ...square, laserMode: 'constant' };
-    const lines = emitGcode([frame, { ...square, layerId: 'b' }], settings()).lines;
+    const result = emitGcode([frame, { ...square, layerId: 'b' }], settings());
+    const lines = result.lines;
     expect(lines).toContain('M3 S0');
+    // Each layer's first line, so the sender can show which layer burns.
+    expect(result.layerStarts).toEqual([
+      { layerId: 'cut', line: 3 },
+      { layerId: 'b', line: lines.indexOf('M4 S0', 3) },
+    ]);
     expect(lines.indexOf('M4 S0', 3)).toBeGreaterThan(lines.indexOf('M3 S0'));
   });
 

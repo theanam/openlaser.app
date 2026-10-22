@@ -93,12 +93,22 @@ export interface JobStats {
   estimatedSeconds: number;
 }
 
+/** First G-code line of a layer's toolpath, so a sender can tell which layer is burning. */
+export interface LayerStart {
+  layerId: Id;
+  line: number;
+}
+
 export interface JobPlan {
   toolpaths: Toolpath[];
   /** Final lines without trailing newlines. */
   gcode: string[];
   /** Of laser-on moves, for framing. Null when nothing burns. */
   bounds: Rect | null;
+  /** How far the design was moved to sit on the job origin; zero for absolute jobs. */
+  offset: Vec2;
+  /** In run order. */
+  layerStarts: LayerStart[];
   stats: JobStats;
   warnings: CamWarning[];
 }

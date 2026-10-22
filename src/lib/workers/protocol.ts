@@ -1,5 +1,13 @@
 /** Messages between the UI and the CAM worker. */
-import type { CamWarning, GcodeOptions, JobStats, MachineLimits, MoveList, Rect } from '../cam/types';
+import type {
+  CamWarning,
+  GcodeOptions,
+  JobStats,
+  LayerStart,
+  MachineLimits,
+  MoveList,
+  Rect,
+} from '../cam/types';
 import type { ImageSettings, Layer, MachineProfile, Project } from '../project/types';
 import type { Vec2 } from '../geometry/types';
 
@@ -16,6 +24,9 @@ export interface CompileRequest {
 export interface CompileResult {
   gcode: string[];
   bounds: Rect | null;
+  /** Translation from the design to the job (user and current origins). */
+  offset: Vec2;
+  layerStarts: LayerStart[];
   stats: JobStats;
   warnings: CamWarning[];
   moves: MoveList;

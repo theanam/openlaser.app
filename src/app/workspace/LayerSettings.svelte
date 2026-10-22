@@ -38,6 +38,12 @@
     profiles.active.laserType === 'co2' && layer.power > 0 && layer.power < CO2_MIN_FIRING_PERCENT,
   );
 
+  const MODE_HINTS: Record<LayerMode, string> = {
+    line: 'Burns along the outlines: cuts and scores',
+    fill: 'Engraves the inside of shapes with scan lines',
+    image: 'Engraves photos as dots or grayscale power',
+  };
+
   /** Common laser power levels; any other value can still be typed. */
   const POWER_PRESETS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100];
 
@@ -72,6 +78,7 @@
       <button
         type="button"
         aria-pressed={layer.mode === mode}
+        title={MODE_HINTS[mode]}
         onclick={() => setMode(mode)}
         data-testid="mode-{mode}"
       >
@@ -89,6 +96,7 @@
   <div class="grid">
     <NumberField
       label="Speed"
+      hint="How fast the head moves while the laser burns"
       unit={speedUnit}
       value={speedToUnit(layer.speed, speedUnit)}
       decimals={speedUnit === 'mm/s' ? 1 : 0}
@@ -100,6 +108,7 @@
     />
     <NumberField
       label="Power"
+      hint="Laser power while burning, as a share of the machine's maximum"
       presets={POWER_PRESETS}
       unit="%"
       value={layer.power}
@@ -111,6 +120,7 @@
     />
     <NumberField
       label="Passes"
+      hint="How many times the whole layer is burned. More passes cut deeper"
       value={layer.passes}
       min={1}
       max={100}
@@ -126,6 +136,7 @@
     {#if layer.mode === 'line'}
       <NumberField
         label="Kerf offset"
+        hint="Shifts cut lines by half the beam width so parts come out at size: outlines grow, holes shrink. Negative does the reverse"
         unit="mm"
         decimals={3}
         value={line.kerfOffset}
@@ -137,6 +148,7 @@
     {:else if layer.mode === 'fill'}
       <NumberField
         label="Interval"
+        hint="Distance between fill lines. Smaller is denser and slower"
         unit="mm"
         decimals={3}
         value={fill.interval}
@@ -147,6 +159,7 @@
       />
       <NumberField
         label="Angle"
+        hint="Direction of the fill lines. 0° runs them horizontally"
         unit="°"
         decimals={1}
         value={fill.angle}
@@ -157,6 +170,7 @@
       />
       <NumberField
         label="Overscan"
+        hint="Laser-off run past each line end, so the head is at full speed while it burns"
         unit="mm"
         decimals={1}
         value={fill.overscan}
@@ -168,6 +182,7 @@
     {:else}
       <NumberField
         label="Min power"
+        hint="Power for the lightest gray in Grayscale mode. White stays off"
         presets={POWER_PRESETS}
         unit="%"
         value={layer.minPower}
@@ -178,6 +193,7 @@
       />
       <NumberField
         label="Line density"
+        hint="Scan lines per inch. Higher is finer and slower"
         unit="dpi"
         value={image.dpi}
         min={10}
@@ -187,6 +203,7 @@
       />
       <NumberField
         label="Overscan"
+        hint="Laser-off run past each line end, so the head is at full speed while it burns"
         unit="mm"
         decimals={1}
         value={image.overscan}
@@ -199,7 +216,7 @@
   </div>
 
   {#if layer.mode === 'image'}
-    <label class="field">
+    <label class="field" title="How gray tones become dots. Grayscale varies the power per pixel">
       Dithering
       <select
         class="input"
@@ -215,6 +232,7 @@
       {#if image.algorithm === 'threshold'}
         <NumberField
           label="Threshold"
+          hint="Gray level that splits burn from no burn, 0 to 255"
           value={image.threshold}
           min={0}
           max={255}
@@ -224,6 +242,7 @@
       {/if}
       <NumberField
         label="Brightness"
+        hint="Lightens or darkens the whole image before dithering"
         value={image.brightness}
         min={-100}
         max={100}
@@ -232,6 +251,7 @@
       />
       <NumberField
         label="Contrast"
+        hint="Spreads or squeezes the tones. Higher makes lights lighter and darks darker"
         value={image.contrast}
         min={-100}
         max={100}
@@ -240,6 +260,7 @@
       />
       <NumberField
         label="Gamma"
+        hint="Mid-tone curve. Above 1 lightens mid-tones, below 1 darkens them"
         decimals={2}
         value={image.gamma}
         min={0.1}
@@ -252,27 +273,32 @@
       <button
         type="button"
         aria-pressed={image.scanAngle === 0}
+        title="Scan lines run left to right"
         onclick={() => setImage({ scanAngle: 0 }, false, 'scan')}>Horizontal</button
       >
       <button
         type="button"
         aria-pressed={image.scanAngle === 90}
+        title="Scan lines run bottom to top"
         onclick={() => setImage({ scanAngle: 90 }, false, 'scan')}>Vertical</button
       >
     </div>
     <div class="toggles">
       <Toggle
         label="Bidirectional"
+        hint="Burns on the way back too. Faster, with slight line offsets on some machines"
         checked={image.bidirectional}
         onchange={(c) => setImage({ bidirectional: c }, false, 'bidi')}
       />
       <Toggle
         label="Invert"
+        hint="Burns the light areas and leaves the dark ones"
         checked={image.invert}
         onchange={(c) => setImage({ invert: c }, false, 'invert')}
       />
       <Toggle
         label="Pass-through"
+        hint="Sends the image as it is, with no tone changes or dithering. For images you dithered yourself"
         checked={image.passThrough}
         onchange={(c) => setImage({ passThrough: c }, false, 'pass')}
       />
@@ -281,11 +307,13 @@
     <div class="toggles">
       <Toggle
         label="Bidirectional"
+        hint="Burns on the way back too. Faster, with slight line offsets on some machines"
         checked={fill.bidirectional}
         onchange={(c) => setFill({ bidirectional: c }, false, 'bidi')}
       />
       <Toggle
         label="Cross-hatch"
+        hint="Adds a second fill pass turned 90°, for a denser, more even engrave"
         checked={fill.crossHatch}
         onchange={(c) => setFill({ crossHatch: c }, false, 'hatch')}
       />
@@ -295,6 +323,7 @@
   {#if profiles.active.supportsAirAssist}
     <Toggle
       label="Air assist"
+      hint="Runs the air pump while this layer burns (M8). Clears smoke and cuts cleaner"
       checked={layer.airAssist}
       onchange={(c) => set({ airAssist: c }, false, 'air')}
     />

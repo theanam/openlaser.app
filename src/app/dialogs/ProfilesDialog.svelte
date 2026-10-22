@@ -196,7 +196,7 @@
               >
             </div>
           </div>
-          <div class="field">
+          <div class="field" title="The unit speeds are shown and typed in">
             Speeds in
             <div class="segmented" role="group" aria-label="Speed unit">
               {#each ['mm/min', 'mm/s'] as const as unit (unit)}
@@ -229,6 +229,7 @@
           {#if grbl}
             <NumberField
               label="Max S ($30)"
+              hint="The S value that means 100% power. Read from the machine's $30 on connect"
               value={selected.maxS}
               min={1}
               max={100000}
@@ -236,6 +237,7 @@
             />
             <NumberField
               label="Baud rate"
+              hint="Serial speed. 115200 for nearly every GRBL board"
               value={selected.baudRate}
               min={1200}
               max={2000000}
@@ -243,6 +245,7 @@
             />
             <NumberField
               label="Jog speed"
+              hint="How fast the jog pad moves the head"
               unit="mm/min"
               value={selected.defaultJogSpeed}
               min={1}
@@ -252,6 +255,7 @@
             />
             <NumberField
               label="Frame speed"
+              hint="How fast the head traces a job's outline when framing"
               unit="mm/min"
               value={selected.frameSpeed}
               min={1}
@@ -261,6 +265,7 @@
             />
             <NumberField
               label="Frame power"
+              hint="Low power while framing so the beam shows. 0 keeps it off; capped at 5%"
               unit="%"
               decimals={1}
               value={selected.framePowerPercent}
@@ -271,7 +276,7 @@
             />
           {/if}
         </div>
-        <div class="field">
+        <div class="field" title="The corner the machine calls 0,0, seen from above">
           Origin (0,0)
           <div class="segmented" role="group" aria-label="Origin corner">
             {#each ORIGINS as o (o.id)}
@@ -287,17 +292,20 @@
           {#if grbl}
             <Toggle
               label="Constant power (M3)"
+              hint="Keeps power fixed through corners. M4 lowers it as the head slows, which a CO₂ tube turns into gaps"
               checked={selected.constantPower}
               onchange={(c) => patch({ constantPower: c })}
             />
             <Toggle
               label="Warn without laser mode ($32)"
+              hint="Checks $32=1 before a job. Laser mode keeps the beam off during travel moves"
               checked={selected.laserModeRequired}
               onchange={(c) => patch({ laserModeRequired: c })}
             />
           {/if}
           <Toggle
             label={grbl ? 'Air assist (M8)' : 'Air assist'}
+            hint="The machine has an air pump the firmware switches with M8 and M9"
             checked={selected.supportsAirAssist}
             onchange={(c) => patch({ supportsAirAssist: c })}
           />

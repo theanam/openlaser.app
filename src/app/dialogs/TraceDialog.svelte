@@ -196,14 +196,23 @@
       </div>
 
       <div class="segmented" role="group" aria-label="Mode">
-        <button type="button" aria-pressed={options.mode === 'color'} onclick={() => set('mode', 'color')}
-          >Color</button
+        <button
+          type="button"
+          aria-pressed={options.mode === 'color'}
+          title="One layer per color"
+          onclick={() => set('mode', 'color')}>Color</button
         >
-        <button type="button" aria-pressed={options.mode === 'gray'} onclick={() => set('mode', 'gray')}
-          >Gray</button
+        <button
+          type="button"
+          aria-pressed={options.mode === 'gray'}
+          title="One layer per shade of gray"
+          onclick={() => set('mode', 'gray')}>Gray</button
         >
-        <button type="button" aria-pressed={options.mode === 'bw'} onclick={() => set('mode', 'bw')}
-          >B&amp;W</button
+        <button
+          type="button"
+          aria-pressed={options.mode === 'bw'}
+          title="One layer: everything darker than the threshold"
+          onclick={() => set('mode', 'bw')}>B&amp;W</button
         >
       </div>
 
@@ -211,6 +220,7 @@
         {#if options.mode === 'bw'}
           <NumberField
             label="Threshold"
+            hint="Gray level that splits dark from light, 0 to 255"
             value={autoThreshold ? 128 : options.threshold}
             min={0}
             max={255}
@@ -218,11 +228,17 @@
             onchange={(v) => set('threshold', v)}
           />
           <div class="auto">
-            <Toggle label="Auto threshold" checked={autoThreshold} onchange={(c) => (autoThreshold = c)} />
+            <Toggle
+              label="Auto threshold"
+              hint="Picks the threshold from the image's own tones"
+              checked={autoThreshold}
+              onchange={(c) => (autoThreshold = c)}
+            />
           </div>
         {:else}
           <NumberField
             label="Colors"
+            hint="How many colors the image is reduced to. Each becomes a layer"
             value={options.colors}
             min={2}
             max={64}
@@ -230,6 +246,7 @@
           />
           <NumberField
             label="Denoise"
+            hint="Blurs grain away before tracing, in pixels"
             unit="px"
             value={options.denoise}
             min={0}
@@ -239,6 +256,7 @@
         {/if}
         <NumberField
           label="Smoothness"
+          hint="How much the traced curves are smoothed. Higher drops small bumps"
           value={options.smoothness}
           min={0}
           max={100}
@@ -246,6 +264,7 @@
         />
         <NumberField
           label="Corners"
+          hint="How readily a bend becomes a sharp corner. Higher keeps more corners"
           value={options.corners}
           min={0}
           max={100}
@@ -253,6 +272,7 @@
         />
         <NumberField
           label="Ignore specks under"
+          hint="Drops regions smaller than this many pixels"
           unit="px"
           value={options.speckle}
           min={0}
@@ -262,6 +282,7 @@
         {#if options.mode === 'bw'}
           <NumberField
             label="Denoise"
+            hint="Blurs grain away before tracing, in pixels"
             unit="px"
             value={options.denoise}
             min={0}
@@ -274,11 +295,13 @@
       <div class="toggles">
         <Toggle
           label="Drop background color"
+          hint="Leaves out the color along the image edges"
           checked={options.ignoreBackground}
           onchange={(c) => set('ignoreBackground', c)}
         />
         <Toggle
           label="Stack layers (overlap burns twice)"
+          hint="Each color's shape also covers the colors under it, as in a print. Overlaps burn more than once"
           checked={options.stacked}
           onchange={(c) => set('stacked', c)}
         />
@@ -297,11 +320,17 @@
         {#if options.mode !== 'bw'}
           <Toggle
             label="Darker colors burn harder"
+            hint="Sets each layer's power from how dark its color is"
             checked={powerByShade}
             onchange={(c) => (powerByShade = c)}
           />
         {/if}
-        <Toggle label="Keep the image underneath" checked={keepImage} onchange={(c) => (keepImage = c)} />
+        <Toggle
+          label="Keep the image underneath"
+          hint="Keeps the photo, hidden, under the trace"
+          checked={keepImage}
+          onchange={(c) => (keepImage = c)}
+        />
       </div>
     </div>
   </div>

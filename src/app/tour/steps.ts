@@ -35,6 +35,7 @@ import Scan from '@lucide/svelte/icons/scan';
 import Gauge from '@lucide/svelte/icons/gauge';
 import OctagonX from '@lucide/svelte/icons/octagon-x';
 import Crosshair from '@lucide/svelte/icons/crosshair';
+import Ghost from '@lucide/svelte/icons/ghost';
 import Terminal from '@lucide/svelte/icons/terminal';
 import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 import Save from '@lucide/svelte/icons/save';
@@ -198,8 +199,10 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Scan, text: 'Frame once or on a loop, laser off or at 1% to line things up' },
       { icon: Gauge, text: 'Pause, resume, and live speed and power overrides' },
       { icon: OctagonX, text: 'Esc stops the job instantly' },
+      { icon: Ghost, text: 'A faint ghost shows where a job from a user or current origin burns' },
+      { icon: Layers, text: 'The layer being burned lights up in the Layers panel' },
     ],
-    features: ['framing', 'frame-loop', 'job-control', 'overrides', 'stop-esc'],
+    features: ['framing', 'frame-loop', 'job-control', 'job-ghost', 'burning-layer', 'overrides', 'stop-esc'],
   },
   {
     id: 'machine',

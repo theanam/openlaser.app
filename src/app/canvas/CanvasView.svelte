@@ -19,6 +19,7 @@
     drawBed,
     drawDashedRect,
     drawLaserHead,
+    drawJobGhost,
     drawObjectHighlight,
     drawObjects,
     drawRulers,
@@ -115,7 +116,7 @@
       bed,
       drag,
     ];
-    void [preview.result, preview.scrub, machine.headPosition, hoverHandle, highlighted];
+    void [preview.result, preview.scrub, machine.headPosition, machine.jobOffset, hoverHandle, highlighted];
     invalidate();
   });
 
@@ -159,6 +160,9 @@
         palette,
         canvas.editingTextId,
       );
+      const offset = machine.jobOffset;
+      if (offset && (offset.x !== 0 || offset.y !== 0))
+        drawJobGhost(ctx, project, offset, canvas.view, bed, palette);
       if (highlighted.size) drawObjectHighlight(ctx, project, highlighted, canvas.view, bed, palette);
       if (selectionBounds) {
         const box = selectionBox(bedRectToScreen(canvas.view, bed, selectionBounds));

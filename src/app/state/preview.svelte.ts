@@ -2,7 +2,8 @@
  * The compiled job for the open project, refreshed in a worker while Preview is showing, and on
  * demand before Frame, Start job and Export. A G-code document skips compiling.
  */
-import type { CamWarning, JobStats, MoveList, Rect } from '$lib/cam/types';
+import type { CamWarning, JobStats, LayerStart, MoveList, Rect } from '$lib/cam/types';
+import type { Vec2 } from '$lib/geometry/types';
 import type { CompileResult } from '$lib/workers/protocol';
 import { reportError } from '$lib/ui/errors';
 import { compileInWorker, SupersededError } from '../lib/cam-client';
@@ -16,6 +17,10 @@ export interface JobSource {
   lines: string[];
   moves: MoveList;
   bounds: Rect | null;
+  /** Where the design sits relative to the bed while this job runs; zero for absolute jobs. */
+  offset: Vec2;
+  /** Which layer each stretch of lines belongs to, in run order. Empty for G-code files. */
+  layerStarts: LayerStart[];
   stats: JobStats | null;
   warnings: CamWarning[];
 }
@@ -69,6 +74,8 @@ class Preview {
         lines: doc.lines,
         moves: doc.moves,
         bounds: doc.moves.burnBounds,
+        offset: { x: 0, y: 0 },
+        layerStarts: [],
         stats: null,
         warnings: [],
       };
@@ -80,6 +87,8 @@ class Preview {
       lines: r.gcode,
       moves: r.moves,
       bounds: r.bounds,
+      offset: r.offset,
+      layerStarts: r.layerStarts,
       stats: r.stats,
       warnings: r.warnings,
     };

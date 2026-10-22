@@ -46,13 +46,17 @@
     </div>
   {:else}
     <p class="lead">
-      {count === 1 ? 'The object' : `The ${count} objects`} on it will be deleted too. No other layer
-      can take {count === 1 ? 'it' : 'them'}.
+      {count === 1 ? 'The object' : `The ${count} objects`} on it will be deleted too. No other layer can take {count ===
+      1
+        ? 'it'
+        : 'them'}.
     </p>
   {/if}
   {#snippet footer()}
     <button type="button" class="btn" onclick={() => (open = false)}>Cancel</button>
-    <button type="button" class="btn signal" onclick={confirm} data-testid="delete-layer-confirm">Delete</button>
+    <button type="button" class="btn signal" onclick={confirm} data-testid="delete-layer-confirm"
+      >Delete</button
+    >
   {/snippet}
 </Dialog>
 

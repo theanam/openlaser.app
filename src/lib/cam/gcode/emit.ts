@@ -9,7 +9,7 @@
 import type { Vec2 } from '../../geometry/types';
 import type { Id } from '../../project/types';
 import { segmentPower } from '../toolpath';
-import type { GcodeOptions, Toolpath } from '../types';
+import type { GcodeOptions, Toolpath, LayerStart } from '../types';
 import { formatCoordinate, formatInteger, powerToS, userLines } from './format';
 
 export const DEFAULT_GCODE_OPTIONS: GcodeOptions = { optimize: true, leadingZero: true, comments: false };
@@ -49,6 +49,7 @@ export interface Move {
 export interface EmitResult {
   lines: string[];
   moves: Move[];
+  layerStarts: LayerStart[];
 }
 
 export function emitGcode(toolpaths: readonly Toolpath[], settings: EmitSettings): EmitResult {
@@ -59,7 +60,10 @@ export function emitGcode(toolpaths: readonly Toolpath[], settings: EmitSettings
   writer.raw(...userLines(settings.header));
   if (settings.airAssist) writer.raw('M8');
 
+  const layerStarts: LayerStart[] = [];
   for (const toolpath of toolpaths) {
+    if (layerStarts.at(-1)?.layerId !== toolpath.layerId)
+      layerStarts.push({ layerId: toolpath.layerId, line: writer.lines.length });
     if (settings.options.comments)
       writer.comment(settings.layerNames?.get(toolpath.layerId) ?? toolpath.layerId);
     writer.laserMode(toolpath.laserMode === 'constant' ? 'M3' : 'M4');
@@ -78,7 +82,7 @@ export function emitGcode(toolpaths: readonly Toolpath[], settings: EmitSettings
   if (settings.airAssist) writer.raw('M9');
   writer.raw(...userLines(settings.footer));
   if (settings.returnTo) writer.travel(settings.returnTo.x, settings.returnTo.y);
-  return { lines: writer.lines, moves: writer.moves };
+  return { lines: writer.lines, moves: writer.moves, layerStarts };
 }
 
 class GcodeWriter {

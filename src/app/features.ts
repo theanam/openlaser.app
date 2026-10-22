@@ -41,6 +41,8 @@ export const NOTABLE_FEATURES = [
   'framing',
   'frame-loop',
   'job-control',
+  'job-ghost',
+  'burning-layer',
   'overrides',
   'stop-esc',
   'jog-home',

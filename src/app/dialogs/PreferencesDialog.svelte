@@ -37,11 +37,13 @@
         <button
           type="button"
           aria-pressed={p.errorPolicy === 'stop'}
+          title="Holds the job on a controller error and waits for you"
           onclick={() => preferences.update({ errorPolicy: 'stop' })}>Pause and ask</button
         >
         <button
           type="button"
           aria-pressed={p.errorPolicy === 'continue'}
+          title="Notes the error in the console and keeps going"
           onclick={() => preferences.update({ errorPolicy: 'continue' })}>Log and continue</button
         >
       </div>
@@ -49,6 +51,7 @@
 
     <NumberField
       label="Status poll interval"
+      hint="How often the machine is asked for its position and state"
       unit="ms"
       value={p.statusPollMs}
       min={50}
@@ -74,16 +77,19 @@
     <h3>G-code debugging</h3>
     <Toggle
       label="Layer comments in output"
+      hint="Writes a comment with the layer name before each layer's moves"
       checked={p.debug.gcodeComments}
       onchange={(c) => preferences.update({ debug: { ...p.debug, gcodeComments: c } })}
     />
     <Toggle
       label="Turn off the optimizer"
+      hint="Keeps every repeated word and zero-length move, for comparing output"
       checked={p.debug.disableOptimizer}
       onchange={(c) => preferences.update({ debug: { ...p.debug, disableOptimizer: c } })}
     />
     <Toggle
       label="Leading zero in decimals (0.5)"
+      hint="Writes 0.5 where the optimizer would write .5"
       checked={p.debug.leadingZero}
       onchange={(c) => preferences.update({ debug: { ...p.debug, leadingZero: c } })}
     />

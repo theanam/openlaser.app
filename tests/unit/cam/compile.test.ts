@@ -125,6 +125,9 @@ describe('compileJob', () => {
     });
     const plan = compileJob(compileInput(p, { machinePosition: { x: 100, y: 50 } }));
     expect(plan.bounds).toEqual({ minX: 90, minY: 40, maxX: 110, maxY: 60 });
+    // The canvas shows a ghost of the design moved by this while the job runs.
+    expect(plan.offset).toEqual({ x: 80, y: 30 });
+    expect(compileJob(compileInput(project([layer({ id: 'a' })], p.objects))).offset).toEqual({ x: 0, y: 0 });
     expect(plan.gcode[plan.gcode.length - 1]).toBe('G0 X100 Y50');
   });
 

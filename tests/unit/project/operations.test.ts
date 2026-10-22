@@ -129,7 +129,7 @@ describe('layers persist', () => {
     expect(p.layers.map((l) => l.id)).toEqual(['a', 'b']);
   });
 
-  it('moves a deleted layer\'s objects to the chosen layer', () => {
+  it("moves a deleted layer's objects to the chosen layer", () => {
     const p = removeLayer(base(), 'a', 'b');
     expect(p.layers.map((l) => l.id)).toEqual(['b']);
     expect(p.objects.map((o) => [o.id, o.layerId])).toEqual([

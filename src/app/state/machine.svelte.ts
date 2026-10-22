@@ -22,8 +22,9 @@ import {
   type RealtimeCommand,
   type Transport,
 } from '$lib/machine';
-import type { MachineLimits } from '$lib/cam/types';
+import type { LayerStart, MachineLimits } from '$lib/cam/types';
 import type { Vec2 } from '$lib/geometry/types';
+import type { Id } from '$lib/project/types';
 import { confirm } from '$lib/ui/confirm.svelte';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
@@ -136,6 +137,25 @@ class MachineController {
   safetyRequest = $state.raw<SafetyRequest | null>(null);
   /** A frame (single or looping) is in progress. */
   framing = $state(false);
+  /**
+   * Offset of the running job or frame from the design, so the canvas can show where it burns
+   * when the origin is the head or a user point. Null when nothing runs.
+   */
+  jobOffset = $state.raw<Vec2 | null>(null);
+  /** Where each layer's lines start in the running job, for the burning-layer highlight. */
+  private jobLayerStarts = $state.raw<LayerStart[]>([]);
+
+  /** The layer whose lines the controller is working through, while a job runs. */
+  get burningLayerId(): Id | null {
+    const p = this.progress;
+    if (p.kind !== 'job' || !this.jobActive) return null;
+    let current: Id | null = null;
+    for (const start of this.jobLayerStarts) {
+      if (start.line > p.acked) break;
+      current = start.layerId;
+    }
+    return current;
+  }
   /** Keep tracing the outline until stopped. */
   frameLoop = $state(false);
   /** The Frame button repeats until stopped (the toggle next to it). */
@@ -526,7 +546,7 @@ class MachineController {
     if (!(await this.preflight())) return;
     const job = await preview.ensure();
     const bounds = job?.bounds ?? null;
-    if (!bounds) {
+    if (!job || !bounds) {
       toast.warning('Nothing to frame yet.');
       return;
     }
@@ -536,7 +556,12 @@ class MachineController {
     try {
       do {
         this.framePass++;
-        const outcome = await this.run(buildFrameGcode(bounds, profiles.active), 'frame');
+        const outcome = await this.run(
+          buildFrameGcode(bounds, profiles.active),
+          'frame',
+          undefined,
+          job.offset,
+        );
         if (outcome !== 'completed') break;
         this.framedKey = boundsKey(bounds);
         // The machine reports Idle a moment after the last move; wait for it before the next pass.
@@ -625,16 +650,20 @@ class MachineController {
     }
     if (choice !== 'start') return;
     this.safetyConfirmed = true;
-    await this.run(job.lines, 'job', job.stats?.estimatedSeconds);
+    await this.run(job.lines, 'job', job.stats?.estimatedSeconds, job.offset, job.layerStarts);
   }
 
   private async run(
     lines: string[],
     kind: 'job' | 'frame',
     estimatedSeconds?: number,
+    offset?: Vec2,
+    layerStarts: LayerStart[] = [],
   ): Promise<JobOutcome | null> {
     const runner = this.runner;
     if (!runner) return null;
+    this.jobOffset = offset ?? null;
+    this.jobLayerStarts = layerStarts;
     if (kind === 'job') await this.wakeLock.acquire();
     try {
       const outcome = await runner.run(lines, {
@@ -648,6 +677,8 @@ class MachineController {
       toast.error(errorMessage(error));
       return null;
     } finally {
+      this.jobOffset = null;
+      this.jobLayerStarts = [];
       await this.wakeLock.release();
     }
   }

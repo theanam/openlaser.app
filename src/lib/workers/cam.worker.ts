@@ -55,6 +55,8 @@ async function handle(
       const result = {
         gcode: plan.gcode,
         bounds: plan.bounds,
+        offset: plan.offset,
+        layerStarts: plan.layerStarts,
         stats: plan.stats,
         warnings: plan.warnings,
         moves,

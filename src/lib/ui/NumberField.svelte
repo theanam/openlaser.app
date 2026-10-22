@@ -24,6 +24,8 @@
     presets?: number[];
     /** How a preset reads in the dropdown, e.g. "Off" for 0. Defaults to value + unit. */
     presetLabel?: (value: number) => string;
+    /** What the setting does, shown as a tooltip when the field is hovered. */
+    hint?: string;
   }
 
   let {
@@ -41,6 +43,7 @@
     stepper = true,
     presets,
     presetLabel,
+    hint,
   }: Props = $props();
 
   const showStepper = $derived(stepper);
@@ -159,7 +162,7 @@
   }
 </script>
 
-<div class="nf" class:compact class:stepped={showStepper} class:presets={hasPresets}>
+<div class="nf" class:compact class:stepped={showStepper} class:presets={hasPresets} title={hint}>
   <label for={id} class="nf-label" class:scrub={!disabled} onpointerdown={startScrub}>{label}</label>
   <span class="nf-wrap">
     <input

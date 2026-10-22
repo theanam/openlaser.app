@@ -50,6 +50,7 @@
       </div>
       <NumberField
         label="Offset"
+        hint="Gap between the objects and the outline. Negative draws it inside"
         unit="mm"
         decimals={2}
         step={0.5}
@@ -65,16 +66,19 @@
         <button
           type="button"
           aria-pressed={ui.outline.corners === 'round'}
+          title="Rounded corners"
           onclick={() => (ui.outline = { ...ui.outline, corners: 'round' })}>Round</button
         >
         <button
           type="button"
           aria-pressed={ui.outline.corners === 'miter'}
+          title="Pointed corners"
           onclick={() => (ui.outline = { ...ui.outline, corners: 'miter' })}>Sharp</button
         >
       </div>
       <Toggle
         label="Outer edge only"
+        hint="One outline around everything, with holes dropped. For sticker cuts and blanks"
         checked={ui.outline.outerOnly}
         onchange={(v) => (ui.outline = { ...ui.outline, outerOnly: v })}
         testid="outline-outer"

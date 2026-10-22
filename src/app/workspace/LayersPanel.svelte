@@ -59,13 +59,18 @@
     <h2>Layers</h2>
     <span class="hint">Order = run order</span>
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger class="icon-btn sm" aria-label="Add layer" title="Add layer" data-testid="new-layer"
-        ><Plus size={16} /></DropdownMenu.Trigger
+      <DropdownMenu.Trigger
+        class="icon-btn sm"
+        aria-label="Add layer"
+        title="Add layer"
+        data-testid="new-layer"><Plus size={16} /></DropdownMenu.Trigger
       >
       <DropdownMenu.Portal>
         <DropdownMenu.Content class="ol-menu" sideOffset={6} align="end">
           {#each MODES as { mode, label } (mode)}
-            <DropdownMenu.Item class="ol-menu-item" onSelect={() => editor.addLayer(mode)}>{label}</DropdownMenu.Item>
+            <DropdownMenu.Item class="ol-menu-item" onSelect={() => editor.addLayer(mode)}
+              >{label}</DropdownMenu.Item
+            >
           {/each}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
@@ -84,7 +89,13 @@
       {onkeydown}
     >
       {#each layers as layer, i (layer.id)}
-        <LayerRow {layer} index={i} {drag} ondelete={remove} onmoveselection={(l) => moveObjects(editor.selection, l.id)} />
+        <LayerRow
+          {layer}
+          index={i}
+          {drag}
+          ondelete={remove}
+          onmoveselection={(l) => moveObjects(editor.selection, l.id)}
+        />
       {/each}
     </ul>
   {/if}

@@ -1,6 +1,17 @@
 <script lang="ts">
   import X from '@lucide/svelte/icons/x';
   import { toasts } from './toasts.svelte';
+
+  // Hidden tabs slow timers down; clear what expired as soon as the tab is back.
+  $effect(() => {
+    const sweep = () => toasts.sweep();
+    document.addEventListener('visibilitychange', sweep);
+    window.addEventListener('focus', sweep);
+    return () => {
+      document.removeEventListener('visibilitychange', sweep);
+      window.removeEventListener('focus', sweep);
+    };
+  });
 </script>
 
 <div class="toaster" role="region" aria-label="Notifications" aria-live="polite">
@@ -8,6 +19,7 @@
     <div class="toast {t.tone}" role={t.tone === 'error' ? 'alert' : 'status'}>
       <span class="dot" aria-hidden="true"></span>
       <span class="msg">{t.message}</span>
+      {#if t.count > 1}<span class="count mono" data-testid="toast-count">×{t.count}</span>{/if}
       {#if t.action}
         <button
           type="button"
@@ -25,18 +37,20 @@
         onclick={() => toasts.dismiss(t.id)}
       >
         {#if t.duration > 0}
-          <!-- Drains as the toast's time runs out. -->
-          <svg class="timer" viewBox="0 0 28 28" aria-hidden="true" data-testid="toast-timer">
-            <circle cx="14" cy="14" r="12" class="track" />
-            <circle
-              cx="14"
-              cy="14"
-              r="12"
-              class="left"
-              pathLength="100"
-              style="animation-duration: {t.duration}ms"
-            />
-          </svg>
+          <!-- Drains as the toast's time runs out; a repeat restarts it. -->
+          {#key t.count}
+            <svg class="timer" viewBox="0 0 28 28" aria-hidden="true" data-testid="toast-timer">
+              <circle cx="14" cy="14" r="12" class="track" />
+              <circle
+                cx="14"
+                cy="14"
+                r="12"
+                class="left"
+                pathLength="100"
+                style="animation-duration: {t.duration}ms"
+              />
+            </svg>
+          {/key}
         {/if}
         <X size={14} />
       </button>
@@ -94,6 +108,14 @@
 
   .msg {
     flex: 1;
+  }
+
+  .count {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ol-surface-2);
+    color: var(--ol-text-muted);
+    font-size: var(--ol-fs-xs);
   }
 
   .close {

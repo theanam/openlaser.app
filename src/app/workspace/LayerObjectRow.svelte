@@ -57,9 +57,12 @@
     <span
       class="warn"
       role="img"
-      aria-label={object.kind === 'image' ? 'Skipped: needs an image layer' : 'Skipped: needs a line or fill layer'}
-      title={object.kind === 'image' ? 'Skipped: needs an image layer' : 'Skipped: needs a line or fill layer'}
-      ><TriangleAlert size={13} /></span
+      aria-label={object.kind === 'image'
+        ? 'Skipped: needs an image layer'
+        : 'Skipped: needs a line or fill layer'}
+      title={object.kind === 'image'
+        ? 'Skipped: needs an image layer'
+        : 'Skipped: needs a line or fill layer'}><TriangleAlert size={13} /></span
     >
   {/if}
   <button

@@ -52,6 +52,7 @@
   <div class="fields">
     <NumberField
       label="Laser"
+      hint="Low power while framing so the beam shows where the job goes. 0 keeps it off"
       unit={profile.framePowerPercent > 0 ? '%' : 'off'}
       decimals={1}
       step={0.5}
@@ -66,6 +67,7 @@
     />
     <NumberField
       label="Speed"
+      hint="How fast the head traces the job's outline"
       unit="mm/min"
       step={100}
       min={100}

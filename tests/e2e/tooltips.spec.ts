@@ -33,6 +33,17 @@ test('hovering an icon button shows its tooltip', async ({ page }) => {
   await expect(page.getByTestId('tooltip')).toBeHidden();
 });
 
+test('hovering a setting explains it', async ({ page }) => {
+  await newProject(page);
+  await page.getByTestId('tool-rect').click();
+  await dragOnCanvas(page, [0.4, 0.4], [0.5, 0.5]);
+  await page.getByTestId('mode-fill').click();
+  await page.getByRole('switch', { name: 'Cross-hatch' }).hover();
+  await expect(page.getByTestId('tooltip')).toHaveText(/second fill pass/);
+  await page.getByText('Angle', { exact: true }).hover();
+  await expect(page.getByTestId('tooltip')).toHaveText(/fill lines/);
+});
+
 test('set origin, console and machine switcher are reachable', async ({ page }) => {
   await newProject(page);
   await connectVirtual(page);

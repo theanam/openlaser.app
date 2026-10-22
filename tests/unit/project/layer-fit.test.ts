@@ -31,7 +31,10 @@ const image = (id: string, layerId: string): ImageObject => ({
 });
 
 function withLayers(modes: Array<[string, LayerMode]>): Project {
-  return modes.reduce((p, [id, mode]) => addLayer(p, defaultLayer({ id, mode })), createProject({ id: () => 'p' }));
+  return modes.reduce(
+    (p, [id, mode]) => addLayer(p, defaultLayer({ id, mode })),
+    createProject({ id: () => 'p' }),
+  );
 }
 
 describe('layerAccepts', () => {

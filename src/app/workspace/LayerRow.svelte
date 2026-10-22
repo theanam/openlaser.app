@@ -10,6 +10,7 @@
   import { updateLayer } from '$lib/project/operations';
   import type { Layer } from '$lib/project/types';
   import { editor } from '../state/editor.svelte';
+  import { machine } from '../state/machine.svelte';
   import { ui } from '../state/ui.svelte';
   import { layerSummary } from '../lib/layers';
   import { profiles } from '../state/profiles.svelte';
@@ -36,6 +37,7 @@
   const canTakeSelection = $derived(editor.selection.size > 0 && selectedHere < editor.selection.size);
   const active = $derived(layer.id === editor.activeLayerId);
   const dropTarget = $derived(drag.drag?.kind === 'object' && drag.dropLayerId === layer.id);
+  const burning = $derived(machine.burningLayerId === layer.id);
 
   function patch(change: Partial<Layer>) {
     const id = layer.id;
@@ -54,6 +56,8 @@
   class:active
   class:drop-before={drag.dropIndex === index && drag.drag?.kind === 'layer'}
   class:drop-target={dropTarget}
+  class:burning
+  data-burning={burning || undefined}
   class:muted-row={!layer.output}
   role="treeitem"
   aria-selected={active}
@@ -119,8 +123,7 @@
           }}
         />
       {:else}
-        <span class="name" role="button" tabindex="-1" ondblclick={() => (renaming = true)}
-          >{layer.name}</span
+        <span class="name" role="button" tabindex="-1" ondblclick={() => (renaming = true)}>{layer.name}</span
         >
       {/if}
     </div>
@@ -174,7 +177,10 @@
       }}><Trash2 size={14} /></button
     >
   </div>
-  <span class="summary mono">{layerSummary(layer, profiles.active.speedUnit)}</span>
+  <span class="summary mono">
+    {#if burning}<span class="burning-tag">Burning</span>{/if}
+    {layerSummary(layer, profiles.active.speedUnit)}
+  </span>
   {#if expanded}
     <ul class="objects" role="group" aria-label="Objects on {layer.name}">
       {#each objects as object (object.id)}
@@ -274,6 +280,27 @@
 
   .output.on {
     color: var(--ol-signal);
+  }
+
+  .row.burning {
+    border-color: var(--ol-signal);
+  }
+
+  .burning-tag {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ol-signal);
+    color: #fff;
+    font-weight: 600;
+    animation: burning-pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes burning-pulse {
+    50% {
+      opacity: 0.55;
+    }
   }
 
   /* Hover-only actions keep their space, so rows never reflow under the pointer. */

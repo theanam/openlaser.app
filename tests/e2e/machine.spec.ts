@@ -37,6 +37,8 @@ test('frames, runs, pauses, resumes and stops a job', async ({ page }) => {
   await expect(page.getByTestId('pause')).toBeVisible();
   await page.getByTestId('pause').click();
   await expect(page.getByTestId('machine-state')).toHaveText(/HOLD/i, { timeout: 10_000 });
+  // The layer being burned is marked in the Layers panel while the job runs.
+  await expect(page.getByTestId('layer-row').first()).toHaveAttribute('data-burning', 'true');
   await page.getByTestId('resume').click();
   await expect(page.getByTestId('machine-state')).toHaveText(/RUN/i, { timeout: 10_000 });
   await page.keyboard.press('Escape');

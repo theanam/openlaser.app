@@ -161,7 +161,10 @@ test('layers hold objects: + adds a layer, rows list objects, delete asks where 
   await expect(rows.nth(1)).toContainText('Drag objects here');
   await objects.last().click();
   await rows.nth(1).hover();
-  await rows.nth(1).getByRole('button', { name: /Move selection to/ }).click();
+  await rows
+    .nth(1)
+    .getByRole('button', { name: /Move selection to/ })
+    .click();
   await expect(rows.nth(1).getByTestId('object-row')).toHaveCount(1);
   await expect(rows.first().getByTestId('object-row')).toHaveCount(1);
 
@@ -185,7 +188,10 @@ test('layers hold objects: + adds a layer, rows list objects, delete asks where 
 
   // Deleting a layer with objects asks where they go.
   await rows.first().hover();
-  await rows.first().getByRole('button', { name: /^Delete/ }).click();
+  await rows
+    .first()
+    .getByRole('button', { name: /^Delete/ })
+    .click();
   const dialog = page.getByTestId('delete-layer-dialog');
   await expect(dialog).toContainText('Move its 1 object to');
   await expect(dialog.getByTestId('delete-layer-destination')).toHaveCount(1);
@@ -196,7 +202,10 @@ test('layers hold objects: + adds a layer, rows list objects, delete asks where 
 
   // With no layer that fits, the dialog says the objects go too.
   await rows.first().hover();
-  await rows.first().getByRole('button', { name: /^Delete/ }).click();
+  await rows
+    .first()
+    .getByRole('button', { name: /^Delete/ })
+    .click();
   await expect(dialog).toContainText('will be deleted');
   await dialog.getByTestId('delete-layer-confirm').click();
   await expect(rows).toHaveCount(0);
