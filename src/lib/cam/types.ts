@@ -80,7 +80,8 @@ export type CamWarningCode =
   | 'missing-asset'
   | 'open-path-fill'
   | 'text-not-ready'
-  | 'text-missing-glyphs';
+  | 'text-missing-glyphs'
+  | 'line-as-raster';
 
 export interface CamWarning {
   code: CamWarningCode;

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   BLE_CHUNK_BYTES,
   LASERPECKER_GATT,
+  SERIAL_BRIDGE_SERVICES,
+  WEAK_SIGNAL,
   WebBluetoothTransport,
   bluetoothLabel,
 } from '$lib/machine/transport/web-bluetooth';
@@ -105,7 +107,10 @@ describe('WebBluetoothTransport', () => {
     };
     const t = await WebBluetoothTransport.request({ bluetooth });
     expect(asked!.filters).toContainEqual({ namePrefix: 'LaserPecker' });
-    expect(asked!.optionalServices).toEqual(LASERPECKER_GATT.map((p) => p.service));
+    expect(asked!.optionalServices).toEqual([
+      ...LASERPECKER_GATT.map((p) => p.service),
+      ...SERIAL_BRIDGE_SERVICES,
+    ]);
     expect(t.label).toBe('LP2-1234');
   });
 
@@ -122,6 +127,71 @@ describe('WebBluetoothTransport', () => {
   it('fails on a device without any known bridge', async () => {
     const rig = fakeDevice('0000aaaa-0000-1000-8000-00805f9b34fb');
     await expect(transportFor(rig).open({ baudRate: 0 })).rejects.toThrow(/not a LaserPecker/);
+  });
+
+  it('falls back to another serial bridge with write and notify characteristics', async () => {
+    const rig = fakeDevice('0000aaaa-0000-1000-8000-00805f9b34fb');
+    const uart = SERIAL_BRIDGE_SERVICES[0]!;
+    const props = (
+      p: Partial<Record<'write' | 'writeWithoutResponse' | 'notify' | 'indicate', boolean>>,
+    ) => ({
+      write: false,
+      writeWithoutResponse: false,
+      notify: false,
+      indicate: false,
+      ...p,
+    });
+    Object.assign(rig.write, { uuid: 'w', properties: props({ write: true }) });
+    Object.assign(rig.notify, { uuid: 'n', properties: props({ notify: true }) });
+    const sent: number[][] = [];
+    Object.assign(rig.write, { writeValueWithResponse: async (v: Uint8Array) => void sent.push([...v]) });
+    rig.device.gatt.getPrimaryServices = async () => [
+      {
+        uuid: uart,
+        getCharacteristic: async () => rig.write,
+        getCharacteristics: async () => [rig.notify, rig.write],
+      },
+    ];
+    const t = transportFor(rig);
+    await t.open({ baudRate: 0 });
+    expect(t.profile).toMatchObject({ service: uart, write: 'w', notify: 'n' });
+    await t.write(Uint8Array.of(1, 2));
+    expect(sent).toEqual([[1, 2]]);
+  });
+
+  it('reports a weak signal when the link drops while the services are listed', async () => {
+    const rig = fakeDevice(LASERPECKER_GATT[1].service);
+    const lookup = rig.device.gatt.getPrimaryService;
+    rig.device.gatt.getPrimaryService = async (uuid) => {
+      rig.device.dispatchEvent(new Event('gattserverdisconnected'));
+      return lookup(uuid);
+    };
+    await expect(transportFor(rig).open({ baudRate: 0 })).rejects.toThrow(WEAK_SIGNAL);
+  });
+
+  it('reports a weak signal when connecting or a lookup fails on the link', async () => {
+    const failing = fakeDevice(LASERPECKER_GATT[1].service);
+    failing.device.gatt.connect = async () => {
+      throw new DOMException('Connection failed for unknown reason.', 'NetworkError');
+    };
+    await expect(transportFor(failing).open({ baudRate: 0 })).rejects.toThrow(WEAK_SIGNAL);
+    const lost = fakeDevice(LASERPECKER_GATT[1].service);
+    lost.device.gatt.getPrimaryService = async () => {
+      throw new DOMException('GATT Server is disconnected.', 'NetworkError');
+    };
+    await expect(transportFor(lost).open({ baudRate: 0 })).rejects.toThrow(WEAK_SIGNAL);
+  });
+
+  it('names the services it found when none fits', async () => {
+    const rig = fakeDevice('0000aaaa-0000-1000-8000-00805f9b34fb');
+    rig.device.gatt.getPrimaryServices = async () => [
+      {
+        uuid: '0000ffe0-0000-1000-8000-00805f9b34fb',
+        getCharacteristic: async () => rig.write,
+        getCharacteristics: async () => [],
+      },
+    ];
+    await expect(transportFor(rig).open({ baudRate: 0 })).rejects.toThrow(/Services: 0000ffe0/);
   });
 
   it('writes in 179-byte chunks at least 100 ms apart, in order', async () => {

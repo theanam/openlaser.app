@@ -27,6 +27,26 @@
 
   let ready = $state(false);
 
+  // A reload in the same tab carries on in the open project; a new visit starts on the welcome
+  // page, which lists it under recent projects.
+  const TAB_KEY = 'openlaser.tab.working';
+  const returning = (() => {
+    try {
+      return sessionStorage.getItem(TAB_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  })();
+  $effect(() => {
+    if (!ready) return;
+    try {
+      if (editor.hasDocument) sessionStorage.setItem(TAB_KEY, '1');
+      else sessionStorage.removeItem(TAB_KEY);
+    } catch {
+      // Storage unavailable: every visit starts on the welcome page.
+    }
+  });
+
   // Theme: 'system' leaves the root unset so tokens.css follows prefers-color-scheme.
   $effect(() => {
     const theme = preferences.value.theme;
@@ -48,7 +68,7 @@
         // Uploaded fonts register in the background, before any text needs re-outlining.
         void fonts.init();
         await Promise.all([preferences.load(), profiles.load(), session.refreshRecents()]);
-        const restored = await session.restorable();
+        const restored = returning ? undefined : await session.restorable();
         if (restored) {
           editor.open(restored);
           session.markSaved(restored);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { laserPeckerEncoder } from '$lib/cam/laserpecker';
+import { laserPeckerEncoder, lineLimit } from '$lib/cam/laserpecker';
 import { depthFromSpeed, speedFromDepth } from '$lib/project/depth';
 import { speedFromUnit, speedLabel, speedToUnit } from '$app/lib/units';
 import { compileInput, layer, profile, project, rectPath, vectorObject } from '../fixtures';
@@ -76,5 +76,22 @@ describe('LaserPecker jobs with several burn settings', () => {
     // 10 × 5 mm at 254 dpi: every pixel burns (0x00), with no stripes from the 0.5 mm interval.
     expect(width).toBe(100);
     expect(data.subarray(64).every((b) => b === 0x00)).toBe(true);
+  });
+
+  it('says line layers engrave as an image and cannot cut', () => {
+    const warningsFor = (l: ReturnType<typeof layer>) =>
+      laserPeckerEncoder.encode(
+        compileInput(project([l], [vectorObject('o', l.id, [rectPath(10, 10, 20, 20)])]), { profile: lp }),
+        { dpi: 254, px: 4, packed: false },
+      ).warnings;
+    expect(warningsFor(layer({ id: 'cut', name: 'Box', mode: 'line' }))).toContainEqual(
+      expect.objectContaining({ code: 'line-as-raster', layerId: 'cut', blocking: false }),
+    );
+    expect(warningsFor(fill('a')).some((w) => w.code === 'line-as-raster')).toBe(false);
+    // An LP4 or LP5 on Bluetooth can cut over USB instead.
+    expect(lineLimit({ name: 'LaserPecker LP4 Bluetooth' })).toMatch(
+      /over Bluetooth.*Connect over USB to cut/,
+    );
+    expect(lineLimit({ name: 'LaserPecker LP3' })).not.toMatch(/USB/);
   });
 });

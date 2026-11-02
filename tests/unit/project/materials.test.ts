@@ -31,6 +31,7 @@ describe('material presets', () => {
 
   it('matches LaserPeckers by model, with their own tables', () => {
     expect(presetBasis(lp('LP3'))).toEqual({ kind: 'model', model: 'LaserPecker LP3' });
+    expect(presetBasis(lp('LP4 Bluetooth'))).toEqual({ kind: 'model', model: 'LaserPecker LP4' });
     const steel = presetsFor(presetBasis(lp('LP3')), 'engrave').filter(
       (p) => p.material === 'Stainless Steel',
     );

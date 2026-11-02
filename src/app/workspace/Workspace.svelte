@@ -21,6 +21,9 @@
   import { untrack } from 'svelte';
   import { reorient } from '$lib/project/orientation';
   import { profiles } from '../state/profiles.svelte';
+  import { fitToBed, type Area } from '$lib/project/fit';
+  import { workArea } from '$lib/project/accessories';
+  import { toast } from '$lib/ui/toasts.svelte';
 
   // The design keeps reading the right way up when the machine's home corner changes (switching
   // machines, editing the profile). A project without a recorded corner is taken as laid out for
@@ -31,6 +34,27 @@
     const to = profiles.active.originCorner;
     if (project.designCorner === to) return;
     untrack(() => editor.commit((p) => reorient(p, to), { record: false }));
+  });
+
+  // Switching to a machine with a smaller work area brings what fitted on the old one along,
+  // scaled down if it has to be. Fitting an accessory changes the area without refitting.
+  let laidOut: { key: string; area: Area } | null = null;
+  $effect(() => {
+    const project = editor.project;
+    if (!project || !profiles.loaded) return;
+    const p = profiles.active;
+    const key = `${p.id} ${p.bedWidth} ${p.bedHeight}`;
+    const area = workArea(p, project.jobSettings);
+    const before = laidOut;
+    laidOut = { key, area };
+    if (!before || before.key === key) return;
+    untrack(() => {
+      const fitted = fitToBed(project, before.area, area);
+      if (!fitted) return;
+      editor.commit(() => fitted);
+      editor.sealHistory();
+      toast.info('Design resized to fit the work area.');
+    });
   });
 
   // Text from opened projects gets its outlines as soon as its fonts are reachable.
@@ -65,9 +89,10 @@
     </main>
     <aside class="side">
       <div class="side-scroll">
+        <ErrorBoundary name="Machine"><MachinePanel /></ErrorBoundary>
         {#if editor.project}
-          <ErrorBoundary name="Inspector"><SelectionInspector /></ErrorBoundary>
           <ErrorBoundary name="Layers"><LayersPanel /></ErrorBoundary>
+          <ErrorBoundary name="Inspector"><SelectionInspector /></ErrorBoundary>
         {:else if editor.gcode}
           <section class="gcode-card" aria-label="G-code file">
             <FileCode size={18} />
@@ -86,7 +111,6 @@
             >
           </section>
         {/if}
-        <ErrorBoundary name="Machine"><MachinePanel /></ErrorBoundary>
       </div>
       {#if live?.controls}
         <ErrorBoundary name="Job controls" compact><live.controls /></ErrorBoundary>

@@ -32,13 +32,13 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 - **Text in any Google Font**, an installed system font or your own TTF, OTF or WOFF files, picked from a searchable list with live previews and burned as clean vector outlines. Bangla, Devanagari, Arabic and other scripts are shaped with HarfBuzz.
 - **Outline tool** that draws one cut line around a selection at any offset: a logo and its key-ring hole get a single outline.
 - **Shape library** with stars, gears, arrows, hearts, callouts and more, each with adjustable parameters, plus rectangle, ellipse and measure tools.
-- **Exact placement** with X, Y, W, H and angle fields and a 9-point anchor.
+- **Exact placement** with X, Y, W, H and angle fields, a 9-point anchor, and smart guides that snap dragged art to other objects and the bed.
 - **Preview** every burn and travel move, scrub through the job, and see a time estimate.
 - **Run jobs** with framing (once or looping, laser off or at low power), a visual pre-flight check, pause, resume, live speed and power overrides, and a Stop button that is always on screen (Esc works too).
 - **Machine control**: jog pad, homing, set origin, alarm help, an always-visible console of every line sent and received, and a `$$` settings editor with backup and restore.
 - **70+ machine presets** from Ortur, Sculpfun, Atomstack, Two Trees, Creality and more, with automatic detection when you connect.
 - **CO₂ lasers**: tubes on GRBL boards connect over USB at constant power; Ruida machines (Thunder, Aeon, OMTech and others) get `.rd` job files to run from a USB stick.
-- **LaserPecker engravers**: LP2 and LP3 over Bluetooth or USB, LP4 and LP5 on G-code over USB. Frame, engrave, pause and stop from the app.
+- **LaserPecker engravers** over Bluetooth straight from the browser, or USB. See [LaserPecker](#laserpecker).
 - **Rotary, slide and two-laser setups** live in the machine profile: pick the rotary in the Machine panel and the work area, axis scaling and mode switch follow; each layer can pick its laser.
 - **Send G-code files** straight to the machine.
 - **Projects** autosave in the browser and save to disk as `.olaser` files with their images inside. Machine profiles save as `.json`.
@@ -53,9 +53,24 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 
 Machine control needs [Web Serial](https://developer.mozilla.org/docs/Web/API/Web_Serial_API), available in Chrome, Edge, Opera and Brave on desktop. Design, preview and G-code export work in other browsers too.
 
-LaserPecker LP2 and LP3 connect over [Web Bluetooth](https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API) (Chrome and Edge) or over USB at 460800 baud; LP4 and LP5 connect over USB like any G-code laser.
+LaserPeckers also connect over [Web Bluetooth](https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API) in Chrome and Edge.
 
 If your laser does not show up in the port list, install the CH340 or CP210x USB driver. On Linux, add yourself to the `dialout` group and log in again.
+
+## LaserPecker
+
+openlaser drives LaserPecker engravers directly. Pick **Connect laser → Bluetooth** or **USB**; the model is detected and its profile set up.
+
+- **Bluetooth from the browser**, with no LaserPecker dongle: the computer's own Bluetooth is enough. LP2, LP3 and LP4 are supported.
+- **USB** at 460800 baud: LP2 and LP3 on LaserPecker's own protocol, LP4 and LP5 on G-code with LaserPecker's M-codes, like LightBurn.
+- **Frame, engrave, pause and stop** from the app. Framing traces the job's outline at the lowest power.
+- **Burn depth and power** as LaserPecker shows them, with LaserPecker's material settings for each model, resolution (1K to 4K) and laser.
+- **Both lasers on the LP4 and LP5**: each layer picks 450 nm blue or 1064 nm infrared.
+- **Rotary and slide** from the Machine panel, with the work area following.
+
+Over Bluetooth (and on the LP2 and LP3 over USB), the laser takes each layer as an image, so line layers engrave their lines and cannot cut. To cut on an LP4 or LP5, connect over USB.
+
+Protocol details come from the [LaserPecker protocol notes](https://github.com/nerdocs/pyrograph/blob/main/docs/protocol.md) by nerdocs (see [Credits](#credits)). LaserPecker is a trademark of its owner; openlaser is not affiliated with it.
 
 ## Safety
 

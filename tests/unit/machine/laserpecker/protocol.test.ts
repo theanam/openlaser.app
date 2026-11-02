@@ -160,6 +160,13 @@ describe('LaserPecker models', () => {
     expect(modelFromVersion(305)).toMatchObject({ name: 'LP2', packed: false });
     expect(modelFromVersion(316).resolutions.map((r) => r.label)).toEqual(['1K', '1.3K', '2K']);
     expect(modelFromVersion(5100)).toMatchObject({ name: 'LaserPecker', packed: false });
+    // An LP4's version reply over Bluetooth (2026-11).
+    const lp4 = parseVersion(
+      Uint8Array.from([0xaa, 0xbb, 0x0b, 0x00, 0x02, 0x90, 0xff, 0xff, 0xff, 0xff, 0x00, 0x03, 0x04, 0x91]),
+    );
+    expect(lp4?.software).toBe(656);
+    expect(modelFromVersion(656).name).toBe('LP4');
+    expect(modelFromVersion(656).resolutions.map((r) => r.label)).toEqual(['1K', '2K', '4K']);
     expect(modelFromVersion(5100).resolutions.map((r) => r.px)).toEqual([4, 3, 2, 1]);
   });
 

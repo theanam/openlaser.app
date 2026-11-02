@@ -26,7 +26,8 @@
     readPalette,
     screenPath,
   } from './scene-render';
-  import { drawMeasure, drawSelection, drawShapeGhost, drawSizeLabel } from './overlays';
+  import { drawGuides, drawMeasure, drawSelection, drawShapeGhost, drawSizeLabel } from './overlays';
+  import { SNAP_PX, snapMove, translateRect, type Guide } from './guides';
   import { hitObject } from './hit-test';
   import { drawPreview, headAt, previewGeometry } from './preview-render';
   import {
@@ -46,6 +47,8 @@
   import { textOutlines } from '../state/text.svelte';
   import { ui } from '../state/ui.svelte';
   import TextEditOverlay from './TextEditOverlay.svelte';
+  import BedWarning from './BedWarning.svelte';
+  import ErrorBoundary from '$lib/ui/ErrorBoundary.svelte';
 
   let host: HTMLDivElement;
   let el: HTMLCanvasElement;
@@ -61,7 +64,15 @@
 
   type Drag =
     | { kind: 'pan'; x: number; y: number; offsetX: number; offsetY: number }
-    | { kind: 'move'; start: Vec2; originals: Map<Id, Mat2D>; moved: boolean }
+    | {
+        kind: 'move';
+        start: Vec2;
+        originals: Map<Id, Mat2D>;
+        moved: boolean;
+        /** The selection's box at the start, and what it can line up with. */
+        box: Rect | null;
+        targets: Rect[];
+      }
     | {
         kind: 'scale';
         handle: Exclude<HandleId, 'rotate'>;
@@ -75,6 +86,7 @@
     | { kind: 'measure' };
 
   let drag = $state.raw<Drag | null>(null);
+  let guides = $state.raw<Guide[]>([]);
 
   const designing = $derived(editor.view === 'design' && editor.project !== null && editor.gcode === null);
   const selection = $derived(
@@ -112,6 +124,7 @@
       canvas.editingTextId,
       bed,
       drag,
+      guides,
     ];
     void [preview.result, preview.scrub, machine.headPosition, machine.jobOffset, hoverHandle, highlighted];
     invalidate();
@@ -174,6 +187,7 @@
       }
     }
 
+    drawGuides(ctx, canvas.view, bed, guides, palette.signal);
     if (drag?.kind === 'marquee')
       drawDashedRect(ctx, normalizeRect(drag.start, drag.current), palette.beam, 0.08);
     if (drag?.kind === 'shape') {
@@ -213,6 +227,13 @@
 
   function hitAt(screen: Vec2): SceneObject | null {
     return editor.project && ctx ? hitObject(ctx, editor.project, canvas.view, bed, screen) : null;
+  }
+
+  /** Boxes a moved selection lines up with: the other visible objects and the bed. */
+  function snapTargets(): Rect[] {
+    const others = (editor.project?.objects ?? []).filter((o) => o.visible && !editor.selection.has(o.id));
+    const boxes = others.flatMap((o) => boundsOf([o]) ?? []);
+    return [...boxes, { minX: 0, minY: 0, maxX: bed.width, maxY: bed.height }];
   }
 
   function originals(): Map<Id, Mat2D> {
@@ -291,7 +312,14 @@
     if (hit) {
       if (event.shiftKey) editor.select([hit.id], 'toggle');
       else if (!editor.selection.has(hit.id)) editor.select([hit.id]);
-      drag = { kind: 'move', start: bedPoint, originals: originals(), moved: false };
+      drag = {
+        kind: 'move',
+        start: bedPoint,
+        originals: originals(),
+        moved: false,
+        box: selectionBounds,
+        targets: snapTargets(),
+      };
     } else {
       if (!event.shiftKey) editor.clearSelection();
       drag = { kind: 'marquee', start: screen, current: screen, additive: event.shiftKey };
@@ -325,6 +353,17 @@
         }
         if (!d.moved && Math.hypot(dx, dy) * canvas.view.zoom < 3) return;
         d.moved = true;
+        // Alt moves freely; otherwise edges and centres snap to the other objects and the bed.
+        const snap =
+          d.box && !event.altKey
+            ? snapMove(translateRect(d.box, dx, dy), d.targets, SNAP_PX / canvas.view.zoom, {
+                x: event.shiftKey && dx === 0,
+                y: event.shiftKey && dy === 0,
+              })
+            : null;
+        guides = snap?.guides ?? [];
+        dx += snap?.dx ?? 0;
+        dy += snap?.dy ?? 0;
         commitTransforms(d.originals, translation(dx, dy));
         break;
       }
@@ -361,6 +400,7 @@
   function onpointerup(event: PointerEvent) {
     const d = drag;
     drag = null;
+    guides = [];
     if (el.hasPointerCapture(event.pointerId)) el.releasePointerCapture(event.pointerId);
     if (!d) return;
     if (d.kind === 'move' || d.kind === 'scale' || d.kind === 'rotate') editor.sealHistory();
@@ -497,6 +537,7 @@
   ></canvas>
 
   <TextEditOverlay {bed} {bedColor} />
+  <ErrorBoundary name="Bed warning" compact><BedWarning /></ErrorBoundary>
 
   {#if empty}
     <p class="empty" data-testid="empty-hint">Import art with the Image tool, or drop files here</p>

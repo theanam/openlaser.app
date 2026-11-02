@@ -80,6 +80,14 @@ describe('LaserPeckerDriver', () => {
     expect(driver.state.get()).toMatchObject({ activity: 'idle', progress: 100 });
   });
 
+  it('waits for a slow transfer to finish before expecting the file stored', async () => {
+    // 25 chunks 100 ms apart take 2.5 s, longer than the 1 s the device has to answer after.
+    const { device, driver, run } = await rig({}, { serialChunkGapMs: 100, uploadReplyMs: 1000 });
+    const f = file(0x51, 50_000);
+    expect(await run(driver.engrave(f, job), 60_000)).toEqual({ outcome: 'completed' });
+    expect(device.files.get(0x51)).toEqual(f.data);
+  });
+
   it('reports upload and job progress', async () => {
     const { clock, driver } = await rig({ progressStep: 25, stepMs: 1000 });
     const seen: string[] = [];

@@ -149,7 +149,9 @@ export function chooseProfile(
   let created = false;
   if (!profile) {
     const preset = detection.model
-      ? MACHINE_PRESETS.find((p) => (p.controller ?? 'grbl') === adapter.id && p.model === detection.model)
+      ? MACHINE_PRESETS.find(
+          (p) => (p.controller ?? 'grbl') === adapter.id && p.model.split(' ')[0] === detection.model,
+        )
       : undefined;
     profile = defaultMachineProfile(
       preset

@@ -47,6 +47,9 @@ const LP2_PACKED: readonly Range[] = [
 /** LP3 firmware: one LP3 reported 5515 (2026-11). The range is a guess around it. */
 const LP3_VERSIONS: readonly Range[] = [[5500, 5599]];
 
+/** LP4 firmware: one LP4 reported 656 over Bluetooth (2026-11). The range is a guess around it. */
+const LP4_VERSIONS: readonly Range[] = [[600, 699]];
+
 export interface ModelInfo {
   name: string;
   resolutions: readonly Resolution[];
@@ -62,6 +65,10 @@ export function modelFromVersion(software: number): ModelInfo {
   if (inRanges(software, LP3_VERSIONS)) {
     // 1K, 2K and 4K per LaserPecker's spec page; 1K is confirmed on a device.
     return { name: 'LP3', resolutions: [RESOLUTIONS[0], RESOLUTIONS[2], RESOLUTIONS[3]], packed: false };
+  }
+  if (inRanges(software, LP4_VERSIONS)) {
+    // 1K, 2K and 4K, the steps LaserPecker's LP4 material tables use.
+    return { name: 'LP4', resolutions: [RESOLUTIONS[0], RESOLUTIONS[2], RESOLUTIONS[3]], packed: false };
   }
   return { name: 'LaserPecker', resolutions: RESOLUTIONS, packed: false };
 }

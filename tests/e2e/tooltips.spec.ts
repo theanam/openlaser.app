@@ -38,7 +38,10 @@ test('hovering a setting explains it', async ({ page }) => {
   await page.getByTestId('tool-rect').click();
   await dragOnCanvas(page, [0.4, 0.4], [0.5, 0.5]);
   await page.getByTestId('mode-fill').click();
-  await page.getByRole('switch', { name: 'Cross-hatch' }).hover();
+  // The layer settings sit below the Machine section; scrolling drops tooltips, so scroll first.
+  const crossHatch = page.getByRole('switch', { name: 'Cross-hatch' });
+  await crossHatch.scrollIntoViewIfNeeded();
+  await crossHatch.hover();
   await expect(page.getByTestId('tooltip')).toHaveText(/second fill pass/);
   await page.getByText('Angle', { exact: true }).hover();
   await expect(page.getByTestId('tooltip')).toHaveText(/fill lines/);

@@ -39,6 +39,18 @@ describe('choosing a profile for a detected machine', () => {
     expect(profile.laserSources?.[0]?.deviceCode).toBe(1);
   });
 
+  it('gives an LP4 over Bluetooth its own LaserPecker-protocol profile, both lasers', () => {
+    const usb = defaultMachineProfile({ id: 'l4', name: 'LaserPecker LP4', baudRate: 460800 });
+    const { profile, created } = chooseProfile(lp, { baudRate: 0, model: 'LP4' }, [gen, usb], usb);
+    expect(created).toBe(true);
+    expect(profile).toMatchObject({
+      name: 'LaserPecker LP4 Bluetooth',
+      controller: 'laserpecker',
+      bedWidth: 160,
+    });
+    expect(profile.laserSources?.map((s) => s.deviceCode)).toEqual([0, 1]);
+  });
+
   it('falls back to the adapter’s defaults for an unknown model', () => {
     const { profile } = chooseProfile(lp, { baudRate: 460800, model: 'LaserPecker' }, [gen], gen);
     expect(profile).toMatchObject({ controller: 'laserpecker', speedUnit: 'depth', originCorner: 'tl' });

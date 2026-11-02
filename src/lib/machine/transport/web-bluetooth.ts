@@ -4,6 +4,7 @@ import type {
   Bluetooth,
   BluetoothCharacteristic,
   BluetoothDeviceHandle,
+  BluetoothServer,
   NavigatorWithBluetooth,
 } from './web-bluetooth-types';
 
@@ -33,6 +34,19 @@ export const LASERPECKER_GATT: readonly GattProfile[] = [
   { name: 'ESP32', service: uuid16('abf0'), write: uuid16('abf3'), notify: uuid16('abf4') },
 ];
 
+/**
+ * Common BLE serial bridges beyond the three above (Nordic UART, HM-10 style, and other modules).
+ * Asked for too, so a LaserPecker on a bridge the notes do not list can still be reached: the first
+ * of these with a write and a notify characteristic is used.
+ */
+export const SERIAL_BRIDGE_SERVICES: readonly string[] = [
+  '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+  ...['ffe0', 'ffe5', 'ff00', 'ff10', 'ff12', 'ffb0', 'ae00', 'ae30', '18f0', 'fee7', 'dfb0'].map(uuid16),
+];
+
+/** Chrome cannot read signal strength; a link that fails or drops while opening is the sign. */
+export const WEAK_SIGNAL = 'Weak Bluetooth signal. Move the laser closer and try again.';
+
 /** Bytes per BLE write and the pause between writes. */
 export const BLE_CHUNK_BYTES = 179;
 export const BLE_CHUNK_GAP_MS = 100;
@@ -48,6 +62,11 @@ export function bluetoothLabel(name: string | undefined): string {
   if (!name) return 'Bluetooth device';
   const m = /^LaserPecker-(IV|V|III|II|I)-?(.*)$/.exec(name);
   return m ? `LP${ROMAN[m[1]]}-${m[2]}` : name;
+}
+
+async function listServices(server: BluetoothServer): Promise<string[]> {
+  const services = (await server.getPrimaryServices?.().catch(() => [])) ?? [];
+  return services.flatMap((s) => (s.uuid ? [s.uuid] : []));
 }
 
 function navigatorBluetooth(): Bluetooth | undefined {
@@ -108,7 +127,7 @@ export class WebBluetoothTransport implements Transport {
         { namePrefix: 'LP' },
         ...profiles.map((p) => ({ services: [p.service] })),
       ],
-      optionalServices: profiles.map((p) => p.service),
+      optionalServices: [...profiles.map((p) => p.service), ...SERIAL_BRIDGE_SERVICES],
     });
     return new WebBluetoothTransport(device, options);
   }
@@ -134,28 +153,76 @@ export class WebBluetoothTransport implements Transport {
     if (this.open_) throw new Error('Already connected');
     const gatt = this.device.gatt;
     if (!gatt) throw new Error('This device has no Bluetooth LE services.');
-    const server = await gatt.connect();
+    // A weak link fails to connect, or drops while the services are listed.
+    let dropped = false;
+    const onDrop = () => (dropped = true);
+    this.device.addEventListener('gattserverdisconnected', onDrop);
+
+    try {
+      const server = await gatt.connect();
+      await this.findProfile(server);
+      if (!this.writer || !this.notifier) await this.findBridge(server);
+    } catch {
+      dropped = true;
+    } finally {
+      this.device.removeEventListener('gattserverdisconnected', onDrop);
+    }
+    if (dropped) {
+      this.writer = this.notifier = this.profile = null;
+      gatt.disconnect();
+      throw new Error(WEAK_SIGNAL);
+    }
+    if (!this.writer || !this.notifier) {
+      const seen = await listServices(gatt);
+      gatt.disconnect();
+      throw new Error(
+        `This Bluetooth device is not a LaserPecker.${seen.length ? ` Services: ${seen.join(', ')}` : ''}`,
+      );
+    }
+    this.notifier.addEventListener('characteristicvaluechanged', this.handleValue);
+    await this.notifier.startNotifications().catch(() => {
+      gatt.disconnect();
+      throw new Error(WEAK_SIGNAL);
+    });
+    this.device.addEventListener('gattserverdisconnected', this.handleDisconnect);
+    this.writeChain = Promise.resolve();
+    this.open_ = true;
+  }
+
+  /** The first known bridge the device has. Only "not found" moves on; other errors are the link. */
+  private async findProfile(server: BluetoothServer): Promise<void> {
     for (const profile of this.profiles) {
       let service;
       try {
         service = await server.getPrimaryService(profile.service);
-      } catch {
-        continue;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'NotFoundError') continue;
+        throw error;
       }
       this.writer = await service.getCharacteristic(profile.write);
       this.notifier = await service.getCharacteristic(profile.notify);
       this.profile = profile;
-      break;
+      return;
     }
-    if (!this.writer || !this.notifier) {
-      server.disconnect();
-      throw new Error('This Bluetooth device is not a LaserPecker.');
+  }
+
+  /** Any other allowed service with a write and a notify characteristic. */
+  private async findBridge(server: BluetoothServer): Promise<void> {
+    for (const service of (await server.getPrimaryServices?.().catch(() => [])) ?? []) {
+      const chars = (await service.getCharacteristics?.().catch(() => [])) ?? [];
+      const write = chars.find((c) => c.properties?.writeWithoutResponse || c.properties?.write);
+      const notify = chars.find((c) => c.properties?.notify || c.properties?.indicate);
+      if (!write?.uuid || !notify?.uuid || !service.uuid) continue;
+      this.writer = write;
+      this.notifier = notify;
+      this.profile = {
+        name: `Bridge ${service.uuid}`,
+        service: service.uuid,
+        write: write.uuid,
+        notify: notify.uuid,
+      };
+      return;
     }
-    this.notifier.addEventListener('characteristicvaluechanged', this.handleValue);
-    await this.notifier.startNotifications();
-    this.device.addEventListener('gattserverdisconnected', this.handleDisconnect);
-    this.writeChain = Promise.resolve();
-    this.open_ = true;
   }
 
   write(data: Uint8Array): Promise<void> {
@@ -189,7 +256,14 @@ export class WebBluetoothTransport implements Transport {
       if (!this.open_ || !this.writer) throw new Error('Not connected');
       const wait = this.lastWrite + this.gapMs - this.now();
       if (wait > 0) await this.sleep(wait);
-      await this.writer.writeValueWithoutResponse(data.slice(at, at + this.chunkBytes));
+      const chunk = data.slice(at, at + this.chunkBytes);
+      if (
+        this.writer.properties &&
+        !this.writer.properties.writeWithoutResponse &&
+        this.writer.writeValueWithResponse
+      )
+        await this.writer.writeValueWithResponse(chunk);
+      else await this.writer.writeValueWithoutResponse(chunk);
       this.lastWrite = this.now();
     }
   }

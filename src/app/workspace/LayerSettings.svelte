@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { lineLimit } from '$lib/cam/laserpecker';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
   import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
@@ -94,6 +95,9 @@
 
   <MaterialPicker {layer} />
 
+  {#if layer.mode === 'line' && profiles.active.controller === 'laserpecker'}
+    <p class="note" data-testid="line-limit">{lineLimit(profiles.active)}</p>
+  {/if}
   {#if mismatched}
     <p class="note">
       {layer.mode === 'image' ? 'Vectors on this layer are skipped.' : 'Images on this layer are skipped.'}

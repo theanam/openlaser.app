@@ -108,12 +108,17 @@ await page.getByTestId('connect-virtual').click();
 await page.getByTestId('unlock').click({ timeout: 15_000 });
 await page.getByTestId('machine-state').filter({ hasText: /idle/i }).waitFor({ timeout: 10_000 });
 for (const close of await page.getByRole('button', { name: 'Dismiss' }).all()) await close.click();
+// The layers are the story: fold the Machine section, as after connecting from the start screen.
+await page.getByTestId('section-machine').click();
 await page.getByTestId('bed-canvas').focus();
 await page.keyboard.press('ControlOrMeta+a');
 await page.waitForTimeout(2600);
 await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.2);
 // Unlock scrolled the side column to the machine panel; show the layers again.
-await page.locator('aside > div').first().evaluate((el) => (el.scrollTop = 0));
+await page
+  .locator('aside > div')
+  .first()
+  .evaluate((el) => (el.scrollTop = 0));
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${root}docs/screenshot.png` });
 console.log('wrote docs/screenshot.png');

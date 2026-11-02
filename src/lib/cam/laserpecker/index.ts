@@ -12,6 +12,7 @@ export {
 export { laserPeckerJob, type LaserPeckerJob } from './job';
 export {
   laserPeckerEncoder,
+  lineLimit,
   type LaserPeckerEncodeOptions,
   type LaserPeckerFilePart,
   type LaserPeckerPayload,

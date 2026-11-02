@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SectionToggle from './SectionToggle.svelte';
+  import { sections } from '../state/sections.svelte';
   import { DropdownMenu } from 'bits-ui';
   import Plus from '@lucide/svelte/icons/plus';
   import { moveLayer, removeLayer, setObjectsLayer } from '$lib/project/operations';
@@ -56,7 +58,7 @@
 
 <section class="layers" aria-label="Layers">
   <div class="head">
-    <h2>Layers</h2>
+    <SectionToggle id="layers">Layers</SectionToggle>
     <span class="hint">Order = run order</span>
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
@@ -77,31 +79,33 @@
     </DropdownMenu.Root>
   </div>
 
-  {#if layers.length === 0}
-    <p class="empty">Draw, import, or press + to add a layer.</p>
-  {:else}
-    <ul
-      class="rows"
-      role="tree"
-      aria-label="Layers in run order"
-      ondragover={(e) => e.preventDefault()}
-      ondrop={drop}
-      {onkeydown}
-    >
-      {#each layers as layer, i (layer.id)}
-        <LayerRow
-          {layer}
-          index={i}
-          {drag}
-          ondelete={remove}
-          onmoveselection={(l) => moveObjects(editor.selection, l.id)}
-        />
-      {/each}
-    </ul>
-  {/if}
+  {#if sections.isOpen('layers')}
+    {#if layers.length === 0}
+      <p class="empty">Draw, import, or press + to add a layer.</p>
+    {:else}
+      <ul
+        class="rows"
+        role="tree"
+        aria-label="Layers in run order"
+        ondragover={(e) => e.preventDefault()}
+        ondrop={drop}
+        {onkeydown}
+      >
+        {#each layers as layer, i (layer.id)}
+          <LayerRow
+            {layer}
+            index={i}
+            {drag}
+            ondelete={remove}
+            onmoveselection={(l) => moveObjects(editor.selection, l.id)}
+          />
+        {/each}
+      </ul>
+    {/if}
 
-  {#if editor.activeLayer}
-    <LayerSettings layer={editor.activeLayer} />
+    {#if editor.activeLayer}
+      <LayerSettings layer={editor.activeLayer} />
+    {/if}
   {/if}
 </section>
 
@@ -124,11 +128,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-
-  h2 {
-    font-size: var(--ol-fs-md);
-    font-weight: 600;
   }
 
   .hint {

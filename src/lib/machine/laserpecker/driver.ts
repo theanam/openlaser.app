@@ -27,6 +27,7 @@ import {
   type PreviewRect,
   type PrintJob,
 } from './commands';
+import { BLE_CHUNK_BYTES, BLE_CHUNK_GAP_MS } from '../transport/web-bluetooth';
 import { LaserPeckerLink, ReplyTimeoutError, type LinkLog } from './link';
 import { modelFromVersion, type ModelInfo } from './models';
 import {
@@ -98,8 +99,6 @@ const IDLE: LaserPeckerState = {
   uploadTotal: 0,
   progress: 0,
 };
-
-const BLE_CHUNK = 179;
 
 const SETTINGS_UNREADABLE =
   'Could not read the laser’s settings to switch the accessory. Switch it in the LaserPecker app.';
@@ -234,7 +233,12 @@ export class LaserPeckerDriver {
     const link = this.requireIdle();
     this.aborted = false;
     try {
-      if (!(await this.holdsFile(file.id))) await this.upload(link, file);
+      if (!(await this.holdsFile(file.id))) {
+        await this.upload(link, file);
+        // Straight after an upload an LP4 started with the previous job's laser; a rerun of the
+        // stored file used the right one. Give it a moment, as after a preview.
+        await this.sleep(this.o.settleMs);
+      }
     } catch (error) {
       this.patch({ activity: 'idle', uploaded: 0, uploadTotal: 0 });
       this.schedulePoll();
@@ -303,10 +307,17 @@ export class LaserPeckerDriver {
     const kind = parseFileReply(answer.bytes).kind;
     if (kind === 'refused') throw new UploadRefusedError();
     if (kind !== 'ready') throw new Error('The laser did not accept the upload.');
-    const stored = link.expect((f) => parseFileReply(f.bytes).kind === 'stored', this.o.uploadReplyMs);
-    stored.catch(() => undefined);
     const ble = link.transport.kind === 'webbluetooth';
-    const chunk = ble ? BLE_CHUNK : this.o.serialChunkBytes;
+    const chunk = ble ? BLE_CHUNK_BYTES : this.o.serialChunkBytes;
+    // The device answers once the whole file is in, so the wait includes the transfer: about
+    // 1.8 KB/s over Bluetooth, given twice that for a slow link.
+    const transferMs =
+      Math.ceil(file.data.length / chunk) * (ble ? BLE_CHUNK_GAP_MS : this.o.serialChunkGapMs);
+    const stored = link.expect(
+      (f) => parseFileReply(f.bytes).kind === 'stored',
+      2 * transferMs + this.o.uploadReplyMs,
+    );
+    stored.catch(() => undefined);
     for (let at = 0; at < file.data.length; at += chunk) {
       if (this.aborted) throw new Error('Upload stopped.');
       await link.write(file.data.subarray(at, at + chunk), false);

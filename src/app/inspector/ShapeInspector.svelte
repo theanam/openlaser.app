@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SectionToggle from '../workspace/SectionToggle.svelte';
+  import { sections } from '../state/sections.svelte';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
   import { updateObject } from '$lib/project/operations';
@@ -34,10 +36,10 @@
 {#if def && kind}
   <section class="shape" aria-label="Shape" data-testid="shape-inspector">
     <div class="head">
-      <ShapeGlyph {kind} size={18} />
-      <h2>{def.label}</h2>
+      <SectionToggle id="inspector">{def.label}</SectionToggle>
+      <ShapeGlyph {kind} size={16} />
     </div>
-    {#if def.params.length}
+    {#if def.params.length && sections.isOpen('inspector')}
       <div class="grid">
         {#each def.params as p (p.key)}
           {#if p.type === 'bool'}
@@ -97,13 +99,6 @@
     align-items: center;
     gap: 8px;
     color: var(--ol-text-muted);
-  }
-
-  h2 {
-    margin: 0;
-    font-size: var(--ol-fs-md);
-    font-weight: 600;
-    color: var(--ol-text);
   }
 
   .grid {

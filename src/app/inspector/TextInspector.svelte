@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SectionToggle from '../workspace/SectionToggle.svelte';
+  import { sections } from '../state/sections.svelte';
   import AlignStart from '@lucide/svelte/icons/text-align-start';
   import AlignCenter from '@lucide/svelte/icons/text-align-center';
   import AlignEnd from '@lucide/svelte/icons/text-align-end';
@@ -41,94 +43,97 @@
 
 <section class="text" aria-label="Text" data-testid="text-inspector">
   <div class="head">
-    <h2>Text</h2>
+    <SectionToggle id="inspector">Text</SectionToggle>
     {#if textOutlines.pending.has(object.id)}<LoaderCircle
         size={14}
         class="spin"
         aria-label="Loading font"
       />{/if}
   </div>
-  <textarea
-    class="input content"
-    rows={Math.min(6, Math.max(2, object.text.split('\n').length))}
-    value={object.text}
-    aria-label="Text"
-    spellcheck="false"
-    oninput={(e) =>
-      textOutlines.update(object.id, { text: e.currentTarget.value }, { live: true, field: 'text' })}
-    onblur={() => editor.sealHistory()}
-    data-testid="text-content"
-  ></textarea>
-  <FontPicker
-    value={object.fontFamily}
-    {projectFonts}
-    script={dominantScript(object.text)}
-    onpick={pickFont}
-  />
-  <div class="row">
-    <select
-      class="input weight"
-      aria-label="Weight"
-      value={nearestWeight(weights, object.fontWeight)}
-      onchange={(e) => textOutlines.update(object.id, { fontWeight: Number(e.currentTarget.value) })}
-    >
-      {#each weights as w (w)}<option value={w}>{styleLabel(w)}</option>{/each}
-    </select>
-    <button
-      type="button"
-      class="icon-btn"
-      aria-label="Italic"
-      aria-pressed={object.italic}
-      disabled={!canItalic}
-      onclick={() => textOutlines.update(object.id, { italic: !object.italic })}><Italic size={16} /></button
-    >
-    <div class="segmented align" role="group" aria-label="Alignment">
-      {#each ALIGNS as a (a.id)}
-        <button
-          type="button"
-          aria-pressed={object.align === a.id}
-          aria-label={a.label}
-          title={a.label}
-          onclick={() => textOutlines.update(object.id, { align: a.id })}
-        >
-          <a.icon size={15} />
-        </button>
-      {/each}
+  {#if sections.isOpen('inspector')}
+    <textarea
+      class="input content"
+      rows={Math.min(6, Math.max(2, object.text.split('\n').length))}
+      value={object.text}
+      aria-label="Text"
+      spellcheck="false"
+      oninput={(e) =>
+        textOutlines.update(object.id, { text: e.currentTarget.value }, { live: true, field: 'text' })}
+      onblur={() => editor.sealHistory()}
+      data-testid="text-content"
+    ></textarea>
+    <FontPicker
+      value={object.fontFamily}
+      {projectFonts}
+      script={dominantScript(object.text)}
+      onpick={pickFont}
+    />
+    <div class="row">
+      <select
+        class="input weight"
+        aria-label="Weight"
+        value={nearestWeight(weights, object.fontWeight)}
+        onchange={(e) => textOutlines.update(object.id, { fontWeight: Number(e.currentTarget.value) })}
+      >
+        {#each weights as w (w)}<option value={w}>{styleLabel(w)}</option>{/each}
+      </select>
+      <button
+        type="button"
+        class="icon-btn"
+        aria-label="Italic"
+        aria-pressed={object.italic}
+        disabled={!canItalic}
+        onclick={() => textOutlines.update(object.id, { italic: !object.italic })}
+        ><Italic size={16} /></button
+      >
+      <div class="segmented align" role="group" aria-label="Alignment">
+        {#each ALIGNS as a (a.id)}
+          <button
+            type="button"
+            aria-pressed={object.align === a.id}
+            aria-label={a.label}
+            title={a.label}
+            onclick={() => textOutlines.update(object.id, { align: a.id })}
+          >
+            <a.icon size={15} />
+          </button>
+        {/each}
+      </div>
     </div>
-  </div>
-  <div class="grid">
-    <NumberField
-      label="Size"
-      unit="mm"
-      decimals={1}
-      step={0.5}
-      min={0.5}
-      max={500}
-      value={object.fontSize}
-      onchange={(v, live) => textOutlines.update(object.id, { fontSize: v }, { live, field: 'size' })}
-      testid="text-size"
-    />
-    <NumberField
-      label="Line height"
-      unit="×"
-      decimals={2}
-      step={0.05}
-      min={0.5}
-      max={5}
-      value={object.lineHeight}
-      onchange={(v, live) => textOutlines.update(object.id, { lineHeight: v }, { live, field: 'leading' })}
-    />
-    <NumberField
-      label="Letter spacing"
-      unit="‰"
-      step={5}
-      min={-500}
-      max={2000}
-      value={object.letterSpacing}
-      onchange={(v, live) =>
-        textOutlines.update(object.id, { letterSpacing: v }, { live, field: 'tracking' })}
-    />
-  </div>
+    <div class="grid">
+      <NumberField
+        label="Size"
+        unit="mm"
+        decimals={1}
+        step={0.5}
+        min={0.5}
+        max={500}
+        value={object.fontSize}
+        onchange={(v, live) => textOutlines.update(object.id, { fontSize: v }, { live, field: 'size' })}
+        testid="text-size"
+      />
+      <NumberField
+        label="Line height"
+        unit="×"
+        decimals={2}
+        step={0.05}
+        min={0.5}
+        max={5}
+        value={object.lineHeight}
+        onchange={(v, live) => textOutlines.update(object.id, { lineHeight: v }, { live, field: 'leading' })}
+      />
+      <NumberField
+        label="Letter spacing"
+        unit="‰"
+        step={5}
+        min={-500}
+        max={2000}
+        value={object.letterSpacing}
+        onchange={(v, live) =>
+          textOutlines.update(object.id, { letterSpacing: v }, { live, field: 'tracking' })}
+      />
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -144,12 +149,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: var(--ol-fs-md);
-    font-weight: 600;
   }
 
   .content {

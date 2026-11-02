@@ -29,3 +29,22 @@ test('a LaserPecker layer takes LaserPecker’s own settings for a material', as
   await power.press('Enter');
   await expect(page.getByTestId('material-picker')).toContainText('Pick a material');
 });
+
+test('reopening the picker shows the applied preset with its laser and resolution', async ({ page }) => {
+  await newProject(page);
+  await pick(page, 'laserpecker lp4', /LP4(?! Bluetooth)/);
+  await page.getByTestId('tool-rect').click();
+  await dragOnCanvas(page, [0.4, 0.4], [0.5, 0.5]);
+
+  await page.getByTestId('material-picker').click();
+  await page.getByTestId('material-engrave').click();
+  const pop = page.locator('.material-pop');
+  await pop.getByRole('button', { name: '1064 nm' }).click();
+  await pop.getByRole('button', { name: '4K' }).click();
+  await page.getByTestId('material-preset').first().click();
+  await expect(page.getByTestId('material-picker')).toContainText('1064 nm · 4K');
+
+  await page.getByTestId('material-picker').click();
+  await expect(pop.getByRole('button', { name: '4K' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.material-pop .row.on')).toBeVisible();
+});

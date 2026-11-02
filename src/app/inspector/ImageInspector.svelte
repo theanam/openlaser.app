@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SectionToggle from '../workspace/SectionToggle.svelte';
+  import { sections } from '../state/sections.svelte';
   import Wand from '@lucide/svelte/icons/wand-sparkles';
   import type { ImageObject } from '$lib/project/types';
   import { ui } from '../state/ui.svelte';
@@ -9,12 +11,14 @@
 
 <section class="image" aria-label="Image" data-testid="image-inspector">
   <div class="head">
-    <h2>Image</h2>
+    <SectionToggle id="inspector">Image</SectionToggle>
     <span class="muted small" title={asset}>{asset}</span>
   </div>
-  <button type="button" class="btn" onclick={() => (ui.traceImageId = object.id)} data-testid="trace-open">
-    <Wand size={15} />Trace to vectors
-  </button>
+  {#if sections.isOpen('inspector')}
+    <button type="button" class="btn" onclick={() => (ui.traceImageId = object.id)} data-testid="trace-open">
+      <Wand size={15} />Trace to vectors
+    </button>
+  {/if}
 </section>
 
 <style>
@@ -32,12 +36,6 @@
     justify-content: space-between;
     gap: 8px;
     min-width: 0;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: var(--ol-fs-md);
-    font-weight: 600;
   }
 
   .small {

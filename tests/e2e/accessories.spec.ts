@@ -12,7 +12,7 @@ async function pickMachine(page: Page, search: string, name: RegExp) {
 
 test('an LP4 picks lasers per layer and switches to its rotary from the machine panel', async ({ page }) => {
   await newProject(page);
-  await pickMachine(page, 'laserpecker lp4', /LP4/);
+  await pickMachine(page, 'laserpecker lp4', /LP4(?! Bluetooth)/);
   const setup = page.getByTestId('accessory-picker');
   await expect(setup).toContainText('Flat bed');
   await expect(setup).toContainText('Slide');

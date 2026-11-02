@@ -1,5 +1,6 @@
 /** Interaction overlays drawn over the scene: selection handles, shape ghosts and the measure tool. */
 import type { Rect, Vec2 } from '$lib/geometry/types';
+import type { Guide } from './guides';
 import { HANDLE_SIZE, type Handle } from './handles';
 import { drawDashedRect, type Palette } from './scene-render';
 import { bedRectToScreen, bedToScreen, type BedFrame, type View } from './viewport';
@@ -125,4 +126,28 @@ export function drawSizeLabel(
   ctx.textBaseline = 'middle';
   ctx.fillText(label, x + 7, y + h / 2 + 0.5);
   ctx.textBaseline = 'alphabetic';
+}
+
+/** Smart guides: thin lines where the dragged selection lines up with something. */
+export function drawGuides(
+  ctx: CanvasRenderingContext2D,
+  view: View,
+  bed: BedFrame,
+  guides: readonly Guide[],
+  color: string,
+): void {
+  if (!guides.length) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const g of guides) {
+    const a = bedToScreen(view, bed, g.axis === 'x' ? { x: g.at, y: g.from } : { x: g.from, y: g.at });
+    const b = bedToScreen(view, bed, g.axis === 'x' ? { x: g.at, y: g.to } : { x: g.to, y: g.at });
+    // Half-pixel offsets keep 1 px lines crisp.
+    ctx.moveTo(Math.round(a.x) + 0.5, Math.round(a.y) + 0.5);
+    ctx.lineTo(Math.round(b.x) + 0.5, Math.round(b.y) + 0.5);
+  }
+  ctx.stroke();
+  ctx.restore();
 }

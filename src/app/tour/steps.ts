@@ -6,6 +6,8 @@ import type { Component } from 'svelte';
 import Globe from '@lucide/svelte/icons/globe';
 import WifiOff from '@lucide/svelte/icons/wifi-off';
 import Heart from '@lucide/svelte/icons/heart';
+import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+import AlignCenterVertical from '@lucide/svelte/icons/align-center-vertical';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import Usb from '@lucide/svelte/icons/usb';
 import Bluetooth from '@lucide/svelte/icons/bluetooth';
@@ -191,10 +193,20 @@ export const TOUR_STEPS: TourStep[] = [
     points: [
       { icon: Square, text: 'Rectangle and ellipse tools' },
       { icon: Ruler, text: 'Measure any distance on the bed' },
+      { icon: AlignCenterVertical, text: 'Guides snap edges and centres to other objects; Alt moves freely' },
       { icon: Move, text: 'X, Y, W, H and angle with a 9-point anchor. Drag a label to scrub.' },
       { icon: Undo2, text: 'Undo and redo for every change' },
+      { icon: TriangleAlert, text: 'Art past the work area is flagged, and moves back in one click' },
     ],
-    features: ['shape-tools', 'measure-tool', 'transform-fields', 'label-scrubbing', 'undo-redo'],
+    features: [
+      'shape-tools',
+      'measure-tool',
+      'transform-fields',
+      'label-scrubbing',
+      'undo-redo',
+      'bed-fit',
+      'smart-guides',
+    ],
   },
   {
     id: 'preview',

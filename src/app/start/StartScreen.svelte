@@ -25,6 +25,13 @@
   import { ui } from '../state/ui.svelte';
   import ConnectHelpButton from '../connect/ConnectHelpButton.svelte';
   import * as actions from '../actions';
+  import { sections } from '../state/sections.svelte';
+
+  /** Connected from here: the work comes first, so the Machine section starts closed. */
+  function startConnected() {
+    sections.set('machine', false);
+    actions.ensureDocument();
+  }
 
   const serial = isWebSerialSupported();
   const theme = $derived(preferences.value.theme === 'dark' ? 'dark' : 'light');
@@ -83,11 +90,14 @@
       </div>
 
       <div class="ctas">
-        <ConnectButton size="big" testid="start-connect" before={() => actions.ensureDocument()} />
+        <ConnectButton size="big" testid="start-connect" before={startConnected} />
         <button
           type="button"
           class="btn big secondary"
-          onclick={() => actions.startWithVirtualMachine()}
+          onclick={() => {
+            sections.set('machine', false);
+            void actions.startWithVirtualMachine();
+          }}
           data-testid="try-virtual"
         >
           <Cpu size={18} />Try the virtual machine

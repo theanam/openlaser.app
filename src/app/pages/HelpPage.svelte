@@ -66,6 +66,8 @@
         'Fill engraves the inside of closed shapes with scanlines at any angle.',
         'Layers run top to bottom. Drag rows to reorder. Objects sit under their layer and drag between layers. The bolt toggles output, the eye toggles visibility. Deleting a layer asks where its objects go.',
         'Drag any field label left or right to scrub its value. Fields accept math like 100/3.',
+        'Dragged objects snap their edges and centres to other objects and to the bed, with a guide line. Hold Alt to move freely, Shift to keep to one axis.',
+        'Art past the work area is flagged at the top of the canvas. Move in brings it back; switching to a smaller machine does this for you.',
         'Material picks published settings for engraving or cutting. LaserPeckers use their own tables; other lasers use the profile’s laser power. Test on a scrap first.',
       ],
     },

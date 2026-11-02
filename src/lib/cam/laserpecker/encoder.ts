@@ -78,6 +78,15 @@ function asRaster(layer: Layer, dpi: number): Layer {
   return { ...layer, passes: 1, fill, ...(layer.image ? { image: { ...layer.image, overscan: 0 } } : {}) };
 }
 
+/**
+ * Why a line layer cannot cut on this protocol. An LP4 or LP5 can cut over USB, where it takes
+ * G-code; vector files over Bluetooth are not worked out yet.
+ */
+export function lineLimit(profile: Pick<MachineProfile, 'name'>): string {
+  const gcodeOverUsb = /\bLP[45]\b/.test(profile.name);
+  return `Lines engrave as an image ${gcodeOverUsb ? 'over Bluetooth' : 'on this laser'}, scanned row by row, so they cannot cut.${gcodeOverUsb ? ' Connect over USB to cut.' : ''}`;
+}
+
 export const laserPeckerEncoder: JobEncoder<LaserPeckerEncodeOptions, LaserPeckerPayload> = {
   encode(input, options) {
     const { project, profile } = input;
@@ -87,6 +96,11 @@ export const laserPeckerEncoder: JobEncoder<LaserPeckerEncodeOptions, LaserPecke
     let frame: Rect | null = null;
     let layers = 0;
     const warnings = new Map<string, CamWarning>();
+    // The protocol takes bitmaps only: a line layer is scanned row by row and cannot cut.
+    for (const l of project.layers.filter((x) => x.output && x.mode === 'line')) {
+      const message = `${l.name}: ${lineLimit(profile)}`;
+      warnings.set(message, { code: 'line-as-raster', message, blocking: false, layerId: l.id });
+    }
     for (const key of keys) {
       const group = project.layers.filter((l) => l.output && burnKey(profile, l) === key);
       const only = {

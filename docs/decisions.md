@@ -250,3 +250,37 @@ Append-only log of architecture and product decisions. Newest entries go at the 
 - **Data and sources.** Every row keeps its source URL and maker (`brand`), since several makers publish values for the same material and class. LaserPecker: its published per-model tables. Diode: Creality, Ortur, xTool, AtomStack and Sculpfun charts. CO₂: Thunder Laser, Boss Laser, AEON and OMTech charts (midpoints where a range is given). Where no pass count is published, one pass. Fetched 2026-11; the tables are data files under `src/lib/project/materials/`, one per model or wattage class.
 - **PVC and vinyl are never offered**: burning them releases chlorine gas, which harms people and machines. LaserPecker's LP4 table lists PVC; those rows are dropped.
 - **Presets are starting points.** The picker says so; values vary with the exact machine, focus and material batch.
+
+## LP4 over Bluetooth
+
+- **An LP4 speaks LaserPecker's own protocol over Bluetooth**, on the FFF0 bridge (write FFF2, replies on FFF1; it also sends other frames on FFF3, which are not read). It answered the version and status queries and ignored G-code (2026-11). Its advertised name is "LP4-…" and it reported firmware 656, taken as LP4 for 600–699 until more units are seen.
+- **So Bluetooth gets its own profile, "LaserPecker LP4 Bluetooth"**: the LaserPecker protocol, 160 × 120 mm, both lasers (450 nm as laser type 0, 1064 nm as 1), 1K/2K/4K, and its material tables. USB keeps the G-code profile. Accessories are left out of the Bluetooth profile until the protocol's flags are tried on an LP4.
+- **A weak link says so.** Chrome cannot read signal strength, so a connection that fails or drops while the services are listed is reported as a weak signal. "Not a LaserPecker" only when the link held and no bridge was found; it lists the services seen. Besides LaserPecker's three bridges, common BLE serial services are asked for, and any with a write and a notify characteristic is used.
+
+## Keeping the design on the bed
+
+- **A smaller machine brings the design along.** On a switch to a machine (or a profile edit) with a smaller work area, the objects that were on the old bed are scaled down if they have to be and moved as little as possible onto the new one, as one group so the layout holds (`src/lib/project/fit.ts`). It is one undo step and a toast says so. Objects already off the old bed stay where they are. Fitting an accessory (rotary, slide) changes the work area without refitting.
+- **Art past the work area is flagged on the canvas** ("1 object is outside the work area") with Show (select and zoom to it) and Move in (the same fit for just those objects). Framing and jobs cover the whole design, so a stray object made the frame larger than the art.
+- **Smart guides while moving** (`src/app/canvas/guides.ts`). A dragged selection's left, centre and right (and top, middle, bottom) snap to those of every other visible object and of the bed, within 6 screen pixels, nearest first; a line in the signal colour spans what lines up. Alt drags freely; with Shift the locked axis does not snap. Scaling and rotating do not snap yet.
+
+## LaserPecker jobs on the LP4, first run (2026-11)
+
+- **Uploads wait for the whole transfer.** The "stored" reply comes once the file is in, so its wait now includes the transfer itself (twice the paced time, plus a minute). It used to be a flat minute from the start, and a box outline, sent as a one-byte-per-pixel bitmap at about 1.8 KB/s over Bluetooth, timed out before it was in.
+- **A second after an upload before print start.** Straight after an upload the LP4 burned with the previous job's laser; a rerun of the stored file used the right one. Whether the pause fixes this is still to be seen on a device.
+- **Line layers engrave as a bitmap on LaserPecker's own protocol**, scanned row by row: they mark lines but cannot cut. The job says so for each line layer. The protocol has G-code and path file types, but only their headers are described, not their contents. On an LP4, USB with the G-code profile follows the lines.
+
+### Planned: vector line jobs over Bluetooth (LP4, LP5)
+
+Tracked in [theanam/openlaser.app#1](https://github.com/theanam/openlaser.app/issues/1).
+
+What is known: an LP4 speaks LaserPecker's protocol over Bluetooth (FFF0 bridge), answers its version (firmware 656) and status queries, and ignores G-code sent as text. The protocol notes list file types beside bitmaps, G-code (tag `0x20`: width, height, file id, G-code line count, origin and DPI in the header) and path data (`0x30`), but say nothing about their contents. Bitmap uploads are slow over Bluetooth (one byte per pixel at about 1.8 KB/s), and right after an upload the LP4 once burned with the previous job's laser.
+
+The plan, step by step on a device, each step framed first and at low power:
+
+1. Send a 10 mm square as a `0x20` file holding plain G-code in mm, relative to the file's origin, and see whether the LP4 stores it, traces it, and in what scale and position.
+2. Depending on the result, try power as `S` (0–255 and 0–1000) and the laser type from print start, then two lasers in one job.
+3. If G-code files work, send line layers that way and keep bitmaps for fills and images; else try path data.
+4. Try the bit-packed bitmap (`0x60`) on the LP4, an eighth of the upload.
+5. Check whether the one-second pause after an upload settles the laser switch.
+
+Until then, line layers on LaserPecker's protocol warn that they cannot cut, and LP4 and LP5 cut over USB on G-code.

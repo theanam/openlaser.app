@@ -39,6 +39,8 @@ export const NOTABLE_FEATURES = [
   'local-fonts',
   'complex-scripts',
   'measure-tool',
+  'bed-fit',
+  'smart-guides',
   'transform-fields',
   'label-scrubbing',
   'toolpath-preview',

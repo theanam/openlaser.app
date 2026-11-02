@@ -16,7 +16,7 @@ import type { MachineProfile, Project, SceneObject } from './types';
 type Corner = MachineProfile['originCorner'];
 
 /** Machine-space box of an object: its outlines, its image, or text's size estimate while loading. */
-function objectBox(o: SceneObject): Rect | null {
+export function objectBox(o: SceneObject): Rect | null {
   if (o.kind === 'image')
     return transformRect(o.transform, { minX: 0, minY: 0, maxX: o.width, maxY: o.height });
   if (o.paths.length) return pathsBounds(o.paths, o.transform, 0.05);

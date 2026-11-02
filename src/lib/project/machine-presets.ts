@@ -17,7 +17,9 @@
  * LightBurn device files (2026-11): 460800 baud, S 255, origin top left; LP4 160 × 120 mm, slide
  * 160 × 300, rotary a chuck on Y at 256 mm per turn, up to 628 mm around (the Electric Roller
  * fits the LP4 too; it is left out until it can be tried); LP5 120 × 160 mm, slide
- * 300 × 160. The LP2 and LP3 accessory sizes still need confirming on devices.
+ * 300 × 160. The LP2 and LP3 accessory sizes still need confirming on devices. Over Bluetooth an
+ * LP4 speaks LaserPecker's own protocol (one LP4 answered on the FFF0 bridge, 2026-11): the
+ * "LP4 Bluetooth" preset, both lasers, accessories left out until they are tried.
  */
 import { laserTypeDefaults } from './factory';
 import type { LaserSource, MachineAccessory, MachineProfile, RotarySetup } from './types';
@@ -157,6 +159,7 @@ export const MACHINE_PRESETS: readonly MachinePreset[] = [
     }),
   ]),
   laserPeckerGcode('LP5', 120, 160, [slide(300, 160, 'M3031')]),
+  laserPecker('LP4 Bluetooth', 160, 120, [], DUAL_LASER),
   ruida('Aeon', 'Mira 5', 500, 300),
   ruida('Aeon', 'Mira 7', 700, 500),
   ruida('Aeon', 'Mira 9', 900, 600),

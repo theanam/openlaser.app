@@ -87,13 +87,25 @@
 
   function onOpenChange(next: boolean) {
     open = next;
-    if (next) {
-      query = '';
-      operation = layer.mode === 'line' ? 'cut' : 'engrave';
-      wavelength = layerSource(profile, layer)?.wavelength ?? null;
-      resolution = null;
-    }
+    if (!next) return;
+    query = '';
+    // Opens on the applied preset, so its row shows with its tick; else on what the layer does.
+    operation = current?.operation ?? (layer.mode === 'line' ? 'cut' : 'engrave');
+    wavelength = current?.wavelength ?? layerSource(profile, layer)?.wavelength ?? null;
+    resolution = current?.resolution ?? null;
+    requestAnimationFrame(() =>
+      document.querySelector('.material-pop .row.on')?.scrollIntoView({ block: 'nearest' }),
+    );
   }
+
+  /** What the applied preset was made for, beyond its name: the laser and the resolution. */
+  const currentFor = $derived(
+    current
+      ? [sources.length > 1 && current.wavelength ? `${current.wavelength} nm` : '', current.resolution ?? '']
+          .filter(Boolean)
+          .join(' · ')
+      : '',
+  );
 
   function apply(preset: MaterialPreset) {
     open = false;
@@ -137,6 +149,7 @@
   <Popover.Trigger class="material-trigger" data-testid="material-picker">
     <span class="label">Material</span>
     <span class="value">{current ? presetName(current) : 'Pick a material'}</span>
+    {#if currentFor}<span class="for mono">{currentFor}</span>{/if}
     <ChevronDown size={14} />
   </Popover.Trigger>
   <Popover.Portal>
@@ -269,7 +282,21 @@
   .filters {
     display: flex;
     gap: 6px;
-    flex-wrap: wrap;
+  }
+
+  .filters .segmented {
+    flex: 1;
+  }
+
+  .filters .segmented button {
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  .for {
+    flex-shrink: 0;
+    font-size: var(--ol-fs-xs);
+    color: var(--ol-text-muted);
   }
 
   .search {
