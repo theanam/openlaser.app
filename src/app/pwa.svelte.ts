@@ -6,7 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
 import { importFiles } from './actions';
-import { machine } from './state/machine.svelte';
+import { connectedSession } from './machines/registry';
 
 class PwaState {
   offlineReady = $state(false);
@@ -23,7 +23,7 @@ function offerUpdate(): void {
     action: {
       label: 'Reload',
       run: () => {
-        if (machine.jobActive) {
+        if (connectedSession()?.jobActive) {
           toast.warning('Reload after the job finishes.');
           return;
         }

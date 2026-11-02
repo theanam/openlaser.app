@@ -6,9 +6,9 @@
 import { isTypingTarget, matches, ownsArrowKeys } from './lib/keys';
 import { editor } from './state/editor.svelte';
 import { canvas } from './state/canvas.svelte';
-import { machine } from './state/machine.svelte';
-import { profiles } from './state/profiles.svelte';
+import { connectedSession } from './machines/registry';
 import { route } from './state/route.svelte';
+import { currentBed } from './state/work-area';
 import { ui } from './state/ui.svelte';
 import * as actions from './actions';
 
@@ -36,8 +36,7 @@ function selectedText(): string | null {
 }
 
 function bed() {
-  const p = profiles.active;
-  return { width: p.bedWidth, height: p.bedHeight, originCorner: p.originCorner };
+  return currentBed();
 }
 
 export const SHORTCUTS: Shortcut[] = [
@@ -46,8 +45,8 @@ export const SHORTCUTS: Shortcut[] = [
     label: 'Stop the job',
     group: 'Machine',
     global: true,
-    when: () => machine.canStop,
-    run: () => void machine.stop(),
+    when: () => connectedSession()?.canStop ?? false,
+    run: () => void connectedSession()?.stop(),
   },
 
   { keys: ['Mod+N'], label: 'New project', group: 'File', run: () => actions.newProject() },
@@ -292,7 +291,7 @@ export function handleKeydown(event: KeyboardEvent): boolean {
 
 export function installShortcuts(): () => void {
   const listener = (event: KeyboardEvent) => {
-    if (event.defaultPrevented && !(event.key === 'Escape' && machine.canStop)) return;
+    if (event.defaultPrevented && !(event.key === 'Escape' && connectedSession()?.canStop)) return;
     handleKeydown(event);
   };
   // Capture phase, so Stop wins over any component handling Escape.

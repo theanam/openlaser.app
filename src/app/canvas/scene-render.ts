@@ -244,7 +244,10 @@ function drawTextPlaceholder(
   const top = Math.min(...corners.map((c) => c.y));
   ctx.font = '500 11px "Geist Sans", system-ui, sans-serif';
   ctx.fillStyle = color;
-  ctx.fillText(`${object.text.split('\n')[0] || 'Text'} · loading ${object.fontFamily}…`, left + 4, top + 14);
+  // Outlined to nothing means no face could draw it, not even the fallback; otherwise it is loading.
+  const state =
+    object.outlineVersion !== undefined ? 'no font for these letters' : `loading ${object.fontFamily}…`;
+  ctx.fillText(`${object.text.split('\n')[0] || 'Text'} · ${state}`, left + 4, top + 14);
 }
 
 function drawImageObject(

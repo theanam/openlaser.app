@@ -8,6 +8,8 @@ import type {
   MoveList,
   Rect,
 } from '../cam/types';
+import type { EncoderId } from '../cam/encoders';
+import type { YAxisMapping } from '../project/accessories';
 import type { ImageSettings, Layer, MachineProfile, Project } from '../project/types';
 import type { Vec2 } from '../geometry/types';
 
@@ -19,6 +21,7 @@ export interface CompileRequest {
   machinePosition?: Vec2;
   limits?: MachineLimits;
   gcode?: Partial<GcodeOptions>;
+  absoluteOrigin?: boolean;
 }
 
 export interface CompileResult {
@@ -30,18 +33,22 @@ export interface CompileResult {
   stats: JobStats;
   warnings: CamWarning[];
   moves: MoveList;
+  /** Rotary jobs: how Y goes out, so framing matches the job. */
+  yAxis: YAxisMapping | null;
 }
 
-/** A Ruida .rd job file for the same project, for machines that run jobs from a USB stick. */
-export interface CompileRdRequest {
-  type: 'compile-rd';
+/** A controller's own job payload (an .rd file, an upload), built by its CAM encoder. */
+export interface EncodeRequest {
+  type: 'encode';
   id: number;
+  encoder: EncoderId;
   project: Project;
   profile: MachineProfile;
+  options: unknown;
 }
 
-export interface CompileRdResult {
-  bytes: Uint8Array;
+export interface EncodeResult {
+  payload: unknown;
   warnings: CamWarning[];
 }
 
@@ -76,8 +83,12 @@ export interface DitherResult {
   burn: Uint8ClampedArray;
 }
 
-export type WorkerRequest = CompileRequest | CompileRdRequest | ParseGcodeRequest | DitherRequest;
+export type WorkerRequest = CompileRequest | EncodeRequest | ParseGcodeRequest | DitherRequest;
 
 export type WorkerResponse =
-  | { id: number; ok: true; result: CompileResult | CompileRdResult | ParseGcodeResult | DitherResult }
+  | {
+      id: number;
+      ok: true;
+      result: CompileResult | EncodeResult | ParseGcodeResult | DitherResult;
+    }
   | { id: number; ok: false; error: string };

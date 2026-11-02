@@ -13,7 +13,7 @@ export interface Readable<T> {
   get(): T;
 }
 
-export type TransportKind = 'webserial' | 'simulator' | 'websocket';
+export type TransportKind = 'webserial' | 'webbluetooth' | 'simulator' | 'websocket';
 
 export interface Transport {
   readonly kind: TransportKind;

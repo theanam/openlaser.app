@@ -54,6 +54,9 @@ export function defaultMachineProfile(overrides: Partial<MachineProfile> = {}): 
     controller: 'grbl',
     constantPower: false,
     speedUnit: 'mm/min',
+    laserSources: [],
+    accessories: [],
+    flatModeGcode: '',
     ...overrides,
   };
 }

@@ -26,9 +26,10 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 - **Connect over Web Serial** to GRBL 1.1, grblHAL and FluidNC machines, or practise on the built-in virtual machine.
 - **Import art**: SVG and DXF at their real size, PNG, JPEG, WebP, AVIF, BMP and GIF. Drag files anywhere onto the app.
 - **Layers** in line, fill and image modes, with speed, power, passes, kerf offset, fill angle, cross-hatch and overscan.
+- **Material presets** for engraving and cutting: LaserPecker's own tables per model, and published diode and CO₂ settings by laser power.
 - **Image tracing** that turns logos, line art and photos into clean vector layers to cut or engrave, with a live preview.
 - **Photo engraving** with Floyd–Steinberg, Atkinson, Jarvis, Stucki, Bayer, threshold and grayscale, previewed live on the bed.
-- **Text in any Google Font**, an installed system font or your own TTF, OTF or WOFF files, picked from a searchable list with live previews and burned as clean vector outlines.
+- **Text in any Google Font**, an installed system font or your own TTF, OTF or WOFF files, picked from a searchable list with live previews and burned as clean vector outlines. Bangla, Devanagari, Arabic and other scripts are shaped with HarfBuzz.
 - **Outline tool** that draws one cut line around a selection at any offset: a logo and its key-ring hole get a single outline.
 - **Shape library** with stars, gears, arrows, hearts, callouts and more, each with adjustable parameters, plus rectangle, ellipse and measure tools.
 - **Exact placement** with X, Y, W, H and angle fields and a 9-point anchor.
@@ -37,6 +38,8 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 - **Machine control**: jog pad, homing, set origin, alarm help, an always-visible console of every line sent and received, and a `$$` settings editor with backup and restore.
 - **70+ machine presets** from Ortur, Sculpfun, Atomstack, Two Trees, Creality and more, with automatic detection when you connect.
 - **CO₂ lasers**: tubes on GRBL boards connect over USB at constant power; Ruida machines (Thunder, Aeon, OMTech and others) get `.rd` job files to run from a USB stick.
+- **LaserPecker engravers**: LP2 and LP3 over Bluetooth or USB, LP4 and LP5 on G-code over USB. Frame, engrave, pause and stop from the app.
+- **Rotary, slide and two-laser setups** live in the machine profile: pick the rotary in the Machine panel and the work area, axis scaling and mode switch follow; each layer can pick its laser.
 - **Send G-code files** straight to the machine.
 - **Projects** autosave in the browser and save to disk as `.olaser` files with their images inside. Machine profiles save as `.json`.
 - **Print a 1:1 template** of the design as true vector output.
@@ -49,6 +52,8 @@ openlaser designs, previews and runs jobs on GRBL laser engravers and cutters. O
 ## Browser support
 
 Machine control needs [Web Serial](https://developer.mozilla.org/docs/Web/API/Web_Serial_API), available in Chrome, Edge, Opera and Brave on desktop. Design, preview and G-code export work in other browsers too.
+
+LaserPecker LP2 and LP3 connect over [Web Bluetooth](https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API) (Chrome and Edge) or over USB at 460800 baud; LP4 and LP5 connect over USB like any G-code laser.
 
 If your laser does not show up in the port list, install the CH340 or CP210x USB driver. On Linux, add yourself to the `dialout` group and log in again.
 
@@ -66,26 +71,28 @@ pnpm install
 pnpm dev                 # http://localhost:5190
 ```
 
-| Command | What it does |
-| --- | --- |
-| `pnpm test` | Unit, property and golden tests (Vitest) |
-| `pnpm e2e` | End-to-end tests against the virtual machine (Playwright, Chromium) |
-| `pnpm typecheck` | `svelte-check` in strict mode |
-| `pnpm lint` | ESLint |
-| `pnpm build` | Production build in `dist/`, ready for any static host |
-| `pnpm golden:update` | Regenerate G-code golden files (review the diff) |
-| `pnpm screenshot` | Refresh the README screenshots from a production build |
-| `pnpm icons` | Render PWA icons and the social preview image |
-| `pnpm fonts:update` | Refresh the Google Fonts catalogue from Fontsource |
+| Command              | What it does                                                        |
+| -------------------- | ------------------------------------------------------------------- |
+| `pnpm test`          | Unit, property and golden tests (Vitest)                            |
+| `pnpm e2e`           | End-to-end tests against the virtual machine (Playwright, Chromium) |
+| `pnpm typecheck`     | `svelte-check` in strict mode                                       |
+| `pnpm lint`          | ESLint                                                              |
+| `pnpm build`         | Production build in `dist/`, ready for any static host              |
+| `pnpm golden:update` | Regenerate G-code golden files (review the diff)                    |
+| `pnpm screenshot`    | Refresh the README screenshots from a production build              |
+| `pnpm icons`         | Render PWA icons and the social preview image                       |
+| `pnpm fonts:update`  | Refresh the Google Fonts catalogue from Fontsource                  |
 
 The code is split into layers with one-way dependencies:
 
 - `src/lib/project`: document model, undo history, `.olaser` files
 - `src/lib/import`: SVG, DXF, image and G-code importers
 - `src/lib/fonts`, `src/lib/shapes`, `src/lib/trace`: Google Fonts and text outlines, parametric shapes, image tracing
-- `src/lib/cam`: pure toolpath generation and the G-code emitter
-- `src/lib/machine`: Web Serial transport, GRBL driver, job streaming and the GRBL simulator
-- `src/app`: the Svelte interface
+- `src/lib/cam`: pure toolpath generation, the G-code emitter and per-controller job encoders
+- `src/lib/machine`: transports, the machine connection contract, the GRBL driver, job streaming and the GRBL simulator
+- `src/app`: the Svelte interface; `src/app/machines` holds one adapter per controller
+
+To support another kind of machine, see [docs/adding-a-machine.md](docs/adding-a-machine.md).
 
 Design decisions are logged in [docs/decisions.md](docs/decisions.md).
 
@@ -96,6 +103,10 @@ Pushing to `main` builds and publishes the app to GitHub Pages through `.github/
 ## Contributing
 
 Bug reports and pull requests are welcome. For hardware problems, open the console, press **Download log** and attach the file to your [issue](https://github.com/theanam/openlaser.app/issues). For anything else, write to [anam.ahmed.a@gmail.com](mailto:anam.ahmed.a@gmail.com).
+
+## Credits
+
+LaserPecker protocol details come from the [LaserPecker protocol notes](https://github.com/nerdocs/pyrograph/blob/main/docs/protocol.md) by nerdocs. openlaser implements the protocol independently from that description; no code from pyrograph is included.
 
 ## License
 

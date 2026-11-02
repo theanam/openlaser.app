@@ -1,5 +1,6 @@
 /* Font loading for text outlines and on-screen previews.
-   Faces come from the Fontsource CDN as single latin TTFs (opentype.js needs TTF, not woff2),
+   Faces come from the Fontsource CDN as one TTF per subset (opentype.js and HarfBuzz need TTF,
+   not woff2): latin by default, other scripts (bengali, cyrillic…) when a text needs them. They
    are cached in IndexedDB so text can be re-outlined offline, and are registered with
    document.fonts so the canvas and the picker can draw them. Every failure (offline, unknown
    family, blocked storage) resolves quietly to null and is remembered for the session. */
@@ -15,8 +16,10 @@ import {
   type FontStyle,
 } from './catalog';
 import { hasLocalFamily, localFontBytes } from './local';
+import { SUBSET_RANGES } from './scripts';
 
-export type FontRef = { family: string; weight: number; style: FontStyle };
+/** `subset` defaults to latin; another subset is its own file of the same family. */
+export type FontRef = { family: string; weight: number; style: FontStyle; subset?: string };
 
 const DB_NAME = 'openlaser-fonts';
 const STORE = 'ttf';
@@ -27,6 +30,7 @@ type Face = {
   weight: number;
   style: FontStyle;
   entry?: CatalogFont;
+  subset: string;
   key: string;
 };
 
@@ -40,7 +44,7 @@ const ensured = new Map<string, Promise<void>>();
 const failed = new Set<string>();
 const previewLinks = new Set<string>();
 
-const refKey = (f: FontRef) => `${f.family}|${f.weight}|${f.style}`;
+const refKey = (f: FontRef) => `${f.family}|${f.weight}|${f.style}|${f.subset ?? 'latin'}`;
 
 function notify() {
   for (const fn of [...listeners]) {
@@ -58,7 +62,10 @@ async function resolveFace(font: FontRef): Promise<Face> {
   const id = entry?.id ?? familyToId(font.family);
   const weight = entry ? nearestWeight(entry.weights, font.weight) : font.weight;
   const style = font.style === 'italic' && (!entry || entry.italic) ? 'italic' : 'normal';
-  return { id, family: entry?.family ?? font.family, weight, style, entry, key: `${id}-${weight}-${style}` };
+  const subset = font.subset ?? 'latin';
+  // Latin keeps its original cache key, so faces cached before subsets existed still hit.
+  const key = subset === 'latin' ? `${id}-${weight}-${style}` : `${id}-${subset}-${weight}-${style}`;
+  return { id, family: entry?.family ?? font.family, weight, style, entry, subset, key };
 }
 
 /* ---------- IndexedDB cache (optional: private windows and blocked storage get none) ---------- */
@@ -134,7 +141,7 @@ function faceBytes(face: Face): Promise<Uint8Array | null> {
     const cached = await readCached(face.key);
     if (cached) return cached;
     try {
-      const res = await fetch(fontsourceTtfUrl(face.id, face.weight, face.style));
+      const res = await fetch(fontsourceTtfUrl(face.id, face.weight, face.style, face.subset));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const bytes = new Uint8Array(await res.arrayBuffer());
       if (!bytes.length) throw new Error('empty font');
@@ -160,7 +167,16 @@ export async function getFontBytes(font: FontRef): Promise<Uint8Array | null> {
   }
 }
 
-const isBundled = (face: Face) => face.style === 'normal' && !!face.entry?.bundled?.includes(face.weight);
+const hex = (n: number) => n.toString(16).toUpperCase();
+
+/** CSS unicode-range of a subset, or undefined for one this app has no ranges for. */
+function unicodeRange(subset: string): string | undefined {
+  const ranges = SUBSET_RANGES.find(([name]) => name === subset)?.[1];
+  return ranges?.map(([lo, hi]) => (lo === hi ? `U+${hex(lo)}` : `U+${hex(lo)}-${hex(hi)}`)).join(', ');
+}
+
+const isBundled = (face: Face) =>
+  face.subset === 'latin' && face.style === 'normal' && !!face.entry?.bundled?.includes(face.weight);
 
 function register(face: Face): Promise<boolean> {
   const hit = registered.get(face.key);
@@ -170,9 +186,12 @@ function register(face: Face): Promise<boolean> {
     if (!bytes || typeof FontFace === 'undefined' || typeof document === 'undefined' || !document.fonts)
       return false;
     try {
+      // Other subsets join the family for their own characters, so the editor draws them too.
+      const range = face.subset === 'latin' ? undefined : unicodeRange(face.subset);
       const ff = new FontFace(face.family, bytes.slice().buffer, {
         weight: String(face.weight),
         style: face.style,
+        ...(range ? { unicodeRange: range } : {}),
       });
       await ff.load();
       document.fonts.add(ff);

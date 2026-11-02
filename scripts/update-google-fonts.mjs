@@ -31,6 +31,8 @@ const rows = all
     CATEGORY[f.category],
     [...f.weights].sort((a, b) => a - b),
     f.styles.includes('italic') ? 1 : 0,
+    // Other subsets are separate files: outlines fetch the ones a text needs (Bangla, Cyrillic…).
+    f.subsets.filter((subset) => subset !== 'latin' && !/^\[\d+\]$/.test(subset)),
   ]);
 writeFileSync(new URL('../public/fonts/google-fonts.json', import.meta.url), JSON.stringify(rows));
 console.log(`Wrote ${rows.length} fonts`);

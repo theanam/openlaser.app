@@ -1,13 +1,8 @@
 <script lang="ts">
   import Search from '@lucide/svelte/icons/search';
   import Check from '@lucide/svelte/icons/check';
-  import {
-    groupByBrand,
-    presetName,
-    searchPresets,
-    type MachinePreset,
-    machineKind,
-  } from '$lib/project/machine-presets';
+  import { groupByBrand, presetName, searchPresets, type MachinePreset } from '$lib/project/machine-presets';
+  import { machineKind } from '../machines/registry';
 
   interface Props {
     /** Name of the highlighted preset. */

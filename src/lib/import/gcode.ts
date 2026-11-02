@@ -1,3 +1,4 @@
+import type { YAxisMapping } from '../project/accessories';
 import type { MoveList } from '../cam/types';
 import { GCODE_EXTENSIONS } from '../config/app';
 import { MoveBuffer } from './gcode-moves';
@@ -9,6 +10,8 @@ export interface ParseGcodeOptions {
   maxS?: number;
   /** Chord tolerance in mm for flattening G2/G3 arcs. Default 0.05. */
   arcTolerance?: number;
+  /** Rotary G-code: the axis that carries Y and its scale, so moves come back in surface mm. */
+  yAxis?: YAxisMapping | null;
 }
 
 const DEFAULT_MAX_S = 1000;
@@ -31,6 +34,9 @@ interface ModalState {
   unitScale: number;
   laserOn: boolean;
   s: number;
+  /** Letter code (lower case) of the axis read as Y, and units per mm on it. */
+  yLetter: number;
+  yScale: number;
 }
 
 /** Words found on one line. Axis values are raw (not yet unit-scaled). */
@@ -60,7 +66,17 @@ export function parseGcode(text: string, options: ParseGcodeOptions = {}): MoveL
   const maxS = options.maxS && options.maxS > 0 ? options.maxS : DEFAULT_MAX_S;
   const tolerance = options.arcTolerance ?? DEFAULT_ARC_TOLERANCE;
   const moves = new MoveBuffer();
-  const state: ModalState = { x: 0, y: 0, motion: 0, relative: false, unitScale: 1, laserOn: false, s: 0 };
+  const state: ModalState = {
+    x: 0,
+    y: 0,
+    motion: 0,
+    relative: false,
+    unitScale: 1,
+    laserOn: false,
+    s: 0,
+    yLetter: options.yAxis?.letter === 'A' ? 0x61 : 0x79,
+    yScale: options.yAxis?.scale || 1,
+  };
   const words: LineWords = {
     x: 0,
     y: 0,
@@ -120,6 +136,11 @@ function parseLine(text: string, start: number, end: number, state: ModalState, 
 }
 
 function applyWord(letter: number, value: number, state: ModalState, words: LineWords): void {
+  if (letter === state.yLetter) {
+    words.y = value / state.yScale;
+    words.hasY = true;
+    return;
+  }
   switch (letter) {
     case 0x67 /* g */:
       applyGWord(Math.round(value * 10), state, words);
@@ -134,10 +155,6 @@ function applyWord(letter: number, value: number, state: ModalState, words: Line
     case 0x78 /* x */:
       words.x = value;
       words.hasX = true;
-      break;
-    case 0x79 /* y */:
-      words.y = value;
-      words.hasY = true;
       break;
     case 0x69 /* i */:
       words.i = value;

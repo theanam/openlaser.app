@@ -20,8 +20,10 @@ describe('machine presets', () => {
     expect(new Set(names).size).toBe(names.length);
     expect(MACHINE_PRESETS.length).toBeGreaterThan(40);
     for (const p of MACHINE_PRESETS) {
-      expect(p.bedWidth).toBeGreaterThanOrEqual(100);
-      expect(p.bedHeight).toBeGreaterThanOrEqual(100);
+      // Handheld LaserPeckers work smaller areas.
+      const min = p.controller === 'laserpecker' ? 60 : 100;
+      expect(p.bedWidth).toBeGreaterThanOrEqual(min);
+      expect(p.bedHeight).toBeGreaterThanOrEqual(min);
       // Large-format CO₂ machines reach 1600 mm.
       expect(p.bedWidth).toBeLessThanOrEqual(1700);
       expect(p.bedHeight).toBeLessThanOrEqual(1700);
@@ -55,6 +57,7 @@ describe('machine presets', () => {
       controller: 'grbl',
       constantPower: false,
       speedUnit: 'mm/min',
+      laserWatts: 10,
     });
   });
 
@@ -70,5 +73,18 @@ describe('machine presets', () => {
       speedUnit: 'mm/s',
       supportsAirAssist: true,
     });
+  });
+
+  it('sets LaserPeckers up for their own protocol at 460800 baud, homed top left', () => {
+    const lp2 = MACHINE_PRESETS.find((p) => p.brand === 'LaserPecker' && p.model === 'LP2')!;
+    expect(presetProfileFields(lp2)).toMatchObject({
+      name: 'LaserPecker LP2',
+      bedWidth: 100,
+      bedHeight: 100,
+      originCorner: 'tl',
+      controller: 'laserpecker',
+      baudRate: 460800,
+    });
+    expect(MACHINE_PRESETS.some((p) => p.brand === 'LaserPecker' && p.model === 'LP3')).toBe(true);
   });
 });

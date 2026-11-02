@@ -4,15 +4,10 @@
   import Check from '@lucide/svelte/icons/check';
   import Settings2 from '@lucide/svelte/icons/settings-2';
   import { defaultMachineProfile } from '$lib/project/factory';
-  import {
-    machineKind,
-    presetName,
-    presetProfileFields,
-    type MachinePreset,
-  } from '$lib/project/machine-presets';
+  import { presetName, presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
   import { toast } from '$lib/ui/toasts.svelte';
   import PresetPicker from '../dialogs/PresetPicker.svelte';
-  import { machine } from '../state/machine.svelte';
+  import { connectedSession, machineKind } from '../machines/registry';
   import { profiles } from '../state/profiles.svelte';
   import { ui } from '../state/ui.svelte';
 
@@ -37,19 +32,20 @@
   );
 </script>
 
-<div class="switcher" data-testid="machine-switcher">
-  <div class="current">
-    <span class="name" data-testid="machine-name">{active.name}</span>
-    <span class="mono muted small">{details}</span>
-  </div>
+<div data-testid="machine-switcher">
   <Popover.Root bind:open>
+    <!-- The whole card opens the picker. -->
     <Popover.Trigger
-      class="icon-btn sm"
-      aria-label="Change machine"
-      disabled={machine.jobActive}
+      class="switcher"
+      aria-label="Change machine: {active.name}"
+      disabled={connectedSession()?.jobActive ?? false}
       data-testid="change-machine"
     >
-      <ChevronsUpDown size={15} />
+      <span class="current">
+        <span class="name" data-testid="machine-name">{active.name}</span>
+        <span class="mono muted small">{details}</span>
+      </span>
+      <ChevronsUpDown size={15} class="chevrons" />
     </Popover.Trigger>
     <Popover.Portal>
       <Popover.Content class="ol-menu machine-pop" sideOffset={6} align="end">
@@ -88,13 +84,37 @@
 </div>
 
 <style>
-  .switcher {
+  :global(.switcher) {
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 6px 8px 12px;
+    padding: 8px 12px;
     border-radius: var(--ol-radius-md);
     border: 1px solid var(--ol-border);
+    background: none;
+    color: var(--ol-text);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 0.15s,
+      background 0.15s;
+  }
+
+  :global(.switcher:hover:not(:disabled)),
+  :global(.switcher[data-state='open']) {
+    border-color: var(--ol-border-strong);
+    background: var(--ol-surface-2);
+  }
+
+  :global(.switcher:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  :global(.switcher .chevrons) {
+    flex-shrink: 0;
+    color: var(--ol-text-muted);
   }
 
   .current {

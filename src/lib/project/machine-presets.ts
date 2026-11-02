@@ -3,15 +3,24 @@
  * from manufacturer or retailer spec pages, collected 2026-10, which can differ from the frame or
  * honeycomb size. Users confirm them against their own machine; the handshake also offers to adopt
  * the size the controller reports in $130/$131. Air assist is set only where the maker documents
- * M8 control. Machines with non-GRBL stock firmware (xTool, Jinsoku app firmware, Snapmaker,
- * LaserPecker) are left out.
+ * M8 control. Machines with non-GRBL stock firmware (xTool, Jinsoku app firmware, Snapmaker) are
+ * left out.
  *
  * CO₂ machines on Ruida controllers (home at the top right) run exported .rd files; sizes from the
  * makers' spec pages (Thunder Laser, Aeon, OMTech), checked 2026-10. A K40 with a GRBL board
  * connects like any GRBL laser.
+ *
+ * LaserPecker LP2 and LP3 speak their own protocol over Bluetooth or USB (460800 baud) and work from
+ * the top-left corner. LP2: 100 × 100 mm, slide 100 × 300, rotary up to 628 mm around. LP3:
+ * 115 × 80 mm (an oval area), electric roller 65 × 65. LP4 and LP5 take G-code over USB with
+ * LaserPecker's M-codes (M3010/M3011 pick the laser, M3030/M3031/M3032 the mode). From LaserPecker's
+ * LightBurn device files (2026-11): 460800 baud, S 255, origin top left; LP4 160 × 120 mm, slide
+ * 160 × 300, rotary a chuck on Y at 256 mm per turn, up to 628 mm around (the Electric Roller
+ * fits the LP4 too; it is left out until it can be tried); LP5 120 × 160 mm, slide
+ * 300 × 160. The LP2 and LP3 accessory sizes still need confirming on devices.
  */
 import { laserTypeDefaults } from './factory';
-import type { MachineProfile } from './types';
+import type { LaserSource, MachineAccessory, MachineProfile, RotarySetup } from './types';
 
 export interface MachinePreset {
   brand: string;
@@ -25,9 +34,93 @@ export interface MachinePreset {
   laserType?: MachineProfile['laserType'];
   /** GRBL unless set. */
   controller?: MachineProfile['controller'];
+  /** The profile default unless set. */
+  baudRate?: number;
+  speedUnit?: MachineProfile['speedUnit'];
+  maxS?: number;
+  laserSources?: LaserSource[];
+  accessories?: MachineAccessory[];
+  flatModeGcode?: string;
 }
 
 export const GENERIC_BRAND = 'Generic';
+
+/** LaserPecker's own protocol (LP2, LP3): its rotary turns surface mm into rotation itself. */
+function laserPecker(
+  model: string,
+  bedWidth: number,
+  bedHeight: number,
+  accessories: MachineAccessory[],
+  laserSources?: LaserSource[],
+): MachinePreset {
+  const brand = 'LaserPecker';
+  const base = { brand, model, bedWidth, bedHeight, originCorner: 'tl' as const };
+  return {
+    ...base,
+    controller: 'laserpecker',
+    baudRate: 460800,
+    speedUnit: 'depth',
+    accessories,
+    ...(laserSources ? { laserSources } : {}),
+  };
+}
+
+/** The LP3's one laser is a 1064 nm fiber: its print start says so (laser type 1). */
+const LP3_LASER: LaserSource[] = [
+  { id: 'ir', label: '1064 nm infrared', wavelength: 1064, selectGcode: '', deviceCode: 1 },
+];
+
+const DUAL_LASER: LaserSource[] = [
+  { id: 'blue', label: '450 nm diode', wavelength: 450, selectGcode: 'M3010', deviceCode: 0 },
+  { id: 'ir', label: '1064 nm infrared', wavelength: 1064, selectGcode: 'M3011', deviceCode: 1 },
+];
+
+function slide(bedWidth: number, bedHeight: number, startGcode = ''): MachineAccessory {
+  return { id: 'slide', kind: 'slide', label: 'Slide Extension', bedWidth, bedHeight, startGcode };
+}
+
+function rotary(
+  bedWidth: number,
+  bedHeight: number,
+  options: { id?: string; label?: string; startGcode?: string; setup?: Partial<RotarySetup> } = {},
+): MachineAccessory {
+  const setup: RotarySetup = {
+    type: 'roller',
+    axis: 'y',
+    unitsPerRotation: 0,
+    rollerDiameter: 0,
+    deviceScales: true,
+    ...options.setup,
+  };
+  return {
+    id: options.id ?? 'rotary',
+    kind: 'rotary',
+    label: options.label ?? 'Rotary Extension',
+    bedWidth,
+    bedHeight,
+    startGcode: options.startGcode ?? '',
+    rotary: setup,
+  };
+}
+
+/** LaserPecker models on G-code over USB, with two lasers and mode M-codes. */
+function laserPeckerGcode(
+  model: string,
+  bedWidth: number,
+  bedHeight: number,
+  accessories: MachineAccessory[],
+): MachinePreset {
+  const base = { brand: 'LaserPecker', model, bedWidth, bedHeight, originCorner: 'tl' as const };
+  return {
+    ...base,
+    baudRate: 460800,
+    maxS: 255,
+    speedUnit: 'depth',
+    laserSources: DUAL_LASER,
+    flatModeGcode: 'M3030',
+    accessories,
+  };
+}
 
 /** A CO₂ machine on a Ruida controller: home top right, air assist on board. */
 function ruida(brand: string, model: string, bedWidth: number, bedHeight: number): MachinePreset {
@@ -54,6 +147,16 @@ export const MACHINE_PRESETS: readonly MachinePreset[] = [
   ruida('Thunder Laser', 'Nova 35', 900, 600),
   ruida('Thunder Laser', 'Nova 51', 1300, 900),
   ruida('Thunder Laser', 'Nova 63', 1600, 1000),
+  laserPecker('LP2', 100, 100, [slide(100, 300), rotary(100, 628)]),
+  laserPecker('LP3', 115, 80, [rotary(65, 65, { label: 'Electric Roller' })], LP3_LASER),
+  laserPeckerGcode('LP4', 160, 120, [
+    slide(160, 300, 'M3031'),
+    rotary(160, 628, {
+      startGcode: 'M3032',
+      setup: { type: 'chuck', unitsPerRotation: 256, deviceScales: false },
+    }),
+  ]),
+  laserPeckerGcode('LP5', 120, 160, [slide(300, 160, 'M3031')]),
   ruida('Aeon', 'Mira 5', 500, 300),
   ruida('Aeon', 'Mira 7', 700, 500),
   ruida('Aeon', 'Mira 9', 900, 600),
@@ -121,14 +224,16 @@ export function presetName(preset: Pick<MachinePreset, 'brand' | 'model'>): stri
   return preset.brand === GENERIC_BRAND ? `Generic ${preset.model}` : `${preset.brand} ${preset.model}`;
 }
 
-/** "CO₂", "CO₂ · Ruida", or nothing for diode GRBL machines: a tag beside the machine name. */
-export function machineKind(m: Pick<MachinePreset, 'laserType' | 'controller'>): string {
-  const parts = [m.laserType === 'co2' ? 'CO₂' : '', m.controller === 'ruida' ? 'Ruida' : ''];
-  return parts.filter(Boolean).join(' · ');
+/** Optical watts from a model name with one rating ("S30 Pro (10W)"); none for "10W / 20W". */
+export function wattsFromModel(model: string): number | undefined {
+  if (model.includes('/')) return undefined;
+  const m = /(\d+(?:\.\d+)?)\s*W\b/i.exec(model);
+  return m ? Number(m[1]) : undefined;
 }
 
 /** Profile fields a preset sets. */
 export function presetProfileFields(preset: MachinePreset): Partial<MachineProfile> {
+  const watts = wattsFromModel(preset.model);
   return {
     name: presetName(preset),
     bedWidth: preset.bedWidth,
@@ -137,6 +242,13 @@ export function presetProfileFields(preset: MachinePreset): Partial<MachineProfi
     originCorner: preset.originCorner ?? 'bl',
     supportsAirAssist: preset.supportsAirAssist ?? preset.laserType === 'co2',
     controller: preset.controller ?? 'grbl',
+    ...(preset.baudRate ? { baudRate: preset.baudRate } : {}),
+    ...(preset.maxS ? { maxS: preset.maxS } : {}),
+    ...(preset.speedUnit ? { speedUnit: preset.speedUnit } : {}),
+    ...(watts ? { laserWatts: watts } : {}),
+    ...(preset.laserSources ? { laserSources: preset.laserSources } : {}),
+    ...(preset.accessories ? { accessories: preset.accessories } : {}),
+    ...(preset.flatModeGcode ? { flatModeGcode: preset.flatModeGcode } : {}),
   };
 }
 

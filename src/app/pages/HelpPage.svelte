@@ -5,6 +5,8 @@
   import Download from '@lucide/svelte/icons/download';
   import Layers from '@lucide/svelte/icons/layers';
   import Flame from '@lucide/svelte/icons/flame';
+  import Bluetooth from '@lucide/svelte/icons/bluetooth';
+  import RotateCw from '@lucide/svelte/icons/rotate-cw';
   import PenTool from '@lucide/svelte/icons/pen-tool';
   import Image from '@lucide/svelte/icons/image';
   import Play from '@lucide/svelte/icons/play';
@@ -30,7 +32,7 @@
       title: 'Connect',
       items: [
         'Use Chrome, Edge, Opera or Brave on a desktop. Machine control needs Web Serial.',
-        'Connect laser, then pick the USB port. Most GRBL lasers use 115200 baud.',
+        'Connect laser, then pick the USB port, or choose Bluetooth from the button’s menu. openlaser finds out which laser it is (GRBL or LaserPecker) and picks a matching machine profile.',
         'Try the virtual machine to practise without hardware.',
       ],
     },
@@ -64,6 +66,7 @@
         'Fill engraves the inside of closed shapes with scanlines at any angle.',
         'Layers run top to bottom. Drag rows to reorder. Objects sit under their layer and drag between layers. The bolt toggles output, the eye toggles visibility. Deleting a layer asks where its objects go.',
         'Drag any field label left or right to scrub its value. Fields accept math like 100/3.',
+        'Material picks published settings for engraving or cutting. LaserPeckers use their own tables; other lasers use the profile’s laser power. Test on a scrap first.',
       ],
     },
     {
@@ -113,6 +116,26 @@
         'CO₂ tubes on a GRBL board connect over USB like any other laser, and the safety check adds water cooling.',
         'Ruida controllers (Thunder, Aeon, OMTech and most other CO₂ machines) run exported .rd files: Export .rd, copy it to a USB stick, then load, frame and start it on the laser’s panel.',
         'Ruida jobs use bed positions: the job burns where it sits on screen.',
+      ],
+    },
+    {
+      icon: Bluetooth,
+      title: 'LaserPecker',
+      items: [
+        'Pick LaserPecker LP2 or LP3 under Machine, then Connect Bluetooth (or USB with a USB-A to USB-C cable).',
+        'The whole job burns as one image at the Power, Depth and Resolution in the panel. Jobs burn where they sit on the bed.',
+        'Frame traces the outline with the beam at its lowest power until you stop it.',
+        'If the laser refuses uploads, switch it off and on again.',
+      ],
+    },
+    {
+      icon: RotateCw,
+      title: 'Rotary and accessories',
+      items: [
+        'Add your rotary or slide under Machine profiles (LaserPecker presets come with theirs). Then pick it under Setup in the Machine panel.',
+        'On a rotary, enter the object’s diameter: the bed becomes its unrolled surface, one turn tall. Y moves are scaled for a roller or chuck, or sent on the A axis.',
+        'Each job starts with the mode G-code of its setup, so the machine switches on its own.',
+        'Machines with two lasers list them under Machine profiles. Each layer then picks its laser, and the job switches between them with the laser off.',
       ],
     },
     {

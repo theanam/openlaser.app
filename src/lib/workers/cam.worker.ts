@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { compileJob } from '../cam';
-import { emitRuida } from '../cam/ruida';
+import { encodeJob } from '../cam/encoders';
 import { ditherPreview } from '../cam/raster';
 import type { MoveList, RasterSource } from '../cam/types';
 import { parseGcode, splitGcodeLines, validateGcodeLines } from '../import/gcode';
@@ -33,6 +33,13 @@ async function decodeProjectAssets(project: Project): Promise<Map<string, Raster
   return out;
 }
 
+/** Typed-array buffers in a payload (a few levels deep), so they move to the UI without a copy. */
+function buffersIn(payload: unknown, depth = 3): Transferable[] {
+  if (ArrayBuffer.isView(payload)) return [payload.buffer as ArrayBuffer];
+  if (!payload || typeof payload !== 'object' || depth === 0) return [];
+  return Object.values(payload).flatMap((v) => buffersIn(v, depth - 1));
+}
+
 function moveTransfer(moves: MoveList): Transferable[] {
   return [moves.coords.buffer, moves.power.buffer, moves.rapid.buffer, moves.line.buffer];
 }
@@ -50,8 +57,9 @@ async function handle(
         machinePosition: request.machinePosition,
         limits: request.limits,
         gcode: request.gcode,
+        absoluteOrigin: request.absoluteOrigin,
       });
-      const moves = parseGcode(plan.gcode.join('\n'), { maxS: request.profile.maxS });
+      const moves = parseGcode(plan.gcode.join('\n'), { maxS: request.profile.maxS, yAxis: plan.yAxis });
       const result = {
         gcode: plan.gcode,
         bounds: plan.bounds,
@@ -60,20 +68,18 @@ async function handle(
         stats: plan.stats,
         warnings: plan.warnings,
         moves,
+        yAxis: plan.yAxis,
       };
       return { response: { id: request.id, ok: true, result }, transfer: moveTransfer(moves) };
     }
-    case 'compile-rd': {
+    case 'encode': {
       const assets = await decodeProjectAssets(request.project);
-      const plan = compileJob({ project: request.project, assets, profile: request.profile });
-      const layers = new Map(request.project.layers.map((l) => [l.id, { color: l.color }]));
-      const bytes =
-        plan.toolpaths.length > 0
-          ? emitRuida(plan.toolpaths, { layers, airAssist: request.profile.supportsAirAssist })
-          : new Uint8Array();
+      const input = { project: request.project, assets, profile: request.profile };
+      // The encoder's options came through structured clone; it validates what it reads.
+      const result = encodeJob(request.encoder, input, request.options as never);
       return {
-        response: { id: request.id, ok: true, result: { bytes, warnings: plan.warnings } },
-        transfer: [bytes.buffer],
+        response: { id: request.id, ok: true, result },
+        transfer: buffersIn(result.payload),
       };
     }
     case 'parse-gcode': {

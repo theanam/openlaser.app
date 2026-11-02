@@ -5,21 +5,19 @@
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import Redo2 from '@lucide/svelte/icons/redo-2';
   import Menu from '@lucide/svelte/icons/menu';
-  import Plug from '@lucide/svelte/icons/plug';
   import CircleHelp from '@lucide/svelte/icons/circle-help';
   import FileCode from '@lucide/svelte/icons/file-code';
   import Logo from '$lib/ui/Logo.svelte';
   import GithubMark from '$lib/ui/GithubMark.svelte';
   import { REPO_URL } from '$lib/config/app';
-  import { isWebSerialSupported } from '$lib/machine';
   import { formatCombo } from '../lib/keys';
   import { editor } from '../state/editor.svelte';
-  import { machine } from '../state/machine.svelte';
-  import { profiles } from '../state/profiles.svelte';
+  import { activeAdapter, connectedAdapter, DEFAULT_ADAPTER } from '../machines/registry';
   import { session } from '../state/session.svelte';
   import { route } from '../state/route.svelte';
   import { ui } from '../state/ui.svelte';
   import * as actions from '../actions';
+  import ConnectButton from '../connect/ConnectButton.svelte';
 
   const saveState = $derived(
     editor.gcode
@@ -36,10 +34,10 @@
   );
 
   let editingName = $state(false);
-  const serial = isWebSerialSupported();
-  /** Ruida controllers run .rd files from a USB stick; they never connect here. */
-  const ruida = $derived(profiles.active.controller === 'ruida' && !editor.gcode);
-  const exportLabel = $derived(ruida ? 'Export .rd' : 'Export G-code');
+  /** An open G-code file exports as G-code, whatever the machine. */
+  const exportLabel = $derived(editor.gcode ? 'Export G-code' : activeAdapter().exportLabel);
+  /** The selected machine's first way in; G-code files go to the G-code machine. */
+  const live = $derived((editor.gcode ? DEFAULT_ADAPTER : activeAdapter()).live);
 
   function rename(event: Event) {
     const value = (event.currentTarget as HTMLInputElement).value.trim();
@@ -214,14 +212,8 @@
   >
     {exportLabel}
   </button>
-  {#if serial && !machine.connected && !ruida}
-    <button
-      type="button"
-      class="btn signal small connect"
-      disabled={machine.connecting}
-      onclick={() => machine.connect('webserial')}
-      data-testid="topbar-connect"><Plug size={15} />Connect laser</button
-    >
+  {#if live && !connectedAdapter()}
+    <ConnectButton size="small" testid="topbar-connect" />
   {/if}
   <button type="button" class="icon-btn" aria-label="Help" title="Help" onclick={() => route.go('help')}>
     <CircleHelp size={18} />
@@ -277,10 +269,6 @@
   :global(.menu-trigger:hover),
   :global(.menu-trigger[data-state='open']) {
     border-color: var(--ol-border-strong);
-  }
-
-  .connect {
-    gap: 6px;
   }
 
   .doc {

@@ -16,16 +16,19 @@
     type FontCategoryId,
   } from '$lib/fonts/catalog';
   import { loadPreviewCss } from '$lib/fonts/loader';
+  import { SCRIPT_LABELS } from '$lib/fonts/scripts';
   import { fonts } from '../state/fonts.svelte';
 
   interface Props {
     value: string;
     /** Families used elsewhere in the project, for the "In this project" chip. */
     projectFonts?: string[];
+    /** The text's script (e.g. "bengali"): the picker offers only fonts that have it. */
+    script?: string | null;
     onpick: (font: CatalogFont) => void;
   }
 
-  let { value, projectFonts = [], onpick }: Props = $props();
+  let { value, projectFonts = [], script = null, onpick }: Props = $props();
 
   const CATEGORY_LABEL: Record<FontCategory, string> = {
     sans: 'Sans',
@@ -41,13 +44,19 @@
   let open = $state(false);
   let query = $state('');
   let category = $state<FontCategoryId>('all');
+  /** Only fonts with the text's script; on by default when the text is not latin. */
+  let scriptOnly = $state(false);
   let scrollTop = $state(0);
   let listEl = $state<HTMLDivElement | null>(null);
 
   onMount(() => void fonts.init());
 
   const all = $derived(fonts.all);
-  const results = $derived(filterFonts(all, query, category, projectFonts));
+  const supports = (f: CatalogFont) =>
+    !!script && (f.subsets ?? []).some((s) => s === script || s === `${script}-ext`);
+  const results = $derived(
+    filterFonts(all, query, category, projectFonts).filter((f) => !scriptOnly || supports(f)),
+  );
   const first = $derived(Math.max(0, Math.floor(scrollTop / ROW) - 4));
   const last = $derived(Math.min(results.length, Math.ceil((scrollTop + VIEW) / ROW) + 4));
   const rows = $derived(results.slice(first, last));
@@ -76,6 +85,7 @@
     if (next) {
       query = '';
       category = 'all';
+      scriptOnly = !!script;
       // Scroll the current family into view once the list has rendered.
       requestAnimationFrame(() => {
         const index = results.findIndex((f) => f.family === value);
@@ -114,6 +124,16 @@
         />
       </label>
       <div class="chips" role="group" aria-label="Font category">
+        {#if script}
+          <button
+            type="button"
+            class="chip"
+            aria-pressed={scriptOnly}
+            title="Fonts that have these letters"
+            onclick={() => (scriptOnly = !scriptOnly)}
+            data-testid="font-script">{SCRIPT_LABELS[script] ?? script}</button
+          >
+        {/if}
         {#each FONT_CATEGORIES as c (c.id)}
           <button
             type="button"

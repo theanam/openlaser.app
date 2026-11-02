@@ -23,7 +23,7 @@
   import { fonts } from './state/fonts.svelte';
   import { installShortcuts } from './shortcuts';
   import { installLaunchQueue, installPwa } from './pwa.svelte';
-  import { machine } from './state/machine.svelte';
+  import { connectedSession } from './machines/registry';
 
   let ready = $state(false);
 
@@ -63,8 +63,9 @@
       }
     })();
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      if (machine.jobActive) {
-        machine.pauseForUnload();
+      const live = connectedSession();
+      if (live?.jobActive) {
+        live.pauseForUnload();
         event.preventDefault();
       } else if (editor.project) {
         void session.flush();

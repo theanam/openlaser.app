@@ -24,6 +24,8 @@ export type CatalogFont = {
   cssFamily?: string;
   /** Fonts from the user's machine: uploaded files or installed system fonts. */
   source?: 'uploaded' | 'system';
+  /** Fontsource subsets besides latin (e.g. "bengali", "cyrillic"), each served as its own file. */
+  subsets?: string[];
 };
 
 export const FONT_CATEGORIES: { id: FontCategoryId; label: string }[] = [
@@ -71,7 +73,10 @@ export const DEFAULT_TEXT_FONT = { family: 'Geist', weight: 500 } as const;
 
 const KNOWN = new Set<string>(['sans', 'serif', 'display', 'handwriting', 'mono']);
 
-/** Compact rows [id, family, category, weights, hasItalic] to entries. Malformed rows are dropped; unknown categories become sans. */
+/**
+ * Compact rows [id, family, category, weights, hasItalic, subsets?] to entries. Malformed rows are
+ * dropped; unknown categories become sans.
+ */
 export function parseCatalog(rows: unknown): CatalogFont[] {
   if (!Array.isArray(rows)) return [];
   const out: CatalogFont[] = [];
@@ -89,6 +94,9 @@ export function parseCatalog(rows: unknown): CatalogFont[] {
       category: (KNOWN.has(cat) ? cat : 'sans') as FontCategory,
       weights,
       italic: !!r[4],
+      ...(Array.isArray(r[5]) && r[5].length
+        ? { subsets: (r[5] as unknown[]).filter((s): s is string => typeof s === 'string') }
+        : {}),
     });
   }
   return out;
@@ -97,7 +105,12 @@ export function parseCatalog(rows: unknown): CatalogFont[] {
 /** Bundled faces first, then the catalogue (minus the bundled families) in its own order. */
 export function mergeCatalog(fonts: CatalogFont[]): CatalogFont[] {
   const have = new Set(BUNDLED_FONTS.map((f) => f.family));
-  return [...BUNDLED_FONTS, ...fonts.filter((f) => !have.has(f.family))];
+  // Bundled entries keep the catalogue's subsets, so their other scripts still outline.
+  const bundled = BUNDLED_FONTS.map((b) => {
+    const subsets = fonts.find((f) => f.family === b.family)?.subsets;
+    return subsets ? { ...b, subsets } : b;
+  });
+  return [...bundled, ...fonts.filter((f) => !have.has(f.family))];
 }
 
 export const findFont = (list: readonly CatalogFont[], family: string): CatalogFont | undefined => {
@@ -193,9 +206,9 @@ export function previewCssUrl(entry: CatalogFont): string {
   return `https://fonts.googleapis.com/css2?family=${fam(entry.family)}:wght@${nearestWeight(entry.weights, 400)}&text=${encodeURIComponent(entry.family)}&display=swap`;
 }
 
-/** A single latin TrueType face from the Fontsource CDN (served as font/ttf with CORS). */
-export function fontsourceTtfUrl(id: string, weight: number, style: FontStyle): string {
-  return `https://cdn.jsdelivr.net/fontsource/fonts/${id}@latest/latin-${weight}-${style}.ttf`;
+/** A single TrueType face of one subset from the Fontsource CDN (served as font/ttf with CORS). */
+export function fontsourceTtfUrl(id: string, weight: number, style: FontStyle, subset = 'latin'): string {
+  return `https://cdn.jsdelivr.net/fontsource/fonts/${id}@latest/${subset}-${weight}-${style}.ttf`;
 }
 
 let catalogPromise: Promise<CatalogFont[]> | null = null;

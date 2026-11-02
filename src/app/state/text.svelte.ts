@@ -12,6 +12,8 @@ import { updateObject } from '$lib/project/operations';
 import { textPlaceholderSize } from '$lib/project/outline';
 import type { Id, Project, TextObject } from '$lib/project/types';
 import { reportError } from '$lib/ui/errors';
+import type { BedFrame } from '../canvas/viewport';
+import { uprightTextAt } from '../lib/placement';
 import { editor } from './editor.svelte';
 
 export const DEFAULT_TEXT_SIZE_MM = 10;
@@ -33,10 +35,14 @@ const styleKey = (t: TextStyle) =>
     t.letterSpacing,
   ]);
 
-/** Height of the text block as currently drawn (outlines, or the estimate while loading). */
+/**
+ * Height of the block the transform is anchored to: the last outline's, or the estimate while
+ * the font loads. A font without these letters outlines to nothing yet still has a height, so the
+ * stored height wins over the estimate whenever there is one.
+ */
 function blockHeight(t: TextObject): number {
-  if (!t.paths.length) return textPlaceholderSize(t).height;
   if (t.blockHeight !== undefined) return t.blockHeight;
+  if (!t.paths.length) return textPlaceholderSize(t).height;
   // Text saved before blockHeight existed: the tallest glyph is the closest measure there is.
   let maxY = 0;
   for (const p of t.paths) {
@@ -52,8 +58,12 @@ class TextOutlines {
   private timers = new Map<Id, ReturnType<typeof setTimeout>>();
   private failed = new Set<string>();
 
-  /** Creates a text object with its top-left at `at` (bed mm) and selects it. */
-  create(at: Vec2, text = 'Text'): Id {
+  /**
+   * Creates a text object with its top-left (as seen on screen) at `at` (bed mm) and selects it.
+   * On beds homed at the top or right the screen mirrors bed space, so the text is flipped to match
+   * and reads upright.
+   */
+  create(at: Vec2, bed?: BedFrame, text = 'Text'): Id {
     const style: TextStyle = {
       text,
       fontFamily: DEFAULT_TEXT_FONT.family,
@@ -73,7 +83,7 @@ class TextOutlines {
         name: text,
         locked: false,
         visible: true,
-        transform: translation(at.x, at.y - height),
+        transform: bed ? uprightTextAt(bed, at, height) : translation(at.x, at.y - height),
         paths: [],
         ...style,
       },
@@ -100,8 +110,13 @@ class TextOutlines {
     for (const o of project.objects) {
       if (o.kind !== 'text' || !o.text.trim() || this.pending.has(o.id) || this.failed.has(styleKey(o)))
         continue;
-      const stale = o.paths.length > 0 && (o.outlineVersion ?? 1) < TEXT_OUTLINE_VERSION;
-      if (o.paths.length === 0 || stale) this.schedule(o.id, 0, stale);
+      // Never outlined, or outlined by an older outliner (which may also have drawn nothing, for
+      // scripts it could not handle). Text the current outliner drew as nothing keeps its version
+      // and stays as it is: outlining it again would give nothing again, forever.
+      const never = o.paths.length === 0 && o.outlineVersion === undefined;
+      const stale =
+        o.outlineVersion !== undefined ? o.outlineVersion < TEXT_OUTLINE_VERSION : o.paths.length > 0;
+      if (never || stale) this.schedule(o.id, 0, stale && o.paths.length > 0);
     }
   }
 
@@ -142,7 +157,7 @@ class TextOutlines {
         return;
       }
       this.failed.delete(key);
-      this.applyOutline(latest, outline.paths, outline.height, inPlace);
+      this.applyOutline(latest, outline.paths, outline.height, inPlace, outline.missing);
     } catch (error) {
       reportError(error, 'Text outlines');
     } finally {
@@ -153,7 +168,13 @@ class TextOutlines {
   }
 
   /** Swaps in new outlines, keeping the block's top-left corner where it was. */
-  private applyOutline(object: TextObject, paths: PathData[], height: number, inPlace = false): void {
+  private applyOutline(
+    object: TextObject,
+    paths: PathData[],
+    height: number,
+    inPlace = false,
+    missing?: string[],
+  ): void {
     const shift = inPlace ? 0 : blockHeight(object) - height;
     const transform =
       Math.abs(shift) > 1e-9 ? multiply(object.transform, translation(0, shift)) : object.transform;
@@ -164,6 +185,7 @@ class TextOutlines {
           transform,
           blockHeight: height,
           outlineVersion: TEXT_OUTLINE_VERSION,
+          missingGlyphs: missing,
         }),
       {
         record: false,

@@ -4,6 +4,7 @@
  */
 import type { CamWarning, JobStats, LayerStart, MoveList, Rect } from '$lib/cam/types';
 import type { Vec2 } from '$lib/geometry/types';
+import type { YAxisMapping } from '$lib/project/accessories';
 import type { CompileResult } from '$lib/workers/protocol';
 import { reportError } from '$lib/ui/errors';
 import { compileInWorker, SupersededError } from '../lib/cam-client';
@@ -11,6 +12,7 @@ import { editor } from './editor.svelte';
 import { machine } from './machine.svelte';
 import { preferences } from './preferences.svelte';
 import { profiles } from './profiles.svelte';
+import { adapterFor } from '../machines/registry';
 
 export interface JobSource {
   name: string;
@@ -23,6 +25,8 @@ export interface JobSource {
   layerStarts: LayerStart[];
   stats: JobStats | null;
   warnings: CamWarning[];
+  /** Rotary jobs: how Y goes out, so framing matches. Null on the flat bed and for G-code files. */
+  yAxis: YAxisMapping | null;
 }
 
 const DEBOUNCE_MS = 250;
@@ -78,6 +82,7 @@ class Preview {
         layerStarts: [],
         stats: null,
         warnings: [],
+        yAxis: null,
       };
     }
     const r = this.result;
@@ -91,6 +96,7 @@ class Preview {
       layerStarts: r.layerStarts,
       stats: r.stats,
       warnings: r.warnings,
+      yAxis: r.yAxis,
     };
   }
 
@@ -105,7 +111,8 @@ class Preview {
   async ensure(): Promise<JobSource | null> {
     if (editor.gcode) return this.source;
     if (!editor.project) return null;
-    if (this.stale) await this.compile();
+    // The design can change while it compiles (text outlines arriving, say): compile again.
+    for (let attempt = 0; attempt < 3 && this.stale; attempt++) await this.compile();
     return this.stale ? null : this.source;
   }
 
@@ -125,6 +132,8 @@ class Preview {
       profile: key.profile,
       machinePosition: key.position ?? undefined,
       limits: machine.limits,
+      // Machines that start jobs on their own panel burn at bed positions.
+      absoluteOrigin: !adapterFor(key.profile.controller).capabilities.jobOrigin,
       gcode: {
         optimize: !debug.disableOptimizer,
         leadingZero: debug.leadingZero,

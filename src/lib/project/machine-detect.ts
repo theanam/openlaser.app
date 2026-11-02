@@ -64,8 +64,8 @@ export function detectPresets(
   const text = squash(fp.text);
   const results: DetectedPreset[] = [];
   for (const preset of presets) {
-    // Ruida machines never connect over GRBL, so a GRBL handshake can't be one of them.
-    if (preset.brand === GENERIC_BRAND || preset.controller === 'ruida') continue;
+    // Ruida and LaserPecker machines never connect over GRBL, so a GRBL handshake can't be one of them.
+    if (preset.brand === GENERIC_BRAND || (preset.controller ?? 'grbl') !== 'grbl') continue;
     let score = 0;
     const reasons: string[] = [];
     const aliases = BRAND_ALIASES[preset.brand] ?? [squash(preset.brand)];

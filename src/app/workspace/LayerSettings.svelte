@@ -17,6 +17,9 @@
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
   import { withMode } from '../lib/layers';
+  import LaserSourcePicker from './LaserSourcePicker.svelte';
+  import MaterialPicker from './MaterialPicker.svelte';
+  import { activeAdapter } from '../machines/registry';
   import { CO2_MIN_FIRING_PERCENT, speedFromUnit, speedToUnit } from '../lib/units';
 
   let { layer }: { layer: Layer } = $props();
@@ -34,6 +37,8 @@
   );
 
   const speedUnit = $derived(profiles.active.speedUnit);
+  /** Scan settings steer a moving head; machines that draw one bitmap themselves have none. */
+  const scan = $derived(activeAdapter().capabilities.scanSettings);
   const weakForTube = $derived(
     profiles.active.laserType === 'co2' && layer.power > 0 && layer.power < CO2_MIN_FIRING_PERCENT,
   );
@@ -87,6 +92,8 @@
     {/each}
   </div>
 
+  <MaterialPicker {layer} />
+
   {#if mismatched}
     <p class="note">
       {layer.mode === 'image' ? 'Vectors on this layer are skipped.' : 'Images on this layer are skipped.'}
@@ -94,18 +101,30 @@
   {/if}
 
   <div class="grid">
-    <NumberField
-      label="Speed"
-      hint="How fast the head moves while the laser burns"
-      unit={speedUnit}
-      value={speedToUnit(layer.speed, speedUnit)}
-      decimals={speedUnit === 'mm/s' ? 1 : 0}
-      min={speedToUnit(1, speedUnit)}
-      max={speedToUnit(maxRate, speedUnit)}
-      step={speedUnit === 'mm/s' ? 1 : 10}
-      onchange={(v, l) => set({ speed: speedFromUnit(v, speedUnit) }, l, 'speed')}
-      testid="layer-speed"
-    />
+    {#if speedUnit === 'depth'}
+      <NumberField
+        label="Depth"
+        hint="How long each dot burns, 1 to 100. Deeper burns slower"
+        value={speedToUnit(layer.speed, 'depth')}
+        min={1}
+        max={100}
+        onchange={(v, l) => set({ speed: speedFromUnit(v, 'depth') }, l, 'speed')}
+        testid="layer-speed"
+      />
+    {:else}
+      <NumberField
+        label="Speed"
+        hint="How fast the head moves while the laser burns"
+        unit={speedUnit}
+        value={speedToUnit(layer.speed, speedUnit)}
+        decimals={speedUnit === 'mm/s' ? 1 : 0}
+        min={speedToUnit(1, speedUnit)}
+        max={speedToUnit(maxRate, speedUnit)}
+        step={speedUnit === 'mm/s' ? 1 : 10}
+        onchange={(v, l) => set({ speed: speedFromUnit(v, speedUnit) }, l, 'speed')}
+        testid="layer-speed"
+      />
+    {/if}
     <NumberField
       label="Power"
       hint="Laser power while burning, as a share of the machine's maximum"
@@ -145,7 +164,7 @@
         step={0.01}
         onchange={(v, l) => setLine({ kerfOffset: v }, l, 'kerf')}
       />
-    {:else if layer.mode === 'fill'}
+    {:else if layer.mode === 'fill' && scan}
       <NumberField
         label="Interval"
         hint="Distance between fill lines. Smaller is denser and slower"
@@ -179,7 +198,7 @@
         step={0.5}
         onchange={(v, l) => setFill({ overscan: v }, l, 'overscan')}
       />
-    {:else}
+    {:else if layer.mode === 'image' && scan}
       <NumberField
         label="Min power"
         hint="Power for the lightest gray in Grayscale mode. White stays off"
@@ -269,27 +288,31 @@
         onchange={(v, l) => setImage({ gamma: v }, l, 'gamma')}
       />
     </div>
-    <div class="segmented small" role="group" aria-label="Scan direction">
-      <button
-        type="button"
-        aria-pressed={image.scanAngle === 0}
-        title="Scan lines run left to right"
-        onclick={() => setImage({ scanAngle: 0 }, false, 'scan')}>Horizontal</button
-      >
-      <button
-        type="button"
-        aria-pressed={image.scanAngle === 90}
-        title="Scan lines run bottom to top"
-        onclick={() => setImage({ scanAngle: 90 }, false, 'scan')}>Vertical</button
-      >
-    </div>
+    {#if scan}
+      <div class="segmented small" role="group" aria-label="Scan direction">
+        <button
+          type="button"
+          aria-pressed={image.scanAngle === 0}
+          title="Scan lines run left to right"
+          onclick={() => setImage({ scanAngle: 0 }, false, 'scan')}>Horizontal</button
+        >
+        <button
+          type="button"
+          aria-pressed={image.scanAngle === 90}
+          title="Scan lines run bottom to top"
+          onclick={() => setImage({ scanAngle: 90 }, false, 'scan')}>Vertical</button
+        >
+      </div>
+    {/if}
     <div class="toggles">
-      <Toggle
-        label="Bidirectional"
-        hint="Burns on the way back too. Faster, with slight line offsets on some machines"
-        checked={image.bidirectional}
-        onchange={(c) => setImage({ bidirectional: c }, false, 'bidi')}
-      />
+      {#if scan}
+        <Toggle
+          label="Bidirectional"
+          hint="Burns on the way back too. Faster, with slight line offsets on some machines"
+          checked={image.bidirectional}
+          onchange={(c) => setImage({ bidirectional: c }, false, 'bidi')}
+        />
+      {/if}
       <Toggle
         label="Invert"
         hint="Burns the light areas and leaves the dark ones"
@@ -303,7 +326,7 @@
         onchange={(c) => setImage({ passThrough: c }, false, 'pass')}
       />
     </div>
-  {:else if layer.mode === 'fill'}
+  {:else if layer.mode === 'fill' && scan}
     <div class="toggles">
       <Toggle
         label="Bidirectional"
@@ -319,6 +342,8 @@
       />
     </div>
   {/if}
+
+  <LaserSourcePicker {layer} onchange={(id) => set({ laserSourceId: id }, false, 'source')} />
 
   {#if profiles.active.supportsAirAssist}
     <Toggle

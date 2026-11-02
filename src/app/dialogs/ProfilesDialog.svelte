@@ -15,11 +15,13 @@
   import { defaultMachineProfile, laserTypeDefaults, MAX_FRAME_POWER_PERCENT } from '$lib/project/factory';
   import { presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
   import PresetPicker from './PresetPicker.svelte';
+  import ProfileHardware from './ProfileHardware.svelte';
   import { makeId } from '$lib/project/ids';
   import { parseMachineProfile, serializeMachineProfile } from '$lib/project/machine-file';
   import type { MachineProfile } from '$lib/project/types';
   import { MACHINE_FILES, openFiles, safeFileName, saveFileAs } from '$lib/storage/files';
   import { profiles } from '../state/profiles.svelte';
+  import { ADAPTERS, adapterFor, CONTROLLER_IDS } from '../machines/registry';
   import { ui } from '../state/ui.svelte';
 
   let selectedId = $state<string | null>(null);
@@ -69,7 +71,7 @@
     try {
       const [file] = await openFiles([MACHINE_FILES], { id: 'machines' });
       if (!file) return;
-      const profile = parseMachineProfile(await file.file.text());
+      const profile = parseMachineProfile(await file.file.text(), CONTROLLER_IDS);
       const imported = profiles.list.some((p) => p.id === profile.id)
         ? { ...profile, id: makeId() }
         : profile;
@@ -90,8 +92,8 @@
       toast.success(`Saved ${selected.name}`);
     else if (outcome.status === 'failed') toast.error(outcome.reason);
   }
-  /** GRBL-only settings (S range, baud, jogging, framing, G-code) hide for Ruida machines. */
-  const grbl = $derived(selected.controller === 'grbl');
+  /** G-code settings (S range, baud, jogging, framing, header) show only for G-code machines. */
+  const grbl = $derived(adapterFor(selected.controller).capabilities.gcode);
 </script>
 
 <Dialog bind:open={ui.profilesOpen} title="Machine profiles" width={720} testid="profiles-dialog">
@@ -184,26 +186,25 @@
           <div class="field">
             Controller
             <div class="segmented" role="group" aria-label="Controller" data-testid="profile-controller">
-              <button
-                type="button"
-                aria-pressed={selected.controller === 'grbl'}
-                onclick={() => patch({ controller: 'grbl' })}>GRBL</button
-              >
-              <button
-                type="button"
-                aria-pressed={selected.controller === 'ruida'}
-                onclick={() => patch({ controller: 'ruida', originCorner: 'tr' })}>Ruida</button
-              >
+              {#each ADAPTERS as adapter (adapter.id)}
+                <button
+                  type="button"
+                  aria-pressed={adapterFor(selected.controller) === adapter}
+                  onclick={() => patch({ controller: adapter.id, ...adapter.profileDefaults })}
+                  >{adapter.label}</button
+                >
+              {/each}
             </div>
           </div>
           <div class="field" title="The unit speeds are shown and typed in">
             Speeds in
             <div class="segmented" role="group" aria-label="Speed unit">
-              {#each ['mm/min', 'mm/s'] as const as unit (unit)}
+              {#each ['mm/min', 'mm/s', 'depth'] as const as unit (unit)}
                 <button
                   type="button"
                   aria-pressed={selected.speedUnit === unit}
-                  onclick={() => patch({ speedUnit: unit })}>{unit}</button
+                  title={unit === 'depth' ? 'LaserPecker depth, 1 to 100' : undefined}
+                  onclick={() => patch({ speedUnit: unit })}>{unit === 'depth' ? 'Depth' : unit}</button
                 >
               {/each}
             </div>
@@ -225,6 +226,18 @@
             min={10}
             max={3000}
             onchange={(v) => patch({ bedHeight: v })}
+          />
+          <NumberField
+            label="Laser power"
+            hint="Optical output, as on the module's label (not the input power). Picks the material presets"
+            unit="W"
+            decimals={1}
+            value={selected.laserWatts ?? 0}
+            min={0}
+            max={500}
+            presets={[5, 10, 20, 40]}
+            onchange={(v) => patch({ laserWatts: v > 0 ? v : undefined })}
+            testid="profile-watts"
           />
           {#if grbl}
             <NumberField
@@ -310,6 +323,7 @@
             onchange={(c) => patch({ supportsAirAssist: c })}
           />
         </div>
+        <ProfileHardware profile={selected} gcode={grbl} {patch} />
         {#if grbl}
           <div class="grid">
             <label class="field"

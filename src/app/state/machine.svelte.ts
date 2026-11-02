@@ -3,11 +3,12 @@
  * job runner (SPEC §3 rule 4). Safety checks before a job follow SPEC §11.
  */
 import {
+  GrblConnection,
+  GRBL_MOVING_STATES,
   GrblDriver,
-  GrblSimulator,
   JobRunner,
-  SimulatorTransport,
   WebSerialTransport,
+  virtualGrblTransport,
   buildFrameGcode,
   describeAlarm,
   isManualLaserOnCommand,
@@ -48,7 +49,7 @@ import { profiles } from './profiles.svelte';
 const CONSOLE_UI_LIMIT = 2000;
 
 /** Statuses where the machine is moving or paused mid-motion. */
-const MOVING_STATES = new Set<MachineState['status']>(['Run', 'Jog', 'Home', 'Hold', 'Door', 'Check']);
+const MOVING_STATES = GRBL_MOVING_STATES;
 
 const IDLE_STATE: MachineState = {
   connection: 'disconnected',
@@ -164,6 +165,7 @@ class MachineController {
   /** Bounds of the last completed frame, to tell whether this job was framed. */
   private framedKey: string | null = null;
 
+  connection: GrblConnection | null = null;
   driver: GrblDriver | null = null;
   runner: JobRunner | null = null;
   private unsubscribers: Array<() => void> = [];
@@ -208,12 +210,7 @@ class MachineController {
     try {
       if (!t) {
         if (kind === 'simulator') {
-          const profile = profiles.active;
-          t = new SimulatorTransport(
-            new GrblSimulator({
-              settings: { 130: profile.bedWidth, 131: profile.bedHeight, 30: profile.maxS },
-            }),
-          );
+          t = virtualGrblTransport(profiles.active);
         } else {
           t = await WebSerialTransport.request();
         }
@@ -231,12 +228,15 @@ class MachineController {
     }
 
     this.connecting = true;
-    const driver = new GrblDriver({ statusPollMs: preferences.value.statusPollMs });
+    const connection = new GrblConnection({ driver: { statusPollMs: preferences.value.statusPollMs } });
+    const driver = connection.driver;
     this.attach(driver);
     try {
-      const handshake = await driver.connect(t, profiles.active);
+      const handshake = await connection.connect(t, profiles.active);
+      this.connection = connection;
       this.driver = driver;
-      this.runner = new JobRunner(driver);
+      this.runner = connection.runner;
+      if (!this.runner) throw new Error('The machine is not connected.');
       this.unsubscribers.push(this.runner.progress.subscribe((p) => (this.progress = p)));
       this.unsubscribers.push(this.runner.onEvent((e) => this.onJobEvent(e)));
       this.handshake = handshake;
@@ -271,6 +271,7 @@ class MachineController {
   private detach(): void {
     for (const off of this.unsubscribers) off();
     this.unsubscribers = [];
+    this.connection = null;
     this.driver = null;
     this.runner = null;
     this.handshake = null;
@@ -557,7 +558,7 @@ class MachineController {
       do {
         this.framePass++;
         const outcome = await this.run(
-          buildFrameGcode(bounds, profiles.active),
+          buildFrameGcode(bounds, profiles.active, job.yAxis),
           'frame',
           undefined,
           job.offset,
@@ -710,21 +711,8 @@ class MachineController {
   /** Stop: no confirmation, it must be instant (SPEC §9.6, §11). */
   async stop(): Promise<void> {
     this.frameLoop = false;
-    if (this.runner?.active) {
-      await this.runner.stop();
-      return;
-    }
-    const driver = this.driver;
-    if (!driver || !MOVING_STATES.has(this.state.status)) return;
-    if (this.state.status === 'Jog') {
-      // Jog cancel stops a jog cleanly and leaves the machine Idle; a feed hold would strand it in Hold.
-      driver.cancelJog();
-      return;
-    }
-    // Manual moves or homing: hold, then reset, which empties the planner so nothing resumes later.
-    driver.realtime('feed-hold');
-    await this.waitForStatus(['Hold', 'Idle', 'Alarm'], 500);
-    await driver.softReset('user').catch((error: unknown) => reportError(error, 'Stop'));
+    // Jobs stop through the runner; a jog is cancelled; other motion is held, then reset.
+    await this.connection?.stop().catch((error: unknown) => reportError(error, 'Stop'));
   }
 
   /** Resumes a hold that did not come from a job (machine button, door, earlier pause). */
@@ -735,13 +723,6 @@ class MachineController {
   /** Clears a hold by resetting the controller: queued motion is dropped. */
   async clearHold(): Promise<void> {
     await this.driver?.softReset('user').catch((error: unknown) => reportError(error, 'Reset'));
-  }
-
-  private async waitForStatus(states: MachineState['status'][], timeoutMs: number): Promise<void> {
-    const start = Date.now();
-    while (!states.includes(this.state.status) && Date.now() - start < timeoutMs) {
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    }
   }
 
   /** beforeunload during a job: hold motion while the browser asks to leave. */

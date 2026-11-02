@@ -55,3 +55,26 @@ export { DEFAULT_SIMULATOR_SETTINGS } from './simulator/default-settings';
 export { SimulatorTransport } from './transport/simulator-transport';
 export { WebSerialTransport, isWebSerialSupported } from './transport/web-serial';
 export { COMMON_USB_SERIAL_CHIPS, COMMON_USB_SERIAL_FILTERS, describePort } from './transport/usb-filters';
+export {
+  WebBluetoothTransport,
+  isWebBluetoothSupported,
+  LASERPECKER_GATT,
+  type GattProfile,
+} from './transport/web-bluetooth';
+export {
+  IDLE_STATUS,
+  type ConnectionActivity,
+  type ConnectionCapabilities,
+  type ConnectionStatus,
+  type MachineConnection,
+  type RunOutcome,
+} from './adapter';
+export {
+  GrblConnection,
+  GRBL_MOVING_STATES,
+  type GrblConnectionOptions,
+  type GrblJob,
+} from './grbl/connection';
+export { virtualGrblTransport } from './simulator/virtual-machine';
+export { listen, type Detection, type ProbeOptions } from './probe';
+export { probeGrbl } from './grbl/probe';

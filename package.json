@@ -28,6 +28,7 @@
     "bits-ui": "^2.19.5",
     "clipper2-ts": "2.0.1-18",
     "fflate": "^0.8.3",
+    "harfbuzzjs": "1.6.3",
     "idb": "^8.0.4",
     "nanoid": "^5.1.6",
     "opentype.js": "^2.0.0"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { currentBed } from '../state/work-area';
   import { onMount } from 'svelte';
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
@@ -11,7 +12,6 @@
   import { editor } from '../state/editor.svelte';
   import { canvas } from '../state/canvas.svelte';
   import { preview } from '../state/preview.svelte';
-  import { profiles } from '../state/profiles.svelte';
   import { machine } from '../state/machine.svelte';
   import { boundsOf, selectedObjects } from '../lib/selection';
   import { bedRectToScreen, bedToScreen, screenToBed, zoomAt, type BedFrame } from './viewport';
@@ -56,11 +56,8 @@
 
   const images = new ImageLooks(() => invalidate());
 
-  const bed: BedFrame = $derived({
-    width: profiles.active.bedWidth,
-    height: profiles.active.bedHeight,
-    originCorner: profiles.active.originCorner,
-  });
+  // A fitted rotary or slide brings its own work area.
+  const bed: BedFrame = $derived(currentBed());
 
   type Drag =
     | { kind: 'pan'; x: number; y: number; offsetX: number; offsetY: number }
@@ -184,7 +181,7 @@
         drawShapeGhost(ctx, canvas.view, bed, drag.shape, drag.start, drag.current, palette.signal);
       else {
         // Library shapes preview with their real outline.
-        const ghost = shapeObject(drag.shape, normalizeRect(drag.start, drag.current), '', '');
+        const ghost = shapeObject(drag.shape, normalizeRect(drag.start, drag.current), '', '', bed);
         if (ghost) {
           ctx.strokeStyle = palette.signal;
           ctx.lineWidth = 1.4;
@@ -260,7 +257,7 @@
       // Keep the browser from focusing the canvas on mouse-down, which would steal the caret.
       event.preventDefault();
       el.releasePointerCapture(event.pointerId);
-      canvas.editText(textOutlines.create(bedPoint), true);
+      canvas.editText(textOutlines.create(bedPoint, bed), true);
       editor.tool = 'select';
       return;
     }
@@ -386,8 +383,8 @@
   }
 
   function createShape(shape: DrawnShape, r: Rect) {
-    if (!shapeObject(shape, r, '', '')) return;
-    editor.addOnLayer('line', (layerId) => [shapeObject(shape, r, layerId, makeId())!]);
+    if (!shapeObject(shape, r, '', '', bed)) return;
+    editor.addOnLayer('line', (layerId) => [shapeObject(shape, r, layerId, makeId(), bed)!]);
     // One shape per pick of the tool; back to Select so the new shape can be adjusted right away.
     editor.tool = 'select';
   }

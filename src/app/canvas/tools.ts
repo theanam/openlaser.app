@@ -5,6 +5,7 @@ import { ellipsePath, rectanglePath } from '$lib/project/shapes';
 import { defaultParams, isShapeKind, shapeDef, shapePaths } from '$lib/shapes';
 import type { Id, Project, VectorObject } from '$lib/project/types';
 import type { Tool } from '../state/editor.svelte';
+import { uprightIn } from '../lib/placement';
 import { boundsOf } from '../lib/selection';
 import { rectsIntersect, type HandleId } from './handles';
 import { bedRectToScreen, type BedFrame, type View } from './viewport';
@@ -15,7 +16,17 @@ export const MIN_SHAPE_MM = 0.5;
 /** What a drag with a drawing tool makes: a rectangle, an ellipse, or a shape from the library. */
 export type DrawnShape = 'rect' | 'ellipse' | { library: string };
 
-export function shapeObject(shape: DrawnShape, r: Rect, layerId: Id, id: Id): VectorObject | null {
+/**
+ * A drawn shape filling `r` (bed mm). With the bed it is placed upright on screen, so library
+ * shapes (arrows, hearts) read the right way on machines homed at the top or right.
+ */
+export function shapeObject(
+  shape: DrawnShape,
+  r: Rect,
+  layerId: Id,
+  id: Id,
+  bed?: BedFrame,
+): VectorObject | null {
   const w = r.maxX - r.minX;
   const h = r.maxY - r.minY;
   if (w < MIN_SHAPE_MM || h < MIN_SHAPE_MM) return null;
@@ -25,7 +36,7 @@ export function shapeObject(shape: DrawnShape, r: Rect, layerId: Id, id: Id): Ve
     layerId,
     locked: false,
     visible: true,
-    transform: translation(r.minX, r.minY),
+    transform: bed ? uprightIn(bed, r) : translation(r.minX, r.minY),
   };
   if (shape === 'rect') return { ...base, name: 'Rectangle', drawn: true, paths: [rectanglePath(w, h)] };
   if (shape === 'ellipse') return { ...base, name: 'Ellipse', drawn: true, paths: [ellipsePath(w, h)] };

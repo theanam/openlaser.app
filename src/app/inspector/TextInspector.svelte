@@ -12,6 +12,7 @@
   import { editor } from '../state/editor.svelte';
   import { textOutlines } from '../state/text.svelte';
   import FontPicker from './FontPicker.svelte';
+  import { dominantScript } from '$lib/fonts/scripts';
 
   let { object }: { object: TextObject } = $props();
 
@@ -58,7 +59,12 @@
     onblur={() => editor.sealHistory()}
     data-testid="text-content"
   ></textarea>
-  <FontPicker value={object.fontFamily} {projectFonts} onpick={pickFont} />
+  <FontPicker
+    value={object.fontFamily}
+    {projectFonts}
+    script={dominantScript(object.text)}
+    onpick={pickFont}
+  />
   <div class="row">
     <select
       class="input weight"

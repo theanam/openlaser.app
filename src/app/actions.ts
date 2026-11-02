@@ -21,7 +21,6 @@ import {
   VECTOR_FILES,
   type FileKind,
   GCODE_FILES,
-  RUIDA_FILES,
   PROJECT_FILES,
   extensionOf,
   openFiles,
@@ -31,26 +30,23 @@ import {
 } from '$lib/storage/files';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
-import { compileRdInWorker, parseGcodeInWorker } from './lib/cam-client';
-import { placeCentered } from './lib/placement';
+import { parseGcodeInWorker } from './lib/cam-client';
+import { baseName } from './lib/file-name';
+import { activeAdapter, DEFAULT_ADAPTER } from './machines/registry';
+import { exportGcode } from './machines/grbl/export';
+import { imagePlacement, placeCentered } from './lib/placement';
 import { commandFor, fileKind, looksLikeProject, type FileKindId } from './lib/file-kind';
 import { boundsOf } from './lib/selection';
 import { canvas } from './state/canvas.svelte';
 import { editor } from './state/editor.svelte';
-import { machine } from './state/machine.svelte';
 import { preview } from './state/preview.svelte';
 import { profiles } from './state/profiles.svelte';
 import { session } from './state/session.svelte';
+import { currentBed } from './state/work-area';
 import { ui } from './state/ui.svelte';
 
 function bedFrame() {
-  const p = profiles.active;
-  return { width: p.bedWidth, height: p.bedHeight, originCorner: p.originCorner };
-}
-
-function baseName(name: string): string {
-  const dot = name.lastIndexOf('.');
-  return dot > 0 ? name.slice(0, dot) : name;
+  return currentBed();
 }
 
 // ------------------------------------------------------------------ documents
@@ -286,8 +282,8 @@ async function importImage(file: File): Promise<void> {
         name: file.name,
         locked: false,
         visible: true,
-        // Images stay unrotated (CAM rejects rotation), so only center them.
-        transform: translation(bed.width / 2 - size.width / 2, bed.height / 2 - size.height / 2),
+        // Centred and upright on screen, whatever corner the machine homes in.
+        transform: imagePlacement(bed, size),
         assetId: asset.id,
         width: size.width,
         height: size.height,
@@ -320,68 +316,9 @@ export async function openGcodeText(name: string, text: string): Promise<void> {
 
 // ------------------------------------------------------------------ export and print
 
-/** Export: a .rd file for Ruida machines (run from a USB stick), G-code for everything else. */
+/** Export in the selected machine's format. An opened G-code file stays G-code, whatever the machine. */
 export function exportJob(): Promise<void> {
-  // An opened G-code file stays G-code, whatever the machine.
-  return profiles.active.controller === 'ruida' && editor.project ? exportRuida() : exportGcode();
-}
-
-async function exportRuida(): Promise<void> {
-  const project = editor.project;
-  if (!project) {
-    toast.info('Open a project to export a job.');
-    return;
-  }
-  try {
-    const { bytes, warnings } = await compileRdInWorker({ project, profile: profiles.active });
-    const blocking = warnings.find((w) => w.blocking);
-    if (blocking || bytes.length === 0) {
-      toast.warning(blocking?.message ?? 'The job is empty. Turn on output for a layer with objects.');
-      return;
-    }
-    if (warnings.some((w) => w.code === 'out-of-bounds')) toast.warning('Some moves fall outside the bed.');
-    const outcome = await saveFileAs(
-      safeFileName(baseName(project.name), '.rd'),
-      new Blob([bytes.slice()], { type: 'application/octet-stream' }),
-      RUIDA_FILES,
-      { id: 'rd' },
-    );
-    if (outcome.status === 'saved')
-      toast.success(`Exported ${outcome.handle.name}. Copy it to a USB stick for the laser.`);
-    else if (outcome.status === 'downloaded')
-      toast.success('Job downloaded. Copy it to a USB stick for the laser.');
-    else if (outcome.status === 'failed') toast.error(outcome.reason);
-  } catch (error) {
-    toast.error(`Could not export: ${errorMessage(error)}`);
-  }
-}
-
-async function exportGcode(): Promise<void> {
-  try {
-    const job = await preview.ensure();
-    if (!job) {
-      toast.error(preview.error ?? 'Nothing to export yet.');
-      return;
-    }
-    if (job.lines.length === 0) {
-      toast.warning('The job is empty. Turn on output for a layer with objects.');
-      return;
-    }
-    if (job.warnings.some((w) => w.code === 'out-of-bounds'))
-      toast.warning('Some moves fall outside the bed.');
-    const text = job.lines.join('\n') + '\n';
-    const outcome = await saveFileAs(
-      safeFileName(baseName(job.name), '.gcode'),
-      new Blob([text], { type: 'text/plain' }),
-      GCODE_FILES,
-      { id: 'gcode' },
-    );
-    if (outcome.status === 'saved') toast.success(`Exported ${outcome.handle.name}`);
-    else if (outcome.status === 'downloaded') toast.success('G-code downloaded');
-    else if (outcome.status === 'failed') toast.error(outcome.reason);
-  } catch (error) {
-    toast.error(`Could not export: ${errorMessage(error)}`);
-  }
+  return editor.project ? activeAdapter().exportJob() : exportGcode();
 }
 
 export function printDesign(): void {
@@ -412,10 +349,18 @@ export function zoomToSelection(): void {
 
 // ------------------------------------------------------------------ machine
 
-/** Start screen buttons: open a blank project and connect. */
-export async function startWithMachine(kind: 'webserial' | 'simulator'): Promise<void> {
+/** Start screen: a blank project to work in, unless one is open. */
+export function ensureDocument(): void {
   if (!editor.hasDocument) newProject();
-  await machine.connect(kind);
+}
+
+/** Start screen: a blank project and the selected machine's virtual device. */
+export async function startWithVirtualMachine(): Promise<void> {
+  ensureDocument();
+  // Machines without a live link (Ruida) fall back to the default machine, as before.
+  const live = activeAdapter().live ?? DEFAULT_ADAPTER.live;
+  const transport = live?.transports.find((t) => t.virtual);
+  if (live && transport) await live.session.connect(transport.kind);
 }
 
 /** Opens the Trace dialog for the selected image (or the only image when nothing is selected). */

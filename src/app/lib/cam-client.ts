@@ -2,9 +2,8 @@
  * Promise API over the CAM workers. Compiles run on their own worker so a long photo compile never
  * delays previews; a newer compile supersedes an older one by restarting that worker.
  */
+import type { EncodedJob, EncoderId, EncoderOptions, EncoderPayload } from '$lib/cam/encoders';
 import type {
-  CompileRdRequest,
-  CompileRdResult,
   CompileRequest,
   CompileResult,
   DitherRequest,
@@ -82,8 +81,14 @@ export function compileInWorker(request: Omit<CompileRequest, 'type' | 'id'>): P
   return compileChannel.request<CompileResult>({ type: 'compile', ...request });
 }
 
-export function compileRdInWorker(request: Omit<CompileRdRequest, 'type' | 'id'>): Promise<CompileRdResult> {
-  return compileChannel.request<CompileRdResult>({ type: 'compile-rd', ...request });
+/** Runs a controller's CAM encoder on the compile worker. */
+export function encodeInWorker<Id extends EncoderId>(
+  encoder: Id,
+  request: Omit<CompileRequest, 'type' | 'id' | 'machinePosition' | 'limits' | 'gcode'> & {
+    options: EncoderOptions<Id>;
+  },
+): Promise<EncodedJob<EncoderPayload<Id>>> {
+  return compileChannel.request<EncodedJob<EncoderPayload<Id>>>({ type: 'encode', encoder, ...request });
 }
 
 export function parseGcodeInWorker(text: string, maxS: number): Promise<ParseGcodeResult> {

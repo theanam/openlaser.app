@@ -33,11 +33,25 @@ export function layerToolpath(layer: Layer, objects: readonly SceneObject[], ctx
     if (object.kind === 'vector') vectors.push(object);
     else if (object.kind === 'text') {
       // Text burns as the outlines cached from its font; without them it would silently vanish.
-      if (object.paths.length) vectors.push({ ...object, kind: 'vector', paths: object.paths });
-      else if (object.text.trim())
+      if (object.paths.length) {
+        vectors.push({ ...object, kind: 'vector', paths: object.paths });
+        if (object.missingGlyphs?.length)
+          warnings.push({
+            code: 'text-missing-glyphs',
+            message: `Some letters of "${object.name}" could not be drawn and will not burn: ${object.missingGlyphs.join(' ')}.`,
+            blocking: false,
+            layerId: layer.id,
+            objectId: object.id,
+          });
+      } else if (object.text.trim())
         warnings.push({
           code: 'text-not-ready',
-          message: `Text "${object.name}" has no outlines yet. Wait for its font to load, or check the connection.`,
+          // Outlined to nothing: no face could draw the letters, not even the fallback (offline,
+          // or a script there is none for). Otherwise it is still loading.
+          message:
+            object.outlineVersion !== undefined
+              ? `Text "${object.name}" has letters no font could draw. Go online once so a font for them can load.`
+              : `Text "${object.name}" has no outlines yet. Wait for its font to load, or check the connection.`,
           blocking: true,
           layerId: layer.id,
           objectId: object.id,

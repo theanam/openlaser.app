@@ -5,7 +5,7 @@
   import GithubMark from '$lib/ui/GithubMark.svelte';
   import { REPO_URL } from '$lib/config/app';
   import { route } from '../state/route.svelte';
-  import { machine } from '../state/machine.svelte';
+  import { connectedSession } from '../machines/registry';
   import StopButton from '../machine/StopButton.svelte';
 
   let { title, children }: { title: string; children: Snippet } = $props();
@@ -27,7 +27,7 @@
       title="GitHub"><GithubMark /></a
     >
   </header>
-  {#if machine.connected}
+  {#if connectedSession()}
     <!-- Stop stays reachable on every screen while a machine is connected. -->
     <div class="stop-strip"><StopButton /></div>
   {/if}

@@ -1,14 +1,18 @@
 <script lang="ts">
-  import { machine } from '../state/machine.svelte';
+  import { connectedSession } from '../machines/registry';
+
+  /** Stops whichever machine is connected. */
+  const session = $derived(connectedSession());
+  const canStop = $derived(session?.canStop ?? false);
 </script>
 
 <!-- Always visible while connected; enabled whenever something is moving, running or held. -->
 <button
   type="button"
   class="btn signal cta stop"
-  disabled={!machine.canStop}
-  title={machine.canStop ? 'Stop now (Esc)' : 'Nothing is running'}
-  onclick={() => machine.stop()}
+  disabled={!canStop}
+  title={canStop ? 'Stop now (Esc)' : 'Nothing is running'}
+  onclick={() => session?.stop()}
   data-testid="stop"
 >
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"

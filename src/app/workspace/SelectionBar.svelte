@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { currentBed } from '../state/work-area';
   import Link from '@lucide/svelte/icons/link';
   import Unlink from '@lucide/svelte/icons/unlink';
   import NumberField from '$lib/ui/NumberField.svelte';
@@ -29,6 +30,7 @@
     editor.commit((p) => transformObjects(p, ids, matrix), { coalesce: `field-${key}` });
     if (!live) editor.sealHistory();
   }
+  const area = $derived(currentBed());
 </script>
 
 <div class="bar mono" data-testid="selection-bar">
@@ -101,8 +103,7 @@
     />
   </div>
   <span class="spacer"></span>
-  <span class="machine"
-    >{profiles.active.name} · {profiles.active.bedWidth} × {profiles.active.bedHeight} mm</span
+  <span class="machine">{profiles.active.name} · {Math.round(area.width)} × {Math.round(area.height)} mm</span
   >
 </div>
 

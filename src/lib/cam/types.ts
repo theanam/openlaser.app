@@ -2,6 +2,7 @@
  * CAM contracts (SPEC §6). CAM is pure: data in, data out. No DOM, no I/O, no clocks, no randomness.
  */
 import type { Rect, Vec2 } from '../geometry/types';
+import type { YAxisMapping } from '../project/accessories';
 import type { Id, MachineProfile, Project } from '../project/types';
 
 export type { Rect } from '../geometry/types';
@@ -42,6 +43,8 @@ export interface CompileInput {
   gcode?: Partial<GcodeOptions>;
   /** Bezier flattening chord tolerance in mm. Default 0.01. */
   tolerance?: number;
+  /** Ignore the job origin and burn at bed positions (machines without a live head position). */
+  absoluteOrigin?: boolean;
 }
 
 /**
@@ -63,6 +66,10 @@ export interface Toolpath {
   airAssist: boolean;
   /** 'dynamic' = M4 (default). 'constant' = M3: framing with power, and profiles set to constant power (CO₂). */
   laserMode?: 'dynamic' | 'constant';
+  /** Which of the machine's lasers burns it; null on one-laser machines. */
+  sourceId?: Id | null;
+  /** G-code sent with the laser off before this toolpath, e.g. switching to another laser source. */
+  prelude?: string[];
 }
 
 export type CamWarningCode =
@@ -72,7 +79,8 @@ export type CamWarningCode =
   | 'empty-job'
   | 'missing-asset'
   | 'open-path-fill'
-  | 'text-not-ready';
+  | 'text-not-ready'
+  | 'text-missing-glyphs';
 
 export interface CamWarning {
   code: CamWarningCode;
@@ -101,6 +109,8 @@ export interface LayerStart {
 
 export interface JobPlan {
   toolpaths: Toolpath[];
+  /** How Y goes out on a rotary job (axis letter and scale), for framing; null on the flat bed. */
+  yAxis: YAxisMapping | null;
   /** Final lines without trailing newlines. */
   gcode: string[];
   /** Of laser-on moves, for framing. Null when nothing burns. */

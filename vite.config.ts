@@ -54,7 +54,8 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest,json}'],
+        // wasm: HarfBuzz, which shapes Bangla and other scripts for text outlines offline too.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest,json,wasm}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Fonts picked for text and their picker previews keep working offline once seen.
         runtimeCaching: [
@@ -80,6 +81,8 @@ export default defineConfig(({ mode }) => ({
       },
     }),
   ],
+  // harfbuzzjs finds its .wasm next to itself (import.meta.url); pre-bundling would move it.
+  optimizeDeps: { exclude: ['harfbuzzjs'] },
   worker: { format: 'es' },
   server: { port: PORT, strictPort: true },
   preview: { port: PORT, strictPort: true },

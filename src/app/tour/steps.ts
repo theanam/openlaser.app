@@ -6,7 +6,9 @@ import type { Component } from 'svelte';
 import Globe from '@lucide/svelte/icons/globe';
 import WifiOff from '@lucide/svelte/icons/wifi-off';
 import Heart from '@lucide/svelte/icons/heart';
+import BookOpen from '@lucide/svelte/icons/book-open';
 import Usb from '@lucide/svelte/icons/usb';
+import Bluetooth from '@lucide/svelte/icons/bluetooth';
 import Cpu from '@lucide/svelte/icons/cpu';
 import Plug from '@lucide/svelte/icons/plug';
 import Upload from '@lucide/svelte/icons/upload';
@@ -25,6 +27,7 @@ import SunMedium from '@lucide/svelte/icons/sun-medium';
 import ArrowLeftRight from '@lucide/svelte/icons/arrow-left-right';
 import Square from '@lucide/svelte/icons/square';
 import Type from '@lucide/svelte/icons/type';
+import Languages from '@lucide/svelte/icons/languages';
 import Shapes from '@lucide/svelte/icons/shapes';
 import Ruler from '@lucide/svelte/icons/ruler';
 import Move from '@lucide/svelte/icons/move';
@@ -47,6 +50,8 @@ import ShieldCheck from '@lucide/svelte/icons/shield-check';
 import ListChecks from '@lucide/svelte/icons/list-checks';
 import Siren from '@lucide/svelte/icons/siren';
 import Undo2 from '@lucide/svelte/icons/undo-2';
+import RotateCw from '@lucide/svelte/icons/rotate-cw';
+import Zap from '@lucide/svelte/icons/zap';
 import type { FeatureId } from '../features';
 
 export type TourArt =
@@ -100,8 +105,10 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Usb, text: 'GRBL 1.1, grblHAL and FluidNC over Web Serial' },
       { icon: Cpu, text: 'Virtual machine for safe dry runs' },
       { icon: ScanSearch, text: 'Recognises your machine and its bed size' },
+      { icon: Plug, text: 'One Connect button: USB or Bluetooth, the laser type is detected' },
       { icon: Plug, text: 'One-click reconnect to known ports' },
       { icon: Usb, text: 'CO₂ lasers too: GRBL over USB, Ruida through a .rd file' },
+      { icon: Bluetooth, text: 'LaserPecker engravers over Bluetooth or USB' },
       { icon: Unplug, text: 'Step-by-step help when the laser is missing' },
     ],
     features: [
@@ -111,6 +118,8 @@ export const TOUR_STEPS: TourStep[] = [
       'machine-detect',
       'connect-help',
       'co2-lasers',
+      'laserpecker',
+      'auto-connect',
     ],
   },
   {
@@ -135,8 +144,9 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: PaintBucket, text: 'Fill engraves areas at any angle, with cross-hatch' },
       { icon: Layers, text: 'Each SVG or DXF color lands on its own layer' },
       { icon: MousePointerClick, text: 'Objects sit under their layer; drag them to another' },
+      { icon: BookOpen, text: 'Material presets for engraving and cutting, by laser' },
     ],
-    features: ['layers', 'layer-objects', 'line-mode', 'fill-mode'],
+    features: ['layers', 'layer-objects', 'material-presets', 'line-mode', 'fill-mode'],
   },
   {
     id: 'photos',
@@ -159,11 +169,19 @@ export const TOUR_STEPS: TourStep[] = [
     points: [
       { icon: Type, text: 'Every Google Font, with live previews by category' },
       { icon: Upload, text: 'Upload TTF, OTF or WOFF files, or use installed fonts' },
+      { icon: Languages, text: 'Bangla, Devanagari, Arabic and more, shaped as they should be' },
       { icon: Shapes, text: 'Stars, gears, arrows, hearts and 20 more, all adjustable' },
       { icon: Spline, text: 'Text and shapes burn as clean vector outlines' },
       { icon: SquircleDashed, text: 'Outline a selection at any offset, for key rings and stickers' },
     ],
-    features: ['text-tool', 'google-fonts', 'local-fonts', 'shape-library', 'outline-tool'],
+    features: [
+      'text-tool',
+      'google-fonts',
+      'local-fonts',
+      'complex-scripts',
+      'shape-library',
+      'outline-tool',
+    ],
   },
   {
     id: 'design',
@@ -216,8 +234,10 @@ export const TOUR_STEPS: TourStep[] = [
         text: 'Console shows every line to and from the laser, with history and log download',
       },
       { icon: SlidersHorizontal, text: 'View, edit and back up $$ settings' },
+      { icon: RotateCw, text: 'Rotary and slide setups switch the work area and mode' },
+      { icon: Zap, text: 'Two-laser machines: each layer picks its laser' },
     ],
-    features: ['jog-home', 'console', 'console-panel', 'device-settings'],
+    features: ['jog-home', 'console', 'console-panel', 'device-settings', 'rotary', 'laser-sources'],
   },
   {
     id: 'files',

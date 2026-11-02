@@ -7,6 +7,7 @@
  * moves it reports are exactly what the machine executes, with no accumulated rounding drift.
  */
 import type { Vec2 } from '../../geometry/types';
+import type { YAxisMapping } from '../../project/accessories';
 import type { Id } from '../../project/types';
 import { segmentPower } from '../toolpath';
 import type { GcodeOptions, Toolpath, LayerStart } from '../types';
@@ -31,6 +32,8 @@ export interface EmitSettings {
   options: GcodeOptions;
   /** Layer names for debug comments. */
   layerNames?: ReadonlyMap<Id, string>;
+  /** Rotary jobs: Y goes out scaled, or on the A axis. Moves stay in surface mm. */
+  yAxis?: YAxisMapping | null;
 }
 
 /** One executed move, in formatted (machine) coordinates. */
@@ -66,6 +69,7 @@ export function emitGcode(toolpaths: readonly Toolpath[], settings: EmitSettings
       layerStarts.push({ layerId: toolpath.layerId, line: writer.lines.length });
     if (settings.options.comments)
       writer.comment(settings.layerNames?.get(toolpath.layerId) ?? toolpath.layerId);
+    if (toolpath.prelude?.length) writer.laserOff(toolpath.prelude);
     writer.laserMode(toolpath.laserMode === 'constant' ? 'M3' : 'M4');
     const feed = Math.max(1, toolpath.feed);
     for (const run of toolpath.runs) {
@@ -89,7 +93,8 @@ class GcodeWriter {
   readonly lines: string[] = [];
   readonly moves: Move[] = [];
   private motion: 'G0' | 'G1' | null = null;
-  private mode: 'M3' | 'M4';
+  /** M5 after a laser-off break; the next toolpath switches its mode back on. */
+  private mode: 'M3' | 'M4' | 'M5';
   private x: string | null = null;
   private y: string | null = null;
   private f: string | null = null;
@@ -98,6 +103,8 @@ class GcodeWriter {
   private posY: number;
   private readonly optimize: boolean;
   private readonly leadingZero: boolean;
+  private readonly yLetter: 'Y' | 'A';
+  private readonly yScale: number;
 
   constructor(settings: EmitSettings, mode: 'M3' | 'M4' = 'M4') {
     this.mode = mode;
@@ -105,6 +112,8 @@ class GcodeWriter {
     this.leadingZero = settings.options.leadingZero;
     this.posX = settings.start.x;
     this.posY = settings.start.y;
+    this.yLetter = settings.yAxis?.letter ?? 'Y';
+    this.yScale = settings.yAxis?.scale ?? 1;
   }
 
   raw(...lines: string[]): void {
@@ -115,6 +124,13 @@ class GcodeWriter {
     // Parentheses would end a GRBL comment early, and the whole line must fit the line buffer.
     const clean = text.replace(/[()\r\n]/g, ' ');
     this.lines.push(`; ${clean}`.slice(0, MAX_LINE_LENGTH - 1));
+  }
+
+  /** Laser off, then raw lines (a source switch); the next toolpath turns its mode back on. */
+  laserOff(lines: readonly string[]): void {
+    this.lines.push('M5 S0', ...lines);
+    this.mode = 'M5';
+    this.s = '0';
   }
 
   laserMode(mode: 'M3' | 'M4'): void {
@@ -134,14 +150,14 @@ class GcodeWriter {
 
   private move(motion: 'G0' | 'G1', x: number, y: number, feed: number, s: number): void {
     const fx = formatCoordinate(x, this.leadingZero);
-    const fy = formatCoordinate(y, this.leadingZero);
+    const fy = formatCoordinate(y * this.yScale, this.leadingZero);
     // A zero-length move does nothing on the machine; skipping it keeps both output modes identical.
     if (fx === this.x && fy === this.y) return;
     const full = !this.optimize;
     const words: string[] = [];
     if (full || this.motion !== motion) words.push(motion);
     if (full || fx !== this.x) words.push(`X${fx}`);
-    if (full || fy !== this.y) words.push(`Y${fy}`);
+    if (full || fy !== this.y) words.push(`${this.yLetter}${fy}`);
     if (motion === 'G1') {
       const ff = formatInteger(feed);
       const fs = formatInteger(s);
@@ -155,7 +171,7 @@ class GcodeWriter {
     this.x = fx;
     this.y = fy;
     const nx = Number(fx);
-    const ny = Number(fy);
+    const ny = Number(fy) / this.yScale;
     this.moves.push({ x0: this.posX, y0: this.posY, x1: nx, y1: ny, rapid: motion === 'G0', feed, s });
     this.posX = nx;
     this.posY = ny;

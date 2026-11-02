@@ -10,7 +10,8 @@
   import Zap from '@lucide/svelte/icons/zap';
   import Layers from '@lucide/svelte/icons/layers';
   import { duration } from '../lib/format';
-  import { machine, type SafetyChoice } from '../state/machine.svelte';
+  import type { SafetyChoice } from '../state/machine.svelte';
+  import { connectedSession } from '../machines/registry';
   import { profiles } from '../state/profiles.svelte';
   import HazardArt, { type Hazard } from './safety/HazardArt.svelte';
 
@@ -41,7 +42,7 @@
   /** CO₂ tubes need coolant: their machines get a fifth check. */
   const HAZARDS = $derived(profiles.active.laserType === 'co2' ? [...BASE_HAZARDS, WATER] : BASE_HAZARDS);
 
-  const request = $derived(machine.safetyRequest);
+  const request = $derived(connectedSession()?.safetyRequest ?? null);
   let checked = $state<Partial<Record<Hazard, boolean>>>({});
   let startButton = $state<HTMLButtonElement | null>(null);
 

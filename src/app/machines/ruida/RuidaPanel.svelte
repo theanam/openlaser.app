@@ -1,8 +1,8 @@
 <script lang="ts">
   import Usb from '@lucide/svelte/icons/usb';
   import FileDown from '@lucide/svelte/icons/file-down';
-  import * as actions from '../actions';
-  import { editor } from '../state/editor.svelte';
+  import * as actions from '../../actions';
+  import { editor } from '../../state/editor.svelte';
 
   /** Ruida controllers run jobs from their own panel: export, carry over on a USB stick, start there. */
   const STEPS = [

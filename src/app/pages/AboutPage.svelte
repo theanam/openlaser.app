@@ -13,8 +13,14 @@
     { name: 'Bits UI', license: 'MIT', url: 'https://bits-ui.com' },
     { name: 'Clipper2 (clipper2-ts)', license: 'BSL-1.0', url: 'https://github.com/countertype/clipper2-ts' },
     { name: 'fflate', license: 'MIT', url: 'https://github.com/101arrowz/fflate' },
+    { name: 'HarfBuzz (harfbuzzjs)', license: 'MIT', url: 'https://github.com/harfbuzz/harfbuzzjs' },
     { name: 'idb', license: 'ISC', url: 'https://github.com/jakearchibald/idb' },
     { name: 'Ruida job format (from MeerK40t)', license: 'MIT', url: 'https://github.com/meerk40t/meerk40t' },
+    {
+      name: 'LaserPecker protocol notes (nerdocs), implemented independently',
+      license: 'Reference',
+      url: 'https://github.com/nerdocs/pyrograph/blob/main/docs/protocol.md',
+    },
     { name: 'GRBL error and alarm text', license: 'GPL-3.0 docs', url: 'https://github.com/gnea/grbl' },
   ];
 </script>

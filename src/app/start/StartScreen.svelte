@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Plug from '@lucide/svelte/icons/plug';
+  import ConnectButton from '../connect/ConnectButton.svelte';
   import Cpu from '@lucide/svelte/icons/cpu';
   import Plus from '@lucide/svelte/icons/plus';
   import Download from '@lucide/svelte/icons/download';
@@ -83,18 +83,11 @@
       </div>
 
       <div class="ctas">
-        <button
-          type="button"
-          class="btn signal big"
-          disabled={!serial}
-          onclick={() => actions.startWithMachine('webserial')}
-        >
-          <Plug size={18} />Connect laser
-        </button>
+        <ConnectButton size="big" testid="start-connect" before={() => actions.ensureDocument()} />
         <button
           type="button"
           class="btn big secondary"
-          onclick={() => actions.startWithMachine('simulator')}
+          onclick={() => actions.startWithVirtualMachine()}
           data-testid="try-virtual"
         >
           <Cpu size={18} />Try the virtual machine

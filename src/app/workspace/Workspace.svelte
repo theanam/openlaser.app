@@ -16,10 +16,22 @@
   import { textOutlines } from '../state/text.svelte';
   import MachinePanel from '../machine/MachinePanel.svelte';
   import ConsolePanel from '../machine/ConsolePanel.svelte';
-  import JobControls from '../machine/JobControls.svelte';
-  import { machine } from '../state/machine.svelte';
-  import { profiles } from '../state/profiles.svelte';
+  import { connectedAdapter, shownAdapter } from '../machines/registry';
   import StatusBar from './StatusBar.svelte';
+  import { untrack } from 'svelte';
+  import { reorient } from '$lib/project/orientation';
+  import { profiles } from '../state/profiles.svelte';
+
+  // The design keeps reading the right way up when the machine's home corner changes (switching
+  // machines, editing the profile). A project without a recorded corner is taken as laid out for
+  // the machine it is open on now: nothing moves, the corner is recorded.
+  $effect(() => {
+    const project = editor.project;
+    if (!project || !profiles.loaded) return;
+    const to = profiles.active.originCorner;
+    if (project.designCorner === to) return;
+    untrack(() => editor.commit((p) => reorient(p, to), { record: false }));
+  });
 
   // Text from opened projects gets its outlines as soon as its fonts are reachable.
   $effect(() => {
@@ -35,6 +47,7 @@
   });
 
   const bounds = $derived(editor.gcode?.moves.bounds);
+  const live = $derived(connectedAdapter());
 </script>
 
 <div class="workspace" data-testid="workspace">
@@ -75,10 +88,10 @@
         {/if}
         <ErrorBoundary name="Machine"><MachinePanel /></ErrorBoundary>
       </div>
-      {#if machine.connected}
-        <JobControls />
+      {#if live?.controls}
+        <ErrorBoundary name="Job controls" compact><live.controls /></ErrorBoundary>
       {/if}
-      {#if profiles.active.controller !== 'ruida' || machine.connected}
+      {#if shownAdapter().capabilities.console}
         <ErrorBoundary name="Console" compact><ConsolePanel /></ErrorBoundary>
       {/if}
     </aside>
