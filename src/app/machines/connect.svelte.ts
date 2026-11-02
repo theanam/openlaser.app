@@ -52,6 +52,8 @@ const optionFor = (adapter: Live, method: ConnectMethod) =>
 class AutoConnect {
   /** Probing a port: which machine is this? */
   detecting = $state(false);
+  /** A port or device is chosen and the link is opening. */
+  opening = $state(false);
   method = $state<ConnectMethod>(storedMethod() ?? (isWebSerialSupported() ? 'usb' : 'bluetooth'));
 
   /** The methods this browser can use, for the Connect button's menu. */
@@ -60,7 +62,7 @@ class AutoConnect {
   }
 
   get busy(): boolean {
-    return this.detecting || ADAPTERS.some((a) => a.live?.session.connecting);
+    return this.detecting || this.opening || ADAPTERS.some((a) => a.live?.session.connecting);
   }
 
   async connect(method: ConnectMethod = this.method): Promise<void> {
@@ -88,16 +90,21 @@ class AutoConnect {
       } else toast.error(`Could not open the laser: ${errorMessage(error)}`);
       return;
     }
-    const found =
-      method === 'bluetooth' ? this.byName(candidates, transport) : await this.probe(candidates, transport);
-    if (!found) {
-      toast.error('No laser answered on this port. Check that it is on and not in use by another app.', {
-        action: { label: 'Laser not showing up?', run: () => (ui.connectHelpOpen = true) },
-      });
-      return;
+    this.opening = true;
+    try {
+      const found =
+        method === 'bluetooth' ? this.byName(candidates, transport) : await this.probe(candidates, transport);
+      if (!found) {
+        toast.error('No laser answered on this port. Check that it is on and not in use by another app.', {
+          action: { label: 'Laser not showing up?', run: () => (ui.connectHelpOpen = true) },
+        });
+        return;
+      }
+      await useProfile(found.adapter, found.detection);
+      await found.adapter.live.session.connectTransport(optionFor(found.adapter, method).kind, transport);
+    } finally {
+      this.opening = false;
     }
-    await useProfile(found.adapter, found.detection);
-    await found.adapter.live.session.connectTransport(optionFor(found.adapter, method).kind, transport);
   }
 
   /** Bluetooth: the advertised name says the model ("LP3-109BFB"). */

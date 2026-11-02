@@ -37,10 +37,11 @@
       class="btn signal main {size === 'small' ? 'small' : size}"
       disabled={busy}
       title="Connect over {LABELS[autoConnect.method]}"
+      aria-busy={busy}
       onclick={() => go()}
       data-testid="{testid}-main"
     >
-      {#if autoConnect.detecting}<LoaderCircle size={iconSize} class="spin" />Detecting…
+      {#if busy}<LoaderCircle size={iconSize} class="spin" />{autoConnect.detecting ? 'Detecting…' : 'Connecting…'}
       {:else}<Icon size={iconSize} />Connect laser{/if}
     </button>
     {#if methods.length > 1}
