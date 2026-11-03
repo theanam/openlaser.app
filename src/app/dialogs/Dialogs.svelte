@@ -10,6 +10,7 @@
   import MachineDetectDialog from './MachineDetectDialog.svelte';
   import TraceDialog from './TraceDialog.svelte';
   import ConnectHelpDialog from './ConnectHelpDialog.svelte';
+  import ConnectSetupDialog from './ConnectSetupDialog.svelte';
 </script>
 
 <ErrorBoundary name="Import" compact><VectorImportDialog /></ErrorBoundary>
@@ -22,3 +23,4 @@
 <ErrorBoundary name="Machine detection" compact><MachineDetectDialog /></ErrorBoundary>
 <ErrorBoundary name="Trace" compact><TraceDialog /></ErrorBoundary>
 <ErrorBoundary name="Connection help" compact><ConnectHelpDialog /></ErrorBoundary>
+<ErrorBoundary name="Connection setup" compact><ConnectSetupDialog /></ErrorBoundary>

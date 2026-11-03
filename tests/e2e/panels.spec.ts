@@ -19,6 +19,8 @@ test('the side panel runs machine, layers, then the selection, and sections fold
   await page.getByTestId('section-layers').click();
   await expect(page.getByTestId('section-layers')).toHaveAttribute('aria-expanded', 'false');
   await expect(page.getByTestId('layer-settings')).toHaveCount(0);
+  // Let the autosave land, so the reload reopens the project.
+  await expect(page.getByText('Saved in browser')).toBeVisible({ timeout: 10_000 });
   await page.reload();
   await expect(page.getByTestId('section-layers')).toHaveAttribute('aria-expanded', 'false');
   await page.getByTestId('section-layers').click();

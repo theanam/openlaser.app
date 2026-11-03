@@ -284,3 +284,13 @@ The plan, step by step on a device, each step framed first and at low power:
 5. Check whether the one-second pause after an upload settles the laser switch.
 
 Until then, line layers on LaserPecker's protocol warn that they cannot cut, and LP4 and LP5 cut over USB on G-code.
+
+## Setting up Bluetooth and USB in the browser
+
+A method the browser can't use yet stays in the Connect menu, marked "Set up", and opens a picture guide. `connect/browser-check.ts` works out what is missing from the user agent, `userAgentData` brands, `navigator.brave` and whether `navigator.bluetooth` or `navigator.serial` exists:
+
+- **A browser setting.** Chromium on Linux keeps Web Bluetooth behind "Experimental Web Platform features"; Brave has its own "Web Bluetooth API" flag. The guide gives the flags address for that browser (`chrome://`, `edge://`, `opera://`, `brave://`, `vivaldi://`) to copy, since pages cannot open those addresses, then shows the flag row and Relaunch.
+- **Bluetooth off or blocked.** When the device picker fails with an adapter or permission error, or `getAvailability()` says false, the guide shows how to turn Bluetooth on for that OS, plus the macOS and Android permissions for the browser. An unknown availability counts as on, so a working setup is never stopped.
+- **Another browser or device.** Firefox and Safari: install Chrome or Edge. iPhone and iPad: use a computer. Android over USB: use a computer, or Bluetooth for a LaserPecker. An older Chromium without Web Serial: update it.
+
+Every step has a small illustration of what to look for, because many users of the app follow pictures more easily than text.

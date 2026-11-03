@@ -4,7 +4,6 @@
   import RotateCw from '@lucide/svelte/icons/rotate-cw';
   import LockOpen from '@lucide/svelte/icons/lock-open';
   import Wind from '@lucide/svelte/icons/wind';
-  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Play from '@lucide/svelte/icons/play';
   import { onMount } from 'svelte';
   import { describeAlarm, describeError, isWebSerialSupported } from '$lib/machine';
@@ -13,7 +12,6 @@
   import { profiles } from '../../state/profiles.svelte';
   import ConnectHelpButton from '../../connect/ConnectHelpButton.svelte';
   import ConnectButton from '../../connect/ConnectButton.svelte';
-  import { autoConnect } from '../connect.svelte';
   import JogPad from '../../machine/JogPad.svelte';
   import Overrides from '../../machine/Overrides.svelte';
 
@@ -46,15 +44,11 @@
 
 {#if !machine.connected}
   <div class="connect">
-    {#if autoConnect.methods.length}
-      <ConnectButton />
-      {#if serial && granted}
-        <button type="button" class="btn" disabled={machine.connecting} onclick={() => machine.reconnect()}
-          ><RotateCw size={14} />Reconnect last port</button
-        >
-      {/if}
-    {:else}
-      <p class="note"><TriangleAlert size={14} />Machine control needs Chrome or Edge.</p>
+    <ConnectButton />
+    {#if serial && granted}
+      <button type="button" class="btn" disabled={machine.connecting} onclick={() => machine.reconnect()}
+        ><RotateCw size={14} />Reconnect last port</button
+      >
     {/if}
     <button
       type="button"
@@ -163,18 +157,7 @@
     gap: 8px;
   }
 
-  .note {
-    font-size: var(--ol-fs-sm);
-    color: var(--ol-text-muted);
-    line-height: 1.5;
-  }
 
-  .note {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    color: var(--ol-hold);
-  }
 
   .conn {
     display: flex;

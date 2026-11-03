@@ -58,6 +58,7 @@ export { COMMON_USB_SERIAL_CHIPS, COMMON_USB_SERIAL_FILTERS, describePort } from
 export {
   WebBluetoothTransport,
   isWebBluetoothSupported,
+  isBluetoothAvailable,
   LASERPECKER_GATT,
   type GattProfile,
 } from './transport/web-bluetooth';

@@ -8,7 +8,6 @@
   import { laserpecker } from './session.svelte';
   import ConnectHelpButton from '../../connect/ConnectHelpButton.svelte';
   import ConnectButton from '../../connect/ConnectButton.svelte';
-  import { autoConnect } from '../connect.svelte';
 
   /** LaserPecker engravers: connect over Bluetooth or USB, pick the burn settings, see progress. */
   const s = $derived(laserpecker.state);
@@ -31,9 +30,6 @@
   {#if !laserpecker.connected}
     <div class="connect">
       <ConnectButton />
-      {#if !autoConnect.methods.length}
-        <p class="note"><TriangleAlert size={14} />Machine control needs Chrome or Edge.</p>
-      {/if}
       <button
         type="button"
         class="btn"
@@ -150,13 +146,6 @@
     gap: 8px;
   }
 
-  .note {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    font-size: var(--ol-fs-sm);
-    color: var(--ol-hold);
-  }
 
   .conn {
     display: flex;

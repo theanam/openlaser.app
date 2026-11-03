@@ -2,6 +2,7 @@
 import type { DxfDrawing } from '$lib/import/dxf';
 import type { SvgImportResult } from '$lib/import/svg';
 import { DEFAULT_CONTOUR, type ContourOptions } from '$lib/project/contour';
+import type { Blocker } from '../connect/browser-check';
 
 /** An SVG or DXF waiting in the import dialog for its color → layer choices. */
 export type PendingVectorImport =
@@ -16,6 +17,8 @@ class Ui {
   shortcutsOpen = $state(false);
   /** “Laser not showing up?” walkthrough. */
   connectHelpOpen = $state(false);
+  /** What keeps Bluetooth or USB from working here, while its setup guide is open. */
+  connectSetup = $state.raw<Blocker | null>(null);
   /** Outline tool popover and its settings, kept for the session. */
   outlineOpen = $state(false);
   outline = $state<ContourOptions>({ ...DEFAULT_CONTOUR });

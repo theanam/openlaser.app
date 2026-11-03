@@ -41,7 +41,9 @@
       onclick={() => go()}
       data-testid="{testid}-main"
     >
-      {#if busy}<LoaderCircle size={iconSize} class="spin" />{autoConnect.detecting ? 'Detecting…' : 'Connecting…'}
+      {#if busy}<LoaderCircle size={iconSize} class="spin" />{autoConnect.detecting
+          ? 'Detecting…'
+          : 'Connecting…'}
       {:else}<Icon size={iconSize} />Connect laser{/if}
     </button>
     {#if methods.length > 1}
@@ -63,7 +65,8 @@
               >
                 <ItemIcon size={16} />
                 <span>{LABELS[method]}</span>
-                {#if method === autoConnect.method}<Check size={15} class="current" />{/if}
+                {#if !autoConnect.ready(method)}<span class="setup">Set up</span>
+                {:else if method === autoConnect.method}<Check size={15} class="current" />{/if}
               </DropdownMenu.Item>
             {/each}
           </DropdownMenu.Content>
@@ -107,7 +110,7 @@
 
   :global(.connect-item) {
     display: grid;
-    grid-template-columns: 16px 1fr 15px;
+    grid-template-columns: 16px 1fr auto;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
@@ -123,6 +126,11 @@
 
   :global(.connect-item[data-highlighted]) {
     background: var(--ol-surface-2);
+  }
+
+  :global(.connect-item .setup) {
+    font-size: var(--ol-fs-xs);
+    color: var(--ol-text-muted);
   }
 
   :global(.connect-item .current) {

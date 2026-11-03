@@ -5,6 +5,8 @@
  * On USB each adapter's probe opens the port, asks in its own protocol, and closes it again.
  */
 import {
+  isBluetoothAvailable,
+  isWebBluetoothSupported,
   isWebSerialSupported,
   WebBluetoothTransport,
   WebSerialTransport,
@@ -18,6 +20,7 @@ import { errorMessage } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
 import { profiles } from '../state/profiles.svelte';
 import { ui } from '../state/ui.svelte';
+import { adapterBlocker, currentEnv, diagnose, isAdapterError } from '../connect/browser-check';
 import { activeAdapter, ADAPTERS, adapterFor, connectedSession } from './registry';
 import type { LiveMachine, MachineAdapter } from './types';
 
@@ -54,11 +57,23 @@ class AutoConnect {
   detecting = $state(false);
   /** A port or device is chosen and the link is opening. */
   opening = $state(false);
-  method = $state<ConnectMethod>(storedMethod() ?? (isWebSerialSupported() ? 'usb' : 'bluetooth'));
+  method = $state<ConnectMethod>(
+    storedMethod() ?? (isWebSerialSupported() || !isWebBluetoothSupported() ? 'usb' : 'bluetooth'),
+  );
 
-  /** The methods this browser can use, for the Connect button's menu. */
+  /**
+   * The methods some machine offers, for the Connect button's menu. One this browser cannot use
+   * yet stays listed and opens its setup guide.
+   */
   get methods(): ConnectMethod[] {
-    return (['usb', 'bluetooth'] as const).filter((m) => adaptersFor(m).length > 0);
+    return (['usb', 'bluetooth'] as const).filter((m) =>
+      ADAPTERS.some((a) => a.live?.transports.some((t) => t.medium === m)),
+    );
+  }
+
+  /** This browser can use `method` right now. */
+  ready(method: ConnectMethod): boolean {
+    return adaptersFor(method).length > 0;
   }
 
   get busy(): boolean {
@@ -75,7 +90,7 @@ class AutoConnect {
     }
     const candidates = adaptersFor(method);
     if (!candidates.length) {
-      toast.error(method === 'bluetooth' ? 'Bluetooth needs Chrome or Edge.' : 'USB needs Chrome or Edge.');
+      ui.connectSetup = diagnose(method, currentEnv());
       return;
     }
     let transport: Transport;
@@ -83,7 +98,9 @@ class AutoConnect {
       transport =
         method === 'bluetooth' ? await WebBluetoothTransport.request() : await WebSerialTransport.request();
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'NotFoundError') {
+      if (method === 'bluetooth' && (isAdapterError(error) || !(await isBluetoothAvailable()))) {
+        ui.connectSetup = adapterBlocker(currentEnv());
+      } else if (error instanceof DOMException && error.name === 'NotFoundError') {
         toast.info(method === 'bluetooth' ? 'No laser chosen.' : 'No port chosen.', {
           action: { label: 'Laser not showing up?', run: () => (ui.connectHelpOpen = true) },
         });

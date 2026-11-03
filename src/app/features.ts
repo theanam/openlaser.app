@@ -16,6 +16,7 @@ export const NOTABLE_FEATURES = [
   'rotary',
   'laser-sources',
   'connect-help',
+  'connect-setup',
   'console-panel',
   'svg-import',
   'dxf-import',

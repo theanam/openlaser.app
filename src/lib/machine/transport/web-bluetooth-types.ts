@@ -45,6 +45,8 @@ export interface BluetoothRequestOptions {
 export interface Bluetooth {
   requestDevice(options: BluetoothRequestOptions): Promise<BluetoothDeviceHandle>;
   getDevices?(): Promise<BluetoothDeviceHandle[]>;
+  /** False when the computer has no Bluetooth, or it is off. */
+  getAvailability?(): Promise<boolean>;
 }
 
 export interface NavigatorWithBluetooth {

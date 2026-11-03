@@ -112,6 +112,7 @@ export const TOUR_STEPS: TourStep[] = [
       { icon: Usb, text: 'CO₂ lasers too: GRBL over USB, Ruida through a .rd file' },
       { icon: Bluetooth, text: 'LaserPecker engravers over Bluetooth or USB' },
       { icon: Unplug, text: 'Step-by-step help when the laser is missing' },
+      { icon: Bluetooth, text: 'Picture guides to switch on Bluetooth in your browser' },
     ],
     features: [
       'web-serial',
@@ -119,6 +120,7 @@ export const TOUR_STEPS: TourStep[] = [
       'grbl-firmwares',
       'machine-detect',
       'connect-help',
+      'connect-setup',
       'co2-lasers',
       'laserpecker',
       'auto-connect',

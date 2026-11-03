@@ -33,6 +33,7 @@
       items: [
         'Use Chrome, Edge, Opera or Brave on a desktop. Machine control needs Web Serial.',
         'Connect laser, then pick the USB port, or choose Bluetooth from the button’s menu. openlaser finds out which laser it is (GRBL or LaserPecker) and picks a matching machine profile.',
+        'Bluetooth or USB marked “Set up” in the Connect menu opens a picture guide: a browser setting to switch on (Bluetooth on Linux and in Brave), Bluetooth to turn on, or a browser that can reach lasers.',
         'Try the virtual machine to practise without hardware.',
       ],
     },

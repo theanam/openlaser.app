@@ -79,6 +79,16 @@ export function isWebBluetoothSupported(): boolean {
   return navigatorBluetooth() !== undefined;
 }
 
+/** Whether the computer's Bluetooth is on. Unknown counts as on, so a working setup is never blocked. */
+export async function isBluetoothAvailable(bluetooth = navigatorBluetooth()): Promise<boolean> {
+  if (!bluetooth?.getAvailability) return bluetooth !== undefined;
+  try {
+    return await bluetooth.getAvailability();
+  } catch {
+    return true;
+  }
+}
+
 export interface WebBluetoothOptions {
   profiles?: readonly GattProfile[];
   chunkBytes?: number;
