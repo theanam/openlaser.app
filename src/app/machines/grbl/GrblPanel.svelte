@@ -6,7 +6,7 @@
   import Wind from '@lucide/svelte/icons/wind';
   import Play from '@lucide/svelte/icons/play';
   import { onMount } from 'svelte';
-  import { describeAlarm, describeError, isWebSerialSupported } from '$lib/machine';
+  import { describeAlarm, describeError, isWebSerialSupported } from 'libopenlaser/machine';
   import { duration } from '../../lib/format';
   import { machine } from '../../state/machine.svelte';
   import { profiles } from '../../state/profiles.svelte';

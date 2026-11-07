@@ -1,5 +1,5 @@
 /** GRBL, grblHAL and FluidNC lasers over USB serial: the existing driver, runner and controller. */
-import { GrblConnection, isWebSerialSupported, probeGrbl, virtualGrblTransport } from '$lib/machine';
+import { GrblConnection, isWebSerialSupported, probeGrbl, virtualGrblTransport } from 'libopenlaser/machine';
 import JobControls from '../../machine/JobControls.svelte';
 import StateBadge from '../../machine/StateBadge.svelte';
 import { machine, type ConnectionKind } from '../../state/machine.svelte';

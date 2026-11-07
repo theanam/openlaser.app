@@ -3,8 +3,8 @@
   import { sections } from '../state/sections.svelte';
   import { DropdownMenu } from 'bits-ui';
   import Plus from '@lucide/svelte/icons/plus';
-  import { moveLayer, removeLayer, setObjectsLayer } from '$lib/project/operations';
-  import type { Id, Layer, LayerMode } from '$lib/project/types';
+  import { moveLayer, removeLayer, setObjectsLayer } from 'libopenlaser/project';
+  import type { Id, Layer, LayerMode } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import DeleteLayerDialog from './DeleteLayerDialog.svelte';
   import { LayerDragState } from './layer-drag.svelte';

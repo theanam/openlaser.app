@@ -3,13 +3,13 @@
  * LaserPecker protocol notes by nerdocs (https://github.com/nerdocs/pyrograph/blob/main/docs/protocol.md);
  * implemented independently, no code from pyrograph is included.
  */
-import { isWebBluetoothSupported, isWebSerialSupported } from '$lib/machine';
+import { isWebBluetoothSupported, isWebSerialSupported } from 'libopenlaser/machine';
 import {
   LASERPECKER_BAUD,
   LaserPeckerConnection,
   VirtualLaserPecker,
   probeLaserPecker,
-} from '$lib/machine/laserpecker';
+} from 'libopenlaser/machine';
 import type { MachineAdapter } from '../types';
 import { exportGcode } from '../grbl/export';
 import LaserPeckerBadge from './LaserPeckerBadge.svelte';

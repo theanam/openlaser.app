@@ -2,8 +2,8 @@
  * Canvas looks for image objects: the dithered preview tinted in the layer color (DESIGN §5),
  * computed in the worker and cached. While a preview computes, the raw image shows faintly.
  */
-import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
-import type { Asset, ImageObject, Layer } from '$lib/project/types';
+import { DEFAULT_IMAGE_SETTINGS } from 'libopenlaser/cam';
+import type { Asset, ImageObject, Layer } from 'libopenlaser/project';
 import { reportError } from '$lib/ui/errors';
 import { ditherInWorker } from '../lib/cam-client';
 import type { ImageLook } from './scene-render';

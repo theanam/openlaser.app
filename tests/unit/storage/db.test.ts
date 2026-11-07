@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createProject, defaultMachineProfile } from '$lib/project/factory';
+import { createProject, defaultMachineProfile } from 'libopenlaser/project';
 import {
   deleteProfile,
   listProfiles,

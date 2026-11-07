@@ -3,9 +3,9 @@
  * paths and curves at full resolution. Includes corner marks and a 50 mm scale bar for checking
  * the printer kept 1:1.
  */
-import { multiply, translation, unionRect } from '$lib/geometry/mat2d';
-import type { Rect } from '$lib/geometry/types';
-import type { Asset, MachineProfile, Project } from '$lib/project/types';
+import { multiply, translation, unionRect } from 'libopenlaser/geometry';
+import type { Rect } from 'libopenlaser/geometry';
+import type { Asset, MachineProfile, Project } from 'libopenlaser/project';
 import { escapeXml, hullBounds, objectToDisplay, pathsToSvgD } from './svg-paths';
 
 export interface PrintSvg {

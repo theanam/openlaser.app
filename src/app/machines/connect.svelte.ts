@@ -12,10 +12,10 @@ import {
   WebSerialTransport,
   type Detection,
   type Transport,
-} from '$lib/machine';
-import { defaultMachineProfile } from '$lib/project/factory';
-import { MACHINE_PRESETS, presetProfileFields } from '$lib/project/machine-presets';
-import type { MachineProfile } from '$lib/project/types';
+} from 'libopenlaser/machine';
+import { defaultMachineProfile } from 'libopenlaser/project';
+import { MACHINE_PRESETS, presetProfileFields } from 'libopenlaser/project';
+import type { MachineProfile } from 'libopenlaser/project';
 import { errorMessage } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
 import { profiles } from '../state/profiles.svelte';

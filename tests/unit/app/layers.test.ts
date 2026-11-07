@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultLayer } from '$lib/import/layer-defaults';
+import { defaultLayer } from 'libopenlaser/project';
 import { layerSummary, withMode } from '$app/lib/layers';
 
 describe('layer helpers', () => {

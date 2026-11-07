@@ -7,11 +7,11 @@ import type {
   MachineLimits,
   MoveList,
   Rect,
-} from '../cam/types';
-import type { EncoderId } from '../cam/encoders';
-import type { YAxisMapping } from '../project/accessories';
-import type { ImageSettings, Layer, MachineProfile, Project } from '../project/types';
-import type { Vec2 } from '../geometry/types';
+} from 'libopenlaser/cam';
+import type { EncoderId } from 'libopenlaser/cam';
+import type { YAxisMapping } from 'libopenlaser/project';
+import type { ImageSettings, Layer, MachineProfile, Project } from 'libopenlaser/project';
+import type { Vec2 } from 'libopenlaser/geometry';
 
 export interface CompileRequest {
   type: 'compile';

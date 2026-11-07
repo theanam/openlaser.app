@@ -4,11 +4,11 @@
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
   import Maximize from '@lucide/svelte/icons/maximize';
-  import { IDENTITY, multiply, rotationAbout, translation } from '$lib/geometry/mat2d';
-  import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
-  import { setObjectTransforms } from '$lib/project/operations';
-  import { makeId } from '$lib/project/ids';
-  import type { Id, SceneObject } from '$lib/project/types';
+  import { IDENTITY, multiply, rotationAbout, translation } from 'libopenlaser/geometry';
+  import type { Mat2D, Rect, Vec2 } from 'libopenlaser/geometry';
+  import { setObjectTransforms } from 'libopenlaser/project';
+  import { makeId } from 'libopenlaser/project';
+  import type { Id, SceneObject } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { canvas } from '../state/canvas.svelte';
   import { preview } from '../state/preview.svelte';

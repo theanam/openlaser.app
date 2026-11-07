@@ -6,7 +6,7 @@
   import Filter from '@lucide/svelte/icons/filter';
   import ChevronsDown from '@lucide/svelte/icons/chevrons-down';
   import { tick } from 'svelte';
-  import { formatConsoleReport, formatConsoleText, type ConsoleEntry } from '$lib/machine';
+  import { formatConsoleReport, formatConsoleText, type ConsoleEntry } from 'libopenlaser/machine';
   import { APP_NAME, APP_VERSION } from '$lib/config/app';
   import { downloadBlob } from '$lib/storage/files';
   import { toast } from '$lib/ui/toasts.svelte';

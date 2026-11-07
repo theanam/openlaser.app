@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { lineLimit } from '$lib/cam/laserpecker';
+  import { lineLimit } from 'libopenlaser/cam';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
-  import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
-  import { DEFAULT_FILL_SETTINGS, DEFAULT_LINE_SETTINGS } from '$lib/import/layer-defaults';
-  import { layerAccepts } from '$lib/project/layer-fit';
-  import { updateLayer } from '$lib/project/operations';
+  import { DEFAULT_IMAGE_SETTINGS } from 'libopenlaser/cam';
+  import { DEFAULT_FILL_SETTINGS, DEFAULT_LINE_SETTINGS } from 'libopenlaser/project';
+  import { layerAccepts } from 'libopenlaser/project';
+  import { updateLayer } from 'libopenlaser/project';
   import type {
     DitherAlgorithm,
     FillSettings,
@@ -13,7 +13,7 @@
     Layer,
     LayerMode,
     LineSettings,
-  } from '$lib/project/types';
+  } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';

@@ -19,10 +19,10 @@
   import { connectedAdapter, shownAdapter } from '../machines/registry';
   import StatusBar from './StatusBar.svelte';
   import { untrack } from 'svelte';
-  import { reorient } from '$lib/project/orientation';
+  import { reorient } from 'libopenlaser/project';
   import { profiles } from '../state/profiles.svelte';
-  import { fitToBed, type Area } from '$lib/project/fit';
-  import { workArea } from '$lib/project/accessories';
+  import { fitToBed, type Area } from 'libopenlaser/project';
+  import { workArea } from 'libopenlaser/project';
   import { toast } from '$lib/ui/toasts.svelte';
 
   // The design keeps reading the right way up when the machine's home corner changes (switching

@@ -3,19 +3,19 @@
  * outcome with a toast instead of throwing.
  */
 import { PROJECT_EXTENSION } from '$lib/config/app';
-import { multiply, translation } from '$lib/geometry/mat2d';
-import { decodeImage, defaultImageSize, readImageDpi, sniffImageMime } from '$lib/import/image';
-import { parseDxf } from '$lib/import/dxf';
+import { multiply, translation } from 'libopenlaser/geometry';
+import { decodeImage, defaultImageSize, readImageDpi, sniffImageMime } from 'libopenlaser/import';
+import { parseDxf } from 'libopenlaser/import';
 import {
   importSvg,
   buildProjectObjectsFromSvg,
   type SvgColorGroup,
   type SvgImportResult,
-} from '$lib/import/svg';
-import { makeId } from '$lib/project/ids';
-import { addLayer, addObjects } from '$lib/project/operations';
-import { deserializeProject, serializeProject } from '$lib/project/serialize';
-import type { Asset, Id, ImageObject, SceneObject } from '$lib/project/types';
+} from 'libopenlaser/import';
+import { makeId } from 'libopenlaser/project';
+import { addLayer, addObjects } from 'libopenlaser/project';
+import { deserializeProject, serializeProject } from 'libopenlaser/project';
+import type { Asset, Id, ImageObject, SceneObject } from 'libopenlaser/project';
 import {
   IMAGE_FILES,
   VECTOR_FILES,

@@ -1,6 +1,6 @@
 <script lang="ts">
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
-  import { bringOnBed, outsideBed } from '$lib/project/fit';
+  import { bringOnBed, outsideBed } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { currentBed } from '../state/work-area';
   import { zoomToSelection } from '../actions';

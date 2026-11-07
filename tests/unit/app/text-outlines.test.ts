@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // A font that has none of the letters: outlines come back empty but with a real block height.
 const outlineText = vi.fn(async () => ({ paths: [], width: 0, height: 17.56, missing: ['আ'] }));
-vi.mock('$lib/fonts/outline', () => ({ outlineText, TEXT_OUTLINE_VERSION: 2 }));
+vi.mock('libopenlaser/fonts', async (actual) => ({
+  ...(await actual<typeof import('libopenlaser/fonts')>()),
+  outlineText,
+  TEXT_OUTLINE_VERSION: 2,
+}));
 
 const { editor } = await import('$app/state/editor.svelte');
 const { textOutlines } = await import('$app/state/text.svelte');

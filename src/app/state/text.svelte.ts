@@ -3,14 +3,14 @@
  * Outlines come from the font asynchronously, so an edit commits right away (one undo step) and
  * the outlines follow as a silent update to the same step.
  */
-import { DEFAULT_TEXT_FONT } from '$lib/fonts/catalog';
-import { outlineText, TEXT_OUTLINE_VERSION } from '$lib/fonts/outline';
-import { multiply, translation } from '$lib/geometry/mat2d';
-import type { PathData, Vec2 } from '$lib/geometry/types';
-import { makeId } from '$lib/project/ids';
-import { updateObject } from '$lib/project/operations';
-import { textPlaceholderSize } from '$lib/project/outline';
-import type { Id, Project, TextObject } from '$lib/project/types';
+import { DEFAULT_TEXT_FONT } from 'libopenlaser/fonts';
+import { outlineText, TEXT_OUTLINE_VERSION } from 'libopenlaser/fonts';
+import { multiply, translation } from 'libopenlaser/geometry';
+import type { PathData, Vec2 } from 'libopenlaser/geometry';
+import { makeId } from 'libopenlaser/project';
+import { updateObject } from 'libopenlaser/project';
+import { textPlaceholderSize } from 'libopenlaser/project';
+import type { Id, Project, TextObject } from 'libopenlaser/project';
 import { reportError } from '$lib/ui/errors';
 import type { BedFrame } from '../canvas/viewport';
 import { uprightTextAt } from '../lib/placement';

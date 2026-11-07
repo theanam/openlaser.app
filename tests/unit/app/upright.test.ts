@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apply } from '$lib/geometry/mat2d';
+import { apply } from 'libopenlaser/geometry';
 import { shapeObject } from '$app/canvas/tools';
 import { imagePlacement, uprightIn, uprightTextAt } from '$app/lib/placement';
 import type { BedFrame } from '$app/canvas/viewport';

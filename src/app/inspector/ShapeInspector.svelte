@@ -3,9 +3,9 @@
   import { sections } from '../state/sections.svelte';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
-  import { updateObject } from '$lib/project/operations';
-  import type { ShapeSpec, VectorObject } from '$lib/project/types';
-  import { isShapeKind, shapeDef, shapePaths, type ParamDef } from '$lib/shapes';
+  import { updateObject } from 'libopenlaser/project';
+  import type { ShapeSpec, VectorObject } from 'libopenlaser/project';
+  import { isShapeKind, shapeDef, shapePaths, type ParamDef } from 'libopenlaser/shapes';
   import { editor } from '../state/editor.svelte';
   import ShapeGlyph from './ShapeGlyph.svelte';
 

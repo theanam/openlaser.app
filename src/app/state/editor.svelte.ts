@@ -2,14 +2,14 @@
  * Editor state: the open project, selection, tools and undo history. Every project mutation goes
  * through `commit`, which records an undo step and marks the document dirty.
  */
-import type { MoveList } from '$lib/cam/types';
-import { defaultLayer, LAYER_PALETTE, MODE_COLORS } from '$lib/import/layer-defaults';
-import { createProject } from '$lib/project/factory';
-import { History } from '$lib/project/history';
-import { makeId } from '$lib/project/ids';
-import * as ops from '$lib/project/operations';
+import type { MoveList } from 'libopenlaser/cam';
+import { defaultLayer, LAYER_PALETTE, MODE_COLORS } from 'libopenlaser/project';
+import { createProject } from 'libopenlaser/project';
+import { History } from 'libopenlaser/project';
+import { makeId } from 'libopenlaser/project';
+import * as ops from 'libopenlaser/project';
 import { keepsAspectByDefault } from '../lib/selection';
-import type { Anchor, Asset, Id, Layer, LayerMode, Project, SceneObject } from '$lib/project/types';
+import type { Anchor, Asset, Id, Layer, LayerMode, Project, SceneObject } from 'libopenlaser/project';
 
 export type Tool = 'select' | 'pan' | 'rect' | 'ellipse' | 'shape' | 'text' | 'measure';
 export type ViewMode = 'design' | 'preview';

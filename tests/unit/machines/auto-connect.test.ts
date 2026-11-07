@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { chooseProfile } from '$app/machines/connect.svelte';
 import { adapterFor } from '$app/machines/registry';
-import { defaultMachineProfile } from '$lib/project/factory';
+import { defaultMachineProfile } from 'libopenlaser/project';
 
 const grbl = adapterFor('grbl');
 const lp = adapterFor('laserpecker');

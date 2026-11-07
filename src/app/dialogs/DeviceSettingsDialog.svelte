@@ -6,7 +6,7 @@
   import { confirm } from '$lib/ui/confirm.svelte';
   import { toast } from '$lib/ui/toasts.svelte';
   import { errorMessage } from '$lib/ui/errors';
-  import { GRBL_SETTINGS } from '$lib/machine';
+  import { GRBL_SETTINGS } from 'libopenlaser/machine';
   import { MACHINE_FILES, openFiles, saveFileAs } from '$lib/storage/files';
   import { machine } from '../state/machine.svelte';
   import { ui } from '../state/ui.svelte';

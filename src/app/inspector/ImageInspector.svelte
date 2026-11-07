@@ -2,7 +2,7 @@
   import SectionToggle from '../workspace/SectionToggle.svelte';
   import { sections } from '../state/sections.svelte';
   import Wand from '@lucide/svelte/icons/wand-sparkles';
-  import type { ImageObject } from '$lib/project/types';
+  import type { ImageObject } from 'libopenlaser/project';
   import { ui } from '../state/ui.svelte';
 
   let { object }: { object: ImageObject } = $props();

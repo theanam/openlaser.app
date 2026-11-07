@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { apply } from '$lib/geometry/mat2d';
-import type { Mat2D } from '$lib/geometry/types';
-import type { TextObject } from '$lib/project/types';
+import { apply } from 'libopenlaser/geometry';
+import type { Mat2D } from 'libopenlaser/geometry';
+import type { TextObject } from 'libopenlaser/project';
 import { TEXT_EDIT_SCALE, textEditBox } from '$app/canvas/text-edit';
 
 const text = (overrides: Partial<TextObject> = {}): TextObject => ({

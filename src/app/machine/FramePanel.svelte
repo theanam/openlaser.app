@@ -4,7 +4,7 @@
   import CircleStop from '@lucide/svelte/icons/circle-stop';
   import NumberField from '$lib/ui/NumberField.svelte';
   import { confirm } from '$lib/ui/confirm.svelte';
-  import { MAX_FRAME_POWER_PERCENT } from '$lib/project/factory';
+  import { MAX_FRAME_POWER_PERCENT } from 'libopenlaser/project';
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
 

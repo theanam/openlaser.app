@@ -7,8 +7,8 @@
   import ArrowDownToLine from '@lucide/svelte/icons/arrow-down-to-line';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import GripVertical from '@lucide/svelte/icons/grip-vertical';
-  import { updateLayer } from '$lib/project/operations';
-  import type { Layer } from '$lib/project/types';
+  import { updateLayer } from 'libopenlaser/project';
+  import type { Layer } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { machine } from '../state/machine.svelte';
   import { ui } from '../state/ui.svelte';

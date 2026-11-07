@@ -1,7 +1,7 @@
 /** Which overlays are open. Kept apart from the editor so dialogs never touch project state directly. */
-import type { DxfDrawing } from '$lib/import/dxf';
-import type { SvgImportResult } from '$lib/import/svg';
-import { DEFAULT_CONTOUR, type ContourOptions } from '$lib/project/contour';
+import type { DxfDrawing } from 'libopenlaser/import';
+import type { SvgImportResult } from 'libopenlaser/import';
+import { DEFAULT_CONTOUR, type ContourOptions } from 'libopenlaser/project';
 import type { Blocker } from '../connect/browser-check';
 
 /** An SVG or DXF waiting in the import dialog for its color → layer choices. */

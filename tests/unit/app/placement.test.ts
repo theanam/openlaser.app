@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apply, transformRect } from '$lib/geometry/mat2d';
+import { apply, transformRect } from 'libopenlaser/geometry';
 import { placeCentered } from '$app/lib/placement';
 
 const content = { minX: 0, minY: 0, maxX: 40, maxY: 20 };

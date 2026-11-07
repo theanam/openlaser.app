@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { appendCapped, ConsoleBatcher } from '$app/state/machine-support';
-import type { ConsoleEntry } from '$lib/machine';
+import type { ConsoleEntry } from 'libopenlaser/machine';
 
 const entry = (id: number): ConsoleEntry => ({ id, time: 0, direction: 'received', kind: 'ok', text: 'ok' });
 

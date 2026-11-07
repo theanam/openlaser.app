@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Asset } from '$lib/project/types';
+  import type { Asset } from 'libopenlaser/project';
   import { designPrintSvg } from '../lib/print-svg';
   import { editor } from '../state/editor.svelte';
   import { profiles } from '../state/profiles.svelte';

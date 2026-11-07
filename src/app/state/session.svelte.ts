@@ -2,7 +2,7 @@
  * Autosave (2 s after the last change) and session restore (SPEC §10): reloading the page brings
  * back the project that was open, exactly as it was.
  */
-import type { Id, Project } from '$lib/project/types';
+import type { Id, Project } from 'libopenlaser/project';
 import {
   deleteLocalProject,
   getSetting,

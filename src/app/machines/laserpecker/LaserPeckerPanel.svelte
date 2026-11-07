@@ -4,7 +4,7 @@
   import Cpu from '@lucide/svelte/icons/cpu';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { errorText } from '$lib/machine/laserpecker';
+  import { errorText } from 'libopenlaser/machine';
   import { laserpecker } from './session.svelte';
   import ConnectHelpButton from '../../connect/ConnectHelpButton.svelte';
   import ConnectButton from '../../connect/ConnectButton.svelte';

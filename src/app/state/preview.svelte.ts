@@ -2,9 +2,9 @@
  * The compiled job for the open project, refreshed in a worker while Preview is showing, and on
  * demand before Frame, Start job and Export. A G-code document skips compiling.
  */
-import type { CamWarning, JobStats, LayerStart, MoveList, Rect } from '$lib/cam/types';
-import type { Vec2 } from '$lib/geometry/types';
-import type { YAxisMapping } from '$lib/project/accessories';
+import type { CamWarning, JobStats, LayerStart, MoveList, Rect } from 'libopenlaser/cam';
+import type { Vec2 } from 'libopenlaser/geometry';
+import type { YAxisMapping } from 'libopenlaser/project';
 import type { CompileResult } from '$lib/workers/protocol';
 import { reportError } from '$lib/ui/errors';
 import { compileInWorker, SupersededError } from '../lib/cam-client';

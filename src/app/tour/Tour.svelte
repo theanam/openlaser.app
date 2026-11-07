@@ -4,13 +4,13 @@
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import X from '@lucide/svelte/icons/x';
   import type { Component } from 'svelte';
-  import { defaultMachineProfile } from '$lib/project/factory';
+  import { defaultMachineProfile } from 'libopenlaser/project';
   import {
     MACHINE_PRESETS,
-    presetName,
+    machinePresetName,
     presetProfileFields,
     type MachinePreset,
-  } from '$lib/project/machine-presets';
+  } from 'libopenlaser/project';
   import PresetPicker from '../dialogs/PresetPicker.svelte';
   import { profiles } from '../state/profiles.svelte';
   import { markTourSeen } from '../state/tour';
@@ -51,8 +51,8 @@
   const step = $derived(TOUR_STEPS[index]);
   const last = $derived(index === TOUR_STEPS.length - 1);
   const preset = $derived(
-    MACHINE_PRESETS.find((p) => presetName(p) === chosenName) ??
-      MACHINE_PRESETS.find((p) => presetName(p) === profiles.active.name) ??
+    MACHINE_PRESETS.find((p) => machinePresetName(p) === chosenName) ??
+      MACHINE_PRESETS.find((p) => machinePresetName(p) === profiles.active.name) ??
       MACHINE_PRESETS[0],
   );
 
@@ -62,7 +62,7 @@
 
   async function finish() {
     if (chosenName) {
-      const existing = profiles.list.find((p) => p.name === presetName(preset));
+      const existing = profiles.list.find((p) => p.name === machinePresetName(preset));
       if (existing) await profiles.activate(existing.id);
       else {
         const profile = defaultMachineProfile(presetProfileFields(preset));
@@ -131,8 +131,8 @@
             {/if}
             {#if step.art === 'pick-machine'}
               <PresetPicker
-                selected={presetName(preset)}
-                onselect={(p: MachinePreset) => (chosenName = presetName(p))}
+                selected={machinePresetName(preset)}
+                onselect={(p: MachinePreset) => (chosenName = machinePresetName(p))}
                 height={200}
               />
             {/if}

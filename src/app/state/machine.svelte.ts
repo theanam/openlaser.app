@@ -22,25 +22,20 @@ import {
   type MachineState,
   type RealtimeCommand,
   type Transport,
-} from '$lib/machine';
-import type { LayerStart, MachineLimits } from '$lib/cam/types';
-import type { Vec2 } from '$lib/geometry/types';
-import type { Id } from '$lib/project/types';
+} from 'libopenlaser/machine';
+import type { LayerStart, MachineLimits } from 'libopenlaser/cam';
+import type { Vec2 } from 'libopenlaser/geometry';
+import type { Id } from 'libopenlaser/project';
 import { confirm } from '$lib/ui/confirm.svelte';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';
 import { ui } from './ui.svelte';
-import { setJobSettings } from '$lib/project/operations';
+import { setJobSettings } from 'libopenlaser/project';
 import { editor } from './editor.svelte';
 import { boundsKey, jobSummary, type JobSummary } from '../lib/job-summary';
-import { defaultMachineProfile } from '$lib/project/factory';
-import {
-  bestGuess,
-  detectPresets,
-  isGenericProfileName,
-  type DetectedPreset,
-} from '$lib/project/machine-detect';
-import { presetName, presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
+import { defaultMachineProfile } from 'libopenlaser/project';
+import { bestGuess, detectPresets, isGenericProfileName, type DetectedPreset } from 'libopenlaser/project';
+import { machinePresetName, presetProfileFields, type MachinePreset } from 'libopenlaser/project';
 import { appendCapped, ConsoleBatcher, JobWakeLock } from './machine-support';
 import { preferences } from './preferences.svelte';
 import { preview } from './preview.svelte';
@@ -363,7 +358,7 @@ class MachineController {
     const best = bestGuess(candidates);
     const active = profiles.active;
     const generic = isGenericProfileName(active.name);
-    if (!generic && (!best || presetName(best.preset) === active.name)) return false;
+    if (!generic && (!best || machinePresetName(best.preset) === active.name)) return false;
     const fingerprint = `${active.id}|${travelX}|${travelY}|${info.length}`;
     if (!generic && dismissedFingerprints().has(fingerprint)) return false;
 
@@ -375,7 +370,7 @@ class MachineController {
       rememberDismissed(fingerprint);
       return false;
     }
-    const name = presetName(chosen);
+    const name = machinePresetName(chosen);
     const existing = profiles.list.find((p) => p.name === name);
     // The controller's own travel is the truth for soft limits; the preset fills the rest.
     const size = travelX && travelY ? { bedWidth: travelX, bedHeight: travelY } : {};

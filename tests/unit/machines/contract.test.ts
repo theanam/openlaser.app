@@ -5,11 +5,11 @@
 import { describe, expect, it } from 'vitest';
 import { ADAPTERS, adapterFor, CONTROLLER_IDS, DEFAULT_ADAPTER, machineKind } from '$app/machines/registry';
 import type { LiveMachine } from '$app/machines/types';
-import type { MachineConnection, Transport, Unsubscribe } from '$lib/machine';
-import { VirtualScheduler } from '$lib/machine';
-import { Listeners } from '$lib/machine/store';
-import { defaultMachineProfile } from '$lib/project/factory';
-import { parseMachineProfile, serializeMachineProfile } from '$lib/project/machine-file';
+import type { MachineConnection, Transport, Unsubscribe } from 'libopenlaser/machine';
+import { VirtualScheduler } from 'libopenlaser/machine';
+import { Listeners } from 'libopenlaser/machine';
+import { defaultMachineProfile } from 'libopenlaser/project';
+import { parseMachineProfile, serializeMachineProfile } from 'libopenlaser/project';
 
 /** Payloads each live adapter's encoder would produce, small enough for a virtual device. */
 interface Fixture {

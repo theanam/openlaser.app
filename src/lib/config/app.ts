@@ -15,5 +15,4 @@ export const PROJECT_MIME = 'application/x-openlaser-project';
 /** Machine profiles are plain JSON files. */
 export const MACHINE_EXTENSION = '.json';
 
-export const GCODE_EXTENSIONS = ['.gcode', '.nc', '.gc', '.ngc', '.txt'] as const;
-export const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.bmp', '.gif'] as const;
+export { GCODE_EXTENSIONS, IMAGE_EXTENSIONS } from 'libopenlaser/import';

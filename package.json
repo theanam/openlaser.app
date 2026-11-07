@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "golden:update": "GOLDEN_UPDATE=1 vitest run tests/golden",
+    "lib:build": "corepack pnpm --filter libopenlaser build",
+    "golden:update": "GOLDEN_UPDATE=1 vitest run packages/libopenlaser/test/golden",
     "e2e": "playwright test",
     "icons": "node scripts/render-icons.mjs",
     "fonts:update": "node scripts/update-google-fonts.mjs",
@@ -26,12 +27,8 @@
     "@fontsource/geist-sans": "^5.3.0",
     "@lucide/svelte": "^1.59.0",
     "bits-ui": "^2.19.5",
-    "clipper2-ts": "2.0.1-18",
-    "fflate": "^0.8.3",
-    "harfbuzzjs": "1.6.3",
     "idb": "^8.0.4",
-    "nanoid": "^5.1.6",
-    "opentype.js": "^2.0.0"
+    "libopenlaser": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

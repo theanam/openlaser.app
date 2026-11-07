@@ -8,21 +8,21 @@
     presetBasis,
     presetById,
     presetLayerPatch,
-    presetName,
+    materialPresetName,
     presetsFor,
     wattClasses,
     type MaterialOperation,
     type MaterialPreset,
-  } from '$lib/project/materials';
-  import { updateLayer } from '$lib/project/operations';
-  import type { Layer } from '$lib/project/types';
-  import { DEFAULT_FILL_SETTINGS } from '$lib/import/layer-defaults';
-  import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
+  } from 'libopenlaser/project';
+  import { updateLayer } from 'libopenlaser/project';
+  import type { Layer } from 'libopenlaser/project';
+  import { DEFAULT_FILL_SETTINGS } from 'libopenlaser/project';
+  import { DEFAULT_IMAGE_SETTINGS } from 'libopenlaser/cam';
   import { editor } from '../state/editor.svelte';
   import { profiles } from '../state/profiles.svelte';
   import { withMode } from '../lib/layers';
   import { speedLabel } from '../lib/units';
-  import { laserSources, layerSource } from '$lib/project/accessories';
+  import { laserSources, layerSource } from 'libopenlaser/project';
 
   const RESOLUTION_ORDER = ['1K', '1.3K', '2K', '4K'];
 
@@ -63,7 +63,7 @@
       (p) =>
         (wavelengths.length < 2 || !wavelength || p.wavelength === wavelength) &&
         (!resolution || !p.resolution || p.resolution === resolution) &&
-        `${presetName(p)} ${p.brand ?? ''}`.toLowerCase().includes(query.trim().toLowerCase()),
+        `${materialPresetName(p)} ${p.brand ?? ''}`.toLowerCase().includes(query.trim().toLowerCase()),
     ),
   );
   const applied = $derived(presetById(layer.materialId));
@@ -148,7 +148,7 @@
 <Popover.Root {open} {onOpenChange}>
   <Popover.Trigger class="material-trigger" data-testid="material-picker">
     <span class="label">Material</span>
-    <span class="value">{current ? presetName(current) : 'Pick a material'}</span>
+    <span class="value">{current ? materialPresetName(current) : 'Pick a material'}</span>
     {#if currentFor}<span class="for mono">{currentFor}</span>{/if}
     <ChevronDown size={14} />
   </Popover.Trigger>
@@ -210,7 +210,7 @@
           {#each list as preset (preset.id)}
             <div class="row" class:on={current?.id === preset.id}>
               <button type="button" class="pick" onclick={() => apply(preset)} data-testid="material-preset">
-                <span class="name">{presetName(preset)}</span>
+                <span class="name">{materialPresetName(preset)}</span>
                 <span class="mono muted small">{summary(preset)}</span>
                 {#if preset.notes}<span class="muted small note">{preset.notes}</span>{/if}
               </button>

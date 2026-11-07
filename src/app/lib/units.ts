@@ -2,8 +2,8 @@
  * Speed units for display. Projects always store mm/min; CO₂ users think in mm/s, LaserPecker
  * users in depth (1–100, deeper is slower).
  */
-import { depthFromSpeed, speedFromDepth } from '$lib/project/depth';
-import type { SpeedUnit } from '$lib/project/types';
+import { depthFromSpeed, speedFromDepth } from 'libopenlaser/project';
+import type { SpeedUnit } from 'libopenlaser/project';
 
 export function speedToUnit(mmPerMin: number, unit: SpeedUnit): number {
   if (unit === 'depth') return depthFromSpeed(mmPerMin);

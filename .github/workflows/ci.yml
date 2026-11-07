@@ -21,3 +21,4 @@ jobs:
       - run: pnpm test
       # End-to-end tests run locally before pushing to main (see CLAUDE.md).
       - run: pnpm build
+      - run: pnpm lib:build

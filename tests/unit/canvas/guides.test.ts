@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { snapMove } from '$app/canvas/guides';
-import type { Rect } from '$lib/geometry/types';
+import type { Rect } from 'libopenlaser/geometry';
 
 const rect = (minX: number, minY: number, w: number, h: number): Rect => ({
   minX,

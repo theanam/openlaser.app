@@ -3,14 +3,14 @@
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
-  import { makeId } from '$lib/project/ids';
+  import { makeId } from 'libopenlaser/project';
   import type {
     AccessoryKind,
     LaserSource,
     MachineAccessory,
     MachineProfile,
     RotarySetup,
-  } from '$lib/project/types';
+  } from 'libopenlaser/project';
 
   /**
    * The lasers a machine has and the accessories it can wear, as part of its profile, so jobs

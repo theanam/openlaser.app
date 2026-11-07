@@ -1,8 +1,8 @@
 <script lang="ts">
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { accessories, activeAccessory, objectDiameter } from '$lib/project/accessories';
-  import { setJobSettings } from '$lib/project/operations';
-  import type { Id, JobSettings } from '$lib/project/types';
+  import { accessories, activeAccessory, objectDiameter } from 'libopenlaser/project';
+  import { setJobSettings } from 'libopenlaser/project';
+  import type { Id, JobSettings } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { profiles } from '../state/profiles.svelte';
   import { connectedSession } from '../machines/registry';

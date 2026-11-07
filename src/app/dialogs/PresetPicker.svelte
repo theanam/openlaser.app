@@ -1,7 +1,7 @@
 <script lang="ts">
   import Search from '@lucide/svelte/icons/search';
   import Check from '@lucide/svelte/icons/check';
-  import { groupByBrand, presetName, searchPresets, type MachinePreset } from '$lib/project/machine-presets';
+  import { groupByBrand, machinePresetName, searchPresets, type MachinePreset } from 'libopenlaser/project';
   import { machineKind } from '../machines/registry';
 
   interface Props {
@@ -30,8 +30,8 @@
   <div class="list" style="max-height: {height}px" role="radiogroup" aria-label="Machine">
     {#each groups as group (group.brand)}
       <div class="brand">{group.brand}</div>
-      {#each group.presets as p (presetName(p))}
-        {@const name = presetName(p)}
+      {#each group.presets as p (machinePresetName(p))}
+        {@const name = machinePresetName(p)}
         <button
           type="button"
           role="radio"

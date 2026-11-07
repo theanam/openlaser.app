@@ -5,9 +5,9 @@
   import VectorSquare from '@lucide/svelte/icons/vector-square';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Type from '@lucide/svelte/icons/type';
-  import { layerAccepts } from '$lib/project/layer-fit';
-  import { updateObject } from '$lib/project/operations';
-  import type { Layer, SceneObject } from '$lib/project/types';
+  import { layerAccepts } from 'libopenlaser/project';
+  import { updateObject } from 'libopenlaser/project';
+  import type { Layer, SceneObject } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { ui } from '../state/ui.svelte';
   import type { LayerDragState } from './layer-drag.svelte';

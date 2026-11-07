@@ -1,6 +1,6 @@
 /** An SVG drawing of imported outlines, for the import dialog's preview of files without one (DXF). */
-import type { PathData } from '$lib/geometry/types';
-import type { SvgImportResult } from '$lib/import/svg';
+import type { PathData } from 'libopenlaser/geometry';
+import type { SvgImportResult } from 'libopenlaser/import';
 
 const f = (n: number) => +n.toFixed(3);
 

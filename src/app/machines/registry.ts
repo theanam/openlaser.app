@@ -3,7 +3,7 @@
  * here (see docs/adding-a-machine.md). The first adapter is the default for profiles whose
  * controller is unknown.
  */
-import type { MachineProfile } from '$lib/project/types';
+import type { MachineProfile } from 'libopenlaser/project';
 import { profiles } from '../state/profiles.svelte';
 import { grblAdapter } from './grbl';
 import { laserPeckerAdapter } from './laserpecker';

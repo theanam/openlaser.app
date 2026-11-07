@@ -1,4 +1,4 @@
-import type { ErrorPolicy } from '../machine/types';
+import type { ErrorPolicy } from 'libopenlaser/machine';
 
 export type ThemePreference = 'system' | 'dark' | 'light';
 

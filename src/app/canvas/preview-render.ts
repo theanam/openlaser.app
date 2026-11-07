@@ -3,7 +3,7 @@
  * bed-space Path2D chunks once per MoveList, so a million-segment job redraws with a few dozen
  * native stroke calls. The scrubber position draws whole chunks plus a short tail.
  */
-import type { MoveList } from '$lib/cam/types';
+import type { MoveList } from 'libopenlaser/cam';
 import { bedToScreenMatrix, type BedFrame, type View } from './viewport';
 
 /** Power shades from soft to full Signal. */

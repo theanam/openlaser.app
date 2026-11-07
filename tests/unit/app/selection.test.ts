@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { apply } from '$lib/geometry/mat2d';
-import type { Mat2D } from '$lib/geometry/types';
+import { apply } from 'libopenlaser/geometry';
+import type { Mat2D } from 'libopenlaser/geometry';
 import { anchorOf, moveAnchorTo, resizeAbout, rotateAbout } from '$app/lib/selection';
 
 const r = { minX: 10, minY: 20, maxX: 50, maxY: 40 };

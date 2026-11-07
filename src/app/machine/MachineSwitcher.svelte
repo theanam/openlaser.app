@@ -3,8 +3,8 @@
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
   import Check from '@lucide/svelte/icons/check';
   import Settings2 from '@lucide/svelte/icons/settings-2';
-  import { defaultMachineProfile } from '$lib/project/factory';
-  import { presetName, presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
+  import { defaultMachineProfile } from 'libopenlaser/project';
+  import { machinePresetName, presetProfileFields, type MachinePreset } from 'libopenlaser/project';
   import { toast } from '$lib/ui/toasts.svelte';
   import PresetPicker from '../dialogs/PresetPicker.svelte';
   import { connectedSession, machineKind } from '../machines/registry';
@@ -16,7 +16,7 @@
 
   async function usePreset(preset: MachinePreset) {
     open = false;
-    const name = presetName(preset);
+    const name = machinePresetName(preset);
     const existing = profiles.list.find((p) => p.name === name);
     if (existing) {
       await profiles.activate(existing.id);

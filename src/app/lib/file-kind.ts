@@ -1,7 +1,7 @@
 /** What a file is, from its name (and MIME type as a fallback), so each command opens only its own kinds. */
 import { PROJECT_EXTENSION } from '$lib/config/app';
-import { isGcodeFileName } from '$lib/import/gcode';
-import { isImageFileName } from '$lib/import/image';
+import { isGcodeFileName } from 'libopenlaser/import';
+import { isImageFileName } from 'libopenlaser/import';
 import { extensionOf } from '$lib/storage/files';
 
 export type FileKindId = 'project' | 'gcode' | 'vector' | 'image';

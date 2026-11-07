@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { laserSources, layerSource } from '$lib/project/accessories';
-  import type { Id, Layer } from '$lib/project/types';
+  import { laserSources, layerSource } from 'libopenlaser/project';
+  import type { Id, Layer } from 'libopenlaser/project';
   import { profiles } from '../state/profiles.svelte';
 
   /** On machines with more than one laser, which one burns this layer. */

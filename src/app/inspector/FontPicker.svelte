@@ -14,9 +14,9 @@
     type CatalogFont,
     type FontCategory,
     type FontCategoryId,
-  } from '$lib/fonts/catalog';
-  import { loadPreviewCss } from '$lib/fonts/loader';
-  import { SCRIPT_LABELS } from '$lib/fonts/scripts';
+  } from 'libopenlaser/fonts';
+  import { loadPreviewCss } from 'libopenlaser/fonts';
+  import { SCRIPT_LABELS } from 'libopenlaser/fonts';
   import { fonts } from '../state/fonts.svelte';
 
   interface Props {

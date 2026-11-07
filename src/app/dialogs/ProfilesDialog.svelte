@@ -12,13 +12,13 @@
   import { confirm } from '$lib/ui/confirm.svelte';
   import { toast } from '$lib/ui/toasts.svelte';
   import { errorMessage } from '$lib/ui/errors';
-  import { defaultMachineProfile, laserTypeDefaults, MAX_FRAME_POWER_PERCENT } from '$lib/project/factory';
-  import { presetProfileFields, type MachinePreset } from '$lib/project/machine-presets';
+  import { defaultMachineProfile, laserTypeDefaults, MAX_FRAME_POWER_PERCENT } from 'libopenlaser/project';
+  import { presetProfileFields, type MachinePreset } from 'libopenlaser/project';
   import PresetPicker from './PresetPicker.svelte';
   import ProfileHardware from './ProfileHardware.svelte';
-  import { makeId } from '$lib/project/ids';
-  import { parseMachineProfile, serializeMachineProfile } from '$lib/project/machine-file';
-  import type { MachineProfile } from '$lib/project/types';
+  import { makeId } from 'libopenlaser/project';
+  import { parseMachineProfile, serializeMachineProfile } from 'libopenlaser/project';
+  import type { MachineProfile } from 'libopenlaser/project';
   import { MACHINE_FILES, openFiles, safeFileName, saveFileAs } from '$lib/storage/files';
   import { profiles } from '../state/profiles.svelte';
   import { ADAPTERS, adapterFor, CONTROLLER_IDS } from '../machines/registry';

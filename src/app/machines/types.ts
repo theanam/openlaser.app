@@ -4,8 +4,8 @@
  * it never checks a controller id.
  */
 import type { Component } from 'svelte';
-import type { Detection, MachineConnection, ProbeOptions, Scheduler, Transport } from '$lib/machine';
-import type { MachineProfile } from '$lib/project/types';
+import type { Detection, MachineConnection, ProbeOptions, Scheduler, Transport } from 'libopenlaser/machine';
+import type { MachineProfile } from 'libopenlaser/project';
 import type { SafetyRequest } from '../state/machine.svelte';
 
 /** One way to reach the machine, offered as a Connect button. */

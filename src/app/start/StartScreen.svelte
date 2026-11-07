@@ -16,7 +16,7 @@
   import GithubMark from '$lib/ui/GithubMark.svelte';
   import ErrorBoundary from '$lib/ui/ErrorBoundary.svelte';
   import { REPO_URL } from '$lib/config/app';
-  import { isWebSerialSupported } from '$lib/machine';
+  import { isWebSerialSupported } from 'libopenlaser/machine';
   import { relativeTime } from '../lib/format';
   import { preferences } from '../state/preferences.svelte';
   import { profiles } from '../state/profiles.svelte';

@@ -3,8 +3,8 @@
   import Link from '@lucide/svelte/icons/link';
   import Unlink from '@lucide/svelte/icons/unlink';
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { transformObjects } from '$lib/project/operations';
-  import type { Mat2D } from '$lib/geometry/types';
+  import { transformObjects } from 'libopenlaser/project';
+  import type { Mat2D } from 'libopenlaser/geometry';
   import {
     anchorOf,
     boundsOf,

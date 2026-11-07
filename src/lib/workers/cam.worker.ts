@@ -1,11 +1,11 @@
 /// <reference lib="webworker" />
-import { compileJob } from '../cam';
-import { encodeJob } from '../cam/encoders';
-import { ditherPreview } from '../cam/raster';
-import type { MoveList, RasterSource } from '../cam/types';
-import { parseGcode, splitGcodeLines, validateGcodeLines } from '../import/gcode';
-import { decodeImage } from '../import/image';
-import type { Project } from '../project/types';
+import { compileJob } from 'libopenlaser/cam';
+import { encodeJob } from 'libopenlaser/cam';
+import { ditherPreview } from 'libopenlaser/cam';
+import type { MoveList, RasterSource } from 'libopenlaser/cam';
+import { parseGcode, splitGcodeLines, validateGcodeLines } from 'libopenlaser/import';
+import { decodeImage } from 'libopenlaser/import';
+import type { Project } from 'libopenlaser/project';
 import type { WorkerRequest, WorkerResponse } from './protocol';
 
 declare const self: DedicatedWorkerGlobalScope;

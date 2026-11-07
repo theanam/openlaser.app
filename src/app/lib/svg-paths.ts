@@ -1,6 +1,6 @@
 /** PathData → SVG path strings. Beziers stay beziers, so printing and thumbnails remain true vectors. */
-import { apply, multiply } from '$lib/geometry/mat2d';
-import type { Mat2D, PathData, Rect } from '$lib/geometry/types';
+import { apply, multiply } from 'libopenlaser/geometry';
+import type { Mat2D, PathData, Rect } from 'libopenlaser/geometry';
 import type { BedFrame } from '../canvas/viewport';
 import { bedToScreenMatrix } from '../canvas/viewport';
 

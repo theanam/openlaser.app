@@ -2,7 +2,7 @@
  * Promise API over the CAM workers. Compiles run on their own worker so a long photo compile never
  * delays previews; a newer compile supersedes an older one by restarting that worker.
  */
-import type { EncodedJob, EncoderId, EncoderOptions, EncoderPayload } from '$lib/cam/encoders';
+import type { EncodedJob, EncoderId, EncoderOptions, EncoderPayload } from 'libopenlaser/cam';
 import type {
   CompileRequest,
   CompileResult,

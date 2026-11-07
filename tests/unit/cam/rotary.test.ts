@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { compileJob } from '$lib/cam';
-import { laserPeckerEncoder } from '$lib/cam/laserpecker';
-import { parseGcode } from '$lib/import/gcode';
-import { buildFrameGcode } from '$lib/machine/job/frame';
-import type { MachineAccessory, MachineProfile } from '$lib/project/types';
-import { compileInput, layer, profile, project, rectPath, vectorObject } from './fixtures';
+import { compileJob } from 'libopenlaser/cam';
+import { laserPeckerEncoder } from 'libopenlaser/cam';
+import { parseGcode } from 'libopenlaser/import';
+import { buildFrameGcode } from 'libopenlaser/machine';
+import type { MachineAccessory, MachineProfile } from 'libopenlaser/project';
+import {
+  compileInput,
+  layer,
+  profile,
+  project,
+  rectPath,
+  vectorObject,
+} from '../../../packages/libopenlaser/test/unit/cam/fixtures';
 
 const rotary = (setup: Partial<NonNullable<MachineAccessory['rotary']>> = {}): MachineAccessory => ({
   id: 'rot',

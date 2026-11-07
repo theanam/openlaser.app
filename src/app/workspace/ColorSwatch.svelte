@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Popover } from 'bits-ui';
-  import { LAYER_PALETTE } from '$lib/import/layer-defaults';
+  import { LAYER_PALETTE } from 'libopenlaser/project';
 
   interface Props {
     color: string;

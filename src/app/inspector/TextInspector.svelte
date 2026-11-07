@@ -8,13 +8,13 @@
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
   import { onMount } from 'svelte';
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { findFont, nearestWeight, styleLabel, type CatalogFont } from '$lib/fonts/catalog';
+  import { findFont, nearestWeight, styleLabel, type CatalogFont } from 'libopenlaser/fonts';
   import { fonts } from '../state/fonts.svelte';
-  import type { TextAlign, TextObject } from '$lib/project/types';
+  import type { TextAlign, TextObject } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { textOutlines } from '../state/text.svelte';
   import FontPicker from './FontPicker.svelte';
-  import { dominantScript } from '$lib/fonts/scripts';
+  import { dominantScript } from 'libopenlaser/fonts';
 
   let { object }: { object: TextObject } = $props();
 

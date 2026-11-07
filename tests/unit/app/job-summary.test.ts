@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MoveList } from '$lib/cam/types';
+import type { MoveList } from 'libopenlaser/cam';
 import { boundsKey, jobSummary, peakPower } from '$app/lib/job-summary';
 
 function moves(powers: number[]): MoveList {

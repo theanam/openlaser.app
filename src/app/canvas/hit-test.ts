@@ -1,11 +1,11 @@
 /** Finds the topmost object under a screen point. Strokes win over fills so outlines stay clickable inside larger shapes. */
-import { apply, invert } from '$lib/geometry/mat2d';
-import type { Vec2 } from '$lib/geometry/types';
-import type { Project, SceneObject } from '$lib/project/types';
+import { apply, invert } from 'libopenlaser/geometry';
+import type { Vec2 } from 'libopenlaser/geometry';
+import type { Project, SceneObject } from 'libopenlaser/project';
 import { screenPath } from './scene-render';
-import { textPlaceholderSize } from '$lib/project/outline';
-import { boundsOfPoints } from '$lib/geometry/mat2d';
-import type { PathData, Rect } from '$lib/geometry/types';
+import { textPlaceholderSize } from 'libopenlaser/project';
+import { boundsOfPoints } from 'libopenlaser/geometry';
+import type { PathData, Rect } from 'libopenlaser/geometry';
 
 /** Control-point bounds of paths in object space (beziers stay inside them). */
 function pathsBox(paths: PathData[]): Rect {

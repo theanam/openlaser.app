@@ -19,8 +19,18 @@
     "baseUrl": ".",
     "paths": {
       "$lib/*": ["src/lib/*"],
-      "$app/*": ["src/app/*"]
+      "$app/*": ["src/app/*"],
+      "libopenlaser/*": ["packages/libopenlaser/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "tests/**/*.ts", "vite.config.ts", "playwright.config.ts", "scripts/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "tests/**/*.ts",
+    "packages/libopenlaser/src/**/*.ts",
+    "packages/libopenlaser/test/**/*.ts",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "scripts/**/*.ts"
+  ]
 }

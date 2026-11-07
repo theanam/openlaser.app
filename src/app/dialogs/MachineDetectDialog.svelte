@@ -1,6 +1,6 @@
 <script lang="ts">
   import Dialog from '$lib/ui/Dialog.svelte';
-  import { presetName, type MachinePreset } from '$lib/project/machine-presets';
+  import { machinePresetName, type MachinePreset } from 'libopenlaser/project';
   import { machine } from '../state/machine.svelte';
   import { profiles } from '../state/profiles.svelte';
   import PresetPicker from './PresetPicker.svelte';
@@ -31,9 +31,8 @@
   {#if request}
     <p class="lead">
       {#if request.best}
-        This looks like a <strong>{presetName(request.best.preset)}</strong> ({request.best.reasons.join(
-          ', ',
-        )}).
+        This looks like a <strong>{machinePresetName(request.best.preset)}</strong>
+        ({request.best.reasons.join(', ')}).
       {:else}
         Pick your machine so the bed size and limits match.
       {/if}
@@ -49,17 +48,21 @@
     </div>
     {#if suggestions.length > 1 || (suggestions.length === 1 && !request.best)}
       <div class="chips" role="group" aria-label="Suggestions">
-        {#each suggestions as s (presetName(s.preset))}
+        {#each suggestions as s (machinePresetName(s.preset))}
           <button
             type="button"
             class="chip"
             aria-pressed={chosen === s.preset}
-            onclick={() => (chosen = s.preset)}>{presetName(s.preset)}</button
+            onclick={() => (chosen = s.preset)}>{machinePresetName(s.preset)}</button
           >
         {/each}
       </div>
     {/if}
-    <PresetPicker selected={chosen ? presetName(chosen) : null} onselect={(p) => (chosen = p)} height={220} />
+    <PresetPicker
+      selected={chosen ? machinePresetName(chosen) : null}
+      onselect={(p) => (chosen = p)}
+      height={220}
+    />
   {/if}
   {#snippet footer()}
     <button type="button" class="btn" onclick={() => answer(null)}>Keep {profiles.active.name}</button>
@@ -70,7 +73,7 @@
       onclick={() => answer(chosen)}
       data-testid="machine-detect-confirm"
     >
-      {chosen ? `Use ${presetName(chosen)}` : 'Use machine'}
+      {chosen ? `Use ${machinePresetName(chosen)}` : 'Use machine'}
     </button>
   {/snippet}
 </Dialog>

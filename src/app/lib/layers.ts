@@ -1,7 +1,7 @@
 /** Layer helpers for the UI. */
-import { DEFAULT_IMAGE_SETTINGS } from '$lib/cam/raster/defaults';
-import { DEFAULT_FILL_SETTINGS, DEFAULT_LINE_SETTINGS } from '$lib/import/layer-defaults';
-import type { Layer, LayerMode, SpeedUnit } from '$lib/project/types';
+import { DEFAULT_IMAGE_SETTINGS } from 'libopenlaser/cam';
+import { DEFAULT_FILL_SETTINGS, DEFAULT_LINE_SETTINGS } from 'libopenlaser/project';
+import type { Layer, LayerMode, SpeedUnit } from 'libopenlaser/project';
 import { speedLabel } from './units';
 
 const MODE_LABEL: Record<LayerMode, string> = { line: 'Line', fill: 'Fill', image: 'Image' };

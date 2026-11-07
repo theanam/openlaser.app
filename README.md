@@ -93,6 +93,7 @@ pnpm dev                 # http://localhost:5190
 | `pnpm typecheck`     | `svelte-check` in strict mode                                       |
 | `pnpm lint`          | ESLint                                                              |
 | `pnpm build`         | Production build in `dist/`, ready for any static host              |
+| `pnpm lib:build`     | Build `libopenlaser` into `packages/libopenlaser/dist`              |
 | `pnpm golden:update` | Regenerate G-code golden files (review the diff)                    |
 | `pnpm screenshot`    | Refresh the README screenshots from a production build              |
 | `pnpm icons`         | Render PWA icons and the social preview image                       |
@@ -100,11 +101,14 @@ pnpm dev                 # http://localhost:5190
 
 The code is split into layers with one-way dependencies:
 
-- `src/lib/project`: document model, undo history, `.olaser` files
-- `src/lib/import`: SVG, DXF, image and G-code importers
-- `src/lib/fonts`, `src/lib/shapes`, `src/lib/trace`: Google Fonts and text outlines, parametric shapes, image tracing
-- `src/lib/cam`: pure toolpath generation, the G-code emitter and per-controller job encoders
-- `src/lib/machine`: transports, the machine connection contract, the GRBL driver, job streaming and the GRBL simulator
+- `packages/libopenlaser`: the library the app is built on, published to npm as `libopenlaser`
+  - `geometry`: vectors, matrices, paths and polygon offsets
+  - `project`: document model, undo history, machine profiles and presets, materials, `.olaser` files
+  - `cam`: pure toolpath generation, the G-code emitter and per-controller job encoders
+  - `machine`: transports, the machine connection contract, the GRBL and LaserPecker drivers, job streaming and the simulators
+  - `import`: SVG, DXF, image and G-code importers
+  - `fonts`, `shapes`, `trace`: Google Fonts and text outlines, parametric shapes, image tracing
+- `src/lib`: app plumbing: storage, UI primitives, workers and app identity
 - `src/app`: the Svelte interface; `src/app/machines` holds one adapter per controller
 
 To support another kind of machine, see [docs/adding-a-machine.md](docs/adding-a-machine.md).

@@ -1,8 +1,8 @@
 /** Draws the bed, grid and design objects onto a 2D canvas in screen space. */
-import { multiply, translation } from '$lib/geometry/mat2d';
-import type { Mat2D, PathData, Rect, Vec2 } from '$lib/geometry/types';
-import type { ImageObject, Layer, Project, SceneObject, TextObject } from '$lib/project/types';
-import { textPlaceholderSize, type OutlinedObject } from '$lib/project/outline';
+import { multiply, translation } from 'libopenlaser/geometry';
+import type { Mat2D, PathData, Rect, Vec2 } from 'libopenlaser/geometry';
+import type { ImageObject, Layer, Project, SceneObject, TextObject } from 'libopenlaser/project';
+import { textPlaceholderSize, type OutlinedObject } from 'libopenlaser/project';
 import { inkOn } from './ink';
 import { bedToScreen, bedToScreenMatrix, niceStep, type BedFrame, type View } from './viewport';
 

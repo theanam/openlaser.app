@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { shapeGlyphPath, type ShapeKind } from '$lib/shapes';
+  import { shapeGlyphPath, type ShapeKind } from 'libopenlaser/shapes';
   import Bed from './Bed.svelte';
 
   const SHAPES: ShapeKind[] = ['star', 'cog', 'heart', 'arrow', 'flower', 'shield', 'cloud', 'bolt', 'donut'];

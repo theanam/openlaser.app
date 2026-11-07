@@ -1,15 +1,15 @@
 /** Clipboard and selection edits: copy, cut, paste, duplicate, delete, nudge. */
-import { multiply, translation } from '$lib/geometry/mat2d';
-import { makeId } from '$lib/project/ids';
+import { multiply, translation } from 'libopenlaser/geometry';
+import { makeId } from 'libopenlaser/project';
 import {
   addLayer,
   addObjects,
   duplicateObjects,
   removeObjects,
   transformObjects,
-} from '$lib/project/operations';
-import { contourPaths, type ContourOptions } from '$lib/project/contour';
-import type { Asset, Id, Layer, SceneObject, VectorObject } from '$lib/project/types';
+} from 'libopenlaser/project';
+import { contourPaths, type ContourOptions } from 'libopenlaser/project';
+import type { Asset, Id, Layer, SceneObject, VectorObject } from 'libopenlaser/project';
 import { toast } from '$lib/ui/toasts.svelte';
 import { editor } from './state/editor.svelte';
 

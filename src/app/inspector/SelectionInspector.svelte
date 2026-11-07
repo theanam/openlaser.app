@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ImageObject, ShapeSpec, TextObject, VectorObject } from '$lib/project/types';
+  import type { ImageObject, ShapeSpec, TextObject, VectorObject } from 'libopenlaser/project';
   import ImageInspector from './ImageInspector.svelte';
   import { editor } from '../state/editor.svelte';
   import ShapeInspector from './ShapeInspector.svelte';

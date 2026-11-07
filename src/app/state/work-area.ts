@@ -1,5 +1,5 @@
 /** The bed as the open job sees it: the fitted accessory's work area, else the machine bed. */
-import { workArea } from '$lib/project/accessories';
+import { workArea } from 'libopenlaser/project';
 import { editor } from './editor.svelte';
 import { profiles } from './profiles.svelte';
 

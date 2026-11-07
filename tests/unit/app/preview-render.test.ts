@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { bucketOf, headAt, mix, moveIndexForLine, POWER_BUCKETS } from '$app/canvas/preview-render';
-import type { MoveList } from '$lib/cam/types';
+import type { MoveList } from 'libopenlaser/cam';
 
 function moves(lines: number[]): MoveList {
   const count = lines.length;

@@ -1,9 +1,9 @@
 <script lang="ts">
   import Dialog from '$lib/ui/Dialog.svelte';
   import NumberField from '$lib/ui/NumberField.svelte';
-  import { DXF_UNITS, dxfResult, type DxfUnit } from '$lib/import/dxf';
-  import { IGNORED_HINTS, importSvg, type SvgColorGroup } from '$lib/import/svg';
-  import type { Id } from '$lib/project/types';
+  import { DXF_UNITS, dxfResult, type DxfUnit } from 'libopenlaser/import';
+  import { IGNORED_HINTS, importSvg, type SvgColorGroup } from 'libopenlaser/import';
+  import type { Id } from 'libopenlaser/project';
   import { cancelVectorImport, completeVectorImport } from '../actions';
   import { previewSvg } from '../lib/vector-preview';
   import { editor } from '../state/editor.svelte';

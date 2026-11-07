@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { defaultLayer } from '$lib/import/layer-defaults';
-import { createProject } from '$lib/project/factory';
-import { rectanglePath } from '$lib/project/shapes';
+import { defaultLayer } from 'libopenlaser/project';
+import { createProject } from 'libopenlaser/project';
+import { rectanglePath } from 'libopenlaser/project';
 import { designPrintSvg } from '$app/lib/print-svg';
 
 const profile = { bedWidth: 400, bedHeight: 400, originCorner: 'bl' as const };

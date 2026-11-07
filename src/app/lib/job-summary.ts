@@ -1,6 +1,6 @@
 /** What the pre-flight dialog tells you about the job you are about to burn. */
-import type { MoveList, Rect } from '$lib/cam/types';
-import type { Project } from '$lib/project/types';
+import type { MoveList, Rect } from 'libopenlaser/cam';
+import type { Project } from 'libopenlaser/project';
 
 export interface JobSummary {
   name: string;

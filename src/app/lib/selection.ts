@@ -1,6 +1,6 @@
 /** Geometry of the current selection, in bed space. */
-import { objectBounds } from '$lib/cam';
-import { textPlaceholderSize } from '$lib/project/outline';
+import { objectBounds } from 'libopenlaser/cam';
+import { textPlaceholderSize } from 'libopenlaser/project';
 import {
   decompose,
   multiply,
@@ -9,9 +9,9 @@ import {
   transformRect,
   translation,
   unionRect,
-} from '$lib/geometry/mat2d';
-import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
-import type { Anchor, Id, Project, SceneObject } from '$lib/project/types';
+} from 'libopenlaser/geometry';
+import type { Mat2D, Rect, Vec2 } from 'libopenlaser/geometry';
+import type { Anchor, Id, Project, SceneObject } from 'libopenlaser/project';
 
 export function selectedObjects(project: Project, ids: ReadonlySet<Id>): SceneObject[] {
   return project.objects.filter((o) => ids.has(o.id));

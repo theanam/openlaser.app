@@ -1,6 +1,6 @@
 /** Where new art lands on the bed. */
-import { multiply, transformRect, translation } from '$lib/geometry/mat2d';
-import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
+import { multiply, transformRect, translation } from 'libopenlaser/geometry';
+import type { Mat2D, Rect, Vec2 } from 'libopenlaser/geometry';
 import { flipsX, yGrowsDown, type BedFrame } from '../canvas/viewport';
 
 /**

@@ -3,7 +3,12 @@
  * goes through `LaserPeckerConnection`. Safety follows docs/decisions.md: Stop sends the device's
  * stop at any time, nothing starts or resumes on its own, and framing runs at the lowest power.
  */
-import { WebBluetoothTransport, WebSerialTransport, type ConsoleEntry, type Transport } from '$lib/machine';
+import {
+  WebBluetoothTransport,
+  WebSerialTransport,
+  type ConsoleEntry,
+  type Transport,
+} from 'libopenlaser/machine';
 import {
   DEFAULT_RESOLUTION,
   LASERPECKER_BAUD,
@@ -14,8 +19,8 @@ import {
   type LaserPeckerState,
   type PreviewRect,
   type Resolution,
-} from '$lib/machine/laserpecker';
-import type { LaserPeckerPayload } from '$lib/cam/laserpecker';
+} from 'libopenlaser/machine';
+import type { LaserPeckerPayload } from 'libopenlaser/cam';
 import { confirm } from '$lib/ui/confirm.svelte';
 import { errorMessage, reportError } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';

@@ -1,5 +1,5 @@
 /** GRBL overrides move in ±10 % and ±1 % steps. This plans the bytes to reach a target. */
-import type { RealtimeCommand } from '$lib/machine';
+import type { RealtimeCommand } from 'libopenlaser/machine';
 
 export type OverrideAxis = 'feed' | 'spindle';
 

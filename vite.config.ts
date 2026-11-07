@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => ({
     alias: {
       $lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
       $app: fileURLToPath(new URL('./src/app', import.meta.url)),
+      // The app builds from libopenlaser's source, so a change there shows up at once.
+      libopenlaser: fileURLToPath(new URL('./packages/libopenlaser/src', import.meta.url)),
     },
     conditions: mode === 'test' ? ['browser'] : undefined,
   },
@@ -87,7 +89,7 @@ export default defineConfig(({ mode }) => ({
   server: { port: PORT, strictPort: true },
   preview: { port: PORT, strictPort: true },
   test: {
-    include: ['tests/unit/**/*.test.ts', 'tests/golden/**/*.test.ts'],
+    include: ['tests/unit/**/*.test.ts', 'packages/libopenlaser/test/**/*.test.ts'],
     environment: 'node',
     setupFiles: ['tests/setup.ts'],
     testTimeout: 30_000,

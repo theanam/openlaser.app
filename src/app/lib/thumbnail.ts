@@ -1,5 +1,5 @@
 /** Small SVG previews of a project for the recent projects list. */
-import type { MachineProfile, Project } from '$lib/project/types';
+import type { MachineProfile, Project } from 'libopenlaser/project';
 import { escapeXml, hullBounds, objectToDisplay, pathsToSvgD, segmentCount } from './svg-paths';
 
 /** Above this many segments, objects are drawn as outlines of their bounds to keep thumbnails small. */

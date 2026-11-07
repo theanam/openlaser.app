@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { dragOnCanvas, FIXTURES, newProject, prepare } from './helpers';
 
-const TTF = readFileSync(new URL('../fixtures/fonts/geist-latin-400-normal.ttf', import.meta.url));
+const TTF = readFileSync(
+  new URL('../../packages/libopenlaser/test/fixtures/fonts/geist-latin-400-normal.ttf', import.meta.url),
+);
 
 test.beforeEach(async ({ page }) => {
   await prepare(page);

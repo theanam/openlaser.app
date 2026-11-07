@@ -1,5 +1,5 @@
 /** Small helpers for the machine controller: screen wake lock and batched console updates. */
-import type { ConsoleEntry } from '$lib/machine';
+import type { ConsoleEntry } from 'libopenlaser/machine';
 
 /** Keeps the screen awake during a job and takes the lock back when the tab returns (SPEC §7.3). */
 export class JobWakeLock {

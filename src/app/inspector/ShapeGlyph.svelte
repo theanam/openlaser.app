@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { shapeDef, shapeGlyphPath, type ShapeKind } from '$lib/shapes';
+  import { shapeDef, shapeGlyphPath, type ShapeKind } from 'libopenlaser/shapes';
 
   let { kind, size = 20 }: { kind: ShapeKind; size?: number } = $props();
   const open = $derived(!!shapeDef(kind).open);

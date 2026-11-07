@@ -3,7 +3,7 @@
   import SquircleDashed from '@lucide/svelte/icons/squircle-dashed';
   import NumberField from '$lib/ui/NumberField.svelte';
   import Toggle from '$lib/ui/Toggle.svelte';
-  import { contourPaths } from '$lib/project/contour';
+  import { contourPaths } from 'libopenlaser/project';
   import { addOutline } from '../edit-actions';
   import { formatCombo } from '../lib/keys';
   import { canvas } from '../state/canvas.svelte';

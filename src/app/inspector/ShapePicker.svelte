@@ -1,6 +1,6 @@
 <script lang="ts">
   import Search from '@lucide/svelte/icons/search';
-  import { SHAPES, SHAPE_GROUPS, type ShapeKind } from '$lib/shapes';
+  import { SHAPES, SHAPE_GROUPS, type ShapeKind } from 'libopenlaser/shapes';
   import ShapeGlyph from './ShapeGlyph.svelte';
 
   let { value, onpick }: { value: string; onpick: (kind: ShapeKind) => void } = $props();

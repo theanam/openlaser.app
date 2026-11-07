@@ -1,6 +1,6 @@
 /** Machine profiles, persisted in IndexedDB. One profile is active at a time. */
-import { defaultMachineProfile } from '$lib/project/factory';
-import type { Id, MachineProfile } from '$lib/project/types';
+import { defaultMachineProfile } from 'libopenlaser/project';
+import type { Id, MachineProfile } from 'libopenlaser/project';
 import { deleteProfile, getSetting, listProfiles, saveProfile, setSetting } from '$lib/storage/db';
 
 class Profiles {

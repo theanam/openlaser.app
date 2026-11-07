@@ -1,9 +1,9 @@
 /** Pure pieces of the canvas tools, kept out of the component so they can be tested. */
-import { translation } from '$lib/geometry/mat2d';
-import type { Rect } from '$lib/geometry/types';
-import { ellipsePath, rectanglePath } from '$lib/project/shapes';
-import { defaultParams, isShapeKind, shapeDef, shapePaths } from '$lib/shapes';
-import type { Id, Project, VectorObject } from '$lib/project/types';
+import { translation } from 'libopenlaser/geometry';
+import type { Rect } from 'libopenlaser/geometry';
+import { ellipsePath, rectanglePath } from 'libopenlaser/project';
+import { defaultParams, isShapeKind, shapeDef, shapePaths } from 'libopenlaser/shapes';
+import type { Id, Project, VectorObject } from 'libopenlaser/project';
 import type { Tool } from '../state/editor.svelte';
 import { uprightIn } from '../lib/placement';
 import { boundsOf } from '../lib/selection';

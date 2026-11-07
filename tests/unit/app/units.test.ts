@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { speedFromUnit, speedLabel, speedToUnit } from '$app/lib/units';
 import { layerSummary } from '$app/lib/layers';
-import { defaultLayer } from '$lib/import/layer-defaults';
+import { defaultLayer } from 'libopenlaser/project';
 
 describe('speed units', () => {
   it('converts between stored mm/min and mm/s', () => {
@@ -15,6 +15,12 @@ describe('speed units', () => {
     expect(speedLabel(3000, 'mm/s')).toBe('50');
     expect(speedLabel(150, 'mm/s')).toBe('2.5');
     expect(speedLabel(1234.4, 'mm/min')).toBe('1234');
+  });
+
+  it('shows LaserPecker speeds as depth', () => {
+    expect(speedToUnit(2400, 'depth')).toBe(10);
+    expect(speedFromUnit(10, 'depth')).toBe(2400);
+    expect(speedLabel(2400, 'depth')).toBe('depth 10');
   });
 
   it('shows layer summaries in the machine’s unit', () => {

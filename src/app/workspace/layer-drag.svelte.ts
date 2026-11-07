@@ -1,5 +1,5 @@
 /** Drag state shared by the Layers panel and its rows: a layer being reordered or objects moving. */
-import type { Id } from '$lib/project/types';
+import type { Id } from 'libopenlaser/project';
 
 export type LayerDrag = { kind: 'layer'; index: number } | { kind: 'object'; ids: Id[] };
 

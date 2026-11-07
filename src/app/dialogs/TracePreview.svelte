@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { RasterSource } from '$lib/cam/types';
-  import type { PathData } from '$lib/geometry/types';
-  import { traceLayersToPaths } from '$lib/trace/to-paths';
-  import type { TraceResult } from '$lib/trace/types';
+  import type { RasterSource } from 'libopenlaser/cam';
+  import type { PathData } from 'libopenlaser/geometry';
+  import { traceLayersToPaths } from 'libopenlaser/trace';
+  import type { TraceResult } from 'libopenlaser/trace';
 
   interface Props {
     pixels: RasterSource | null;

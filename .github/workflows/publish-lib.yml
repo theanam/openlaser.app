@@ -1,0 +1,35 @@
+name: Publish libopenlaser
+
+# Push a tag like libopenlaser-v0.2.0 after setting that version in
+# packages/libopenlaser/package.json.
+on:
+  push:
+    tags: ['libopenlaser-v*']
+
+permissions:
+  contents: read
+  # npm trusted publishing and provenance.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@^11.5.1
+      - run: pnpm install --frozen-lockfile
+      - name: Check the tag matches the package version
+        run: |
+          version=$(node -p "require('./packages/libopenlaser/package.json').version")
+          test "libopenlaser-v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - run: pnpm --filter libopenlaser test
+      - run: pnpm --filter libopenlaser build
+      - run: npm publish --provenance --access public
+        working-directory: packages/libopenlaser

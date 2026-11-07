@@ -3,7 +3,7 @@
  * preferences. Blobs are stored natively, so project assets need no encoding here.
  */
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { Id, MachineProfile, Project } from '../project/types';
+import type { Id, MachineProfile, Project } from 'libopenlaser/project';
 import { normalizePreferences, type Preferences } from './preferences';
 
 export interface RecentProject {

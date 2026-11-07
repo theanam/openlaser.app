@@ -2,7 +2,7 @@
  * Smart guides: while a selection is dragged, its edges and centre snap to those of the other
  * objects and of the bed, and a guide line shows what it lines up with. Bed coordinates, mm.
  */
-import type { Rect } from '$lib/geometry/types';
+import type { Rect } from 'libopenlaser/geometry';
 
 export interface Guide {
   /** 'x': a vertical line at x = at; 'y': a horizontal line at y = at. */

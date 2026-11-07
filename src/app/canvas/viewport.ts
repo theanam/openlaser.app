@@ -2,9 +2,9 @@
  * Bed ↔ screen mapping. Bed space is Y-up with the origin at the machine's 0,0 corner; the screen is
  * Y-down. `offsetX/offsetY` is where the bed's top-left corner sits on screen, `zoom` is px per mm.
  */
-import { invert } from '$lib/geometry/mat2d';
-import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
-import type { MachineProfile } from '$lib/project/types';
+import { invert } from 'libopenlaser/geometry';
+import type { Mat2D, Rect, Vec2 } from 'libopenlaser/geometry';
+import type { MachineProfile } from 'libopenlaser/project';
 
 export interface View {
   zoom: number;

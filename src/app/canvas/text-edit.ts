@@ -2,10 +2,10 @@
  * Geometry for editing text in place: a CSS box laid over the text object on the bed, so the
  * textarea moves, scales and rotates exactly with the outlines underneath. Pure.
  */
-import { multiply } from '$lib/geometry/mat2d';
-import type { Mat2D } from '$lib/geometry/types';
-import { textPlaceholderSize } from '$lib/project/outline';
-import type { TextObject } from '$lib/project/types';
+import { multiply } from 'libopenlaser/geometry';
+import type { Mat2D } from 'libopenlaser/geometry';
+import { textPlaceholderSize } from 'libopenlaser/project';
+import type { TextObject } from 'libopenlaser/project';
 
 /** CSS pixels per mm inside the box before its transform: large enough for crisp glyphs. */
 export const TEXT_EDIT_SCALE = 4;

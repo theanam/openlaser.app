@@ -4,8 +4,8 @@
   import LocateFixed from '@lucide/svelte/icons/locate-fixed';
   import Flag from '@lucide/svelte/icons/flag';
   import ErrorBoundary from '$lib/ui/ErrorBoundary.svelte';
-  import { setJobSettings } from '$lib/project/operations';
-  import type { JobSettings } from '$lib/project/types';
+  import { setJobSettings } from 'libopenlaser/project';
+  import type { JobSettings } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { machine } from '../state/machine.svelte';
   import { shownAdapter } from '../machines/registry';

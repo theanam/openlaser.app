@@ -1,5 +1,5 @@
 /** Every font the picker offers: uploaded files, system fonts (once allowed) and Google Fonts. */
-import { loadCatalog, type CatalogFont } from '$lib/fonts/catalog';
+import { loadCatalog, type CatalogFont } from 'libopenlaser/fonts';
 import {
   FontFileError,
   loadSystemFonts,
@@ -9,8 +9,8 @@ import {
   systemFontsGranted,
   systemFontsSupported,
   uploadFont,
-} from '$lib/fonts/local';
-import { forgetParsedFamily } from '$lib/fonts/outline';
+} from 'libopenlaser/fonts';
+import { forgetParsedFamily } from 'libopenlaser/fonts';
 import { FONT_FILES, openFiles } from '$lib/storage/files';
 import { errorMessage } from '$lib/ui/errors';
 import { toast } from '$lib/ui/toasts.svelte';

@@ -1,0 +1,90 @@
+import { describe, expect, it } from 'vitest';
+import {
+  GENERIC_BRAND,
+  groupByBrand,
+  MACHINE_PRESETS,
+  machinePresetName,
+  presetProfileFields,
+  searchPresets,
+} from 'libopenlaser/project/machine-presets';
+
+describe('machine presets', () => {
+  it('includes the Two Trees TS3', () => {
+    const ts3 = MACHINE_PRESETS.find((p) => p.brand === 'Two Trees' && p.model === 'TS3');
+    expect(ts3).toMatchObject({ bedWidth: 300, bedHeight: 200 });
+    expect(machinePresetName(ts3!)).toBe('Two Trees TS3');
+  });
+
+  it('has unique names and sane sizes', () => {
+    const names = MACHINE_PRESETS.map(machinePresetName);
+    expect(new Set(names).size).toBe(names.length);
+    expect(MACHINE_PRESETS.length).toBeGreaterThan(40);
+    for (const p of MACHINE_PRESETS) {
+      // Handheld LaserPeckers work smaller areas.
+      const min = p.controller === 'laserpecker' ? 60 : 100;
+      expect(p.bedWidth).toBeGreaterThanOrEqual(min);
+      expect(p.bedHeight).toBeGreaterThanOrEqual(min);
+      // Large-format CO₂ machines reach 1600 mm.
+      expect(p.bedWidth).toBeLessThanOrEqual(1700);
+      expect(p.bedHeight).toBeLessThanOrEqual(1700);
+    }
+  });
+
+  it('searches brand and model with every word', () => {
+    expect(searchPresets('ts3').map(machinePresetName)).toEqual(['Two Trees TS3']);
+    expect(searchPresets('two trees ts2').length).toBe(2);
+    expect(searchPresets('sculpfun s30').every((p) => p.brand === 'Sculpfun')).toBe(true);
+    expect(searchPresets('nothing like this')).toEqual([]);
+    expect(searchPresets('  ').length).toBe(MACHINE_PRESETS.length);
+  });
+
+  it('groups by brand with Generic first', () => {
+    const groups = groupByBrand(MACHINE_PRESETS);
+    expect(groups[0].brand).toBe(GENERIC_BRAND);
+    const rest = groups.slice(1).map((g) => g.brand);
+    expect(rest).toEqual([...rest].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it('turns a preset into profile fields', () => {
+    const s30 = MACHINE_PRESETS.find((p) => p.model === 'S30 Pro (10W)')!;
+    expect(presetProfileFields(s30)).toEqual({
+      name: 'Sculpfun S30 Pro (10W)',
+      bedWidth: 380,
+      bedHeight: 385,
+      originCorner: 'bl',
+      supportsAirAssist: true,
+      laserType: 'diode',
+      controller: 'grbl',
+      constantPower: false,
+      speedUnit: 'mm/min',
+      laserWatts: 10,
+    });
+  });
+
+  it('sets CO₂ Ruida machines up for .rd export with constant power and mm/s', () => {
+    const nova = MACHINE_PRESETS.find((p) => p.brand === 'Thunder Laser' && p.model === 'Nova 35')!;
+    expect(presetProfileFields(nova)).toMatchObject({
+      bedWidth: 900,
+      bedHeight: 600,
+      originCorner: 'tr',
+      laserType: 'co2',
+      controller: 'ruida',
+      constantPower: true,
+      speedUnit: 'mm/s',
+      supportsAirAssist: true,
+    });
+  });
+
+  it('sets LaserPeckers up for their own protocol at 460800 baud, homed top left', () => {
+    const lp2 = MACHINE_PRESETS.find((p) => p.brand === 'LaserPecker' && p.model === 'LP2')!;
+    expect(presetProfileFields(lp2)).toMatchObject({
+      name: 'LaserPecker LP2',
+      bedWidth: 100,
+      bedHeight: 100,
+      originCorner: 'tl',
+      controller: 'laserpecker',
+      baudRate: 460800,
+    });
+    expect(MACHINE_PRESETS.some((p) => p.brand === 'LaserPecker' && p.model === 'LP3')).toBe(true);
+  });
+});

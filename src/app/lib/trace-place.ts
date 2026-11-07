@@ -1,8 +1,16 @@
 /** Turns a finished trace into project layers and vector objects placed exactly over the image. */
-import { defaultLayer } from '$lib/import/layer-defaults';
-import type { MakeId } from '$lib/project/ids';
-import { addLayer, addObjects, removeLayer, removeObjects, updateObject } from '$lib/project/operations';
-import type { Id, ImageObject, Layer, LayerMode, PathData, Project, VectorObject } from '$lib/project/types';
+import { defaultLayer } from 'libopenlaser/project';
+import type { MakeId } from 'libopenlaser/project';
+import { addLayer, addObjects, removeLayer, removeObjects, updateObject } from 'libopenlaser/project';
+import type {
+  Id,
+  ImageObject,
+  Layer,
+  LayerMode,
+  PathData,
+  Project,
+  VectorObject,
+} from 'libopenlaser/project';
 
 export interface TracedLayer {
   color: string;

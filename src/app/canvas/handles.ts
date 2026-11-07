@@ -1,6 +1,6 @@
 /** Selection handles: positions in screen space and the transforms a handle drag produces in bed space. */
-import { scalingAbout } from '$lib/geometry/mat2d';
-import type { Mat2D, Rect, Vec2 } from '$lib/geometry/types';
+import { scalingAbout } from 'libopenlaser/geometry';
+import type { Mat2D, Rect, Vec2 } from 'libopenlaser/geometry';
 
 export type HandleId = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'rotate';
 

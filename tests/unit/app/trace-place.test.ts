@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { defaultLayer } from '$lib/import/layer-defaults';
-import { createProject } from '$lib/project/factory';
-import { rectanglePath } from '$lib/project/shapes';
-import type { ImageObject } from '$lib/project/types';
+import { defaultLayer } from 'libopenlaser/project';
+import { createProject } from 'libopenlaser/project';
+import { rectanglePath } from 'libopenlaser/project';
+import type { ImageObject } from 'libopenlaser/project';
 import { displayColor, placeTrace, shadePower } from '$app/lib/trace-place';
 
 function setup() {

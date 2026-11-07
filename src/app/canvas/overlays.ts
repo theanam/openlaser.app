@@ -1,5 +1,5 @@
 /** Interaction overlays drawn over the scene: selection handles, shape ghosts and the measure tool. */
-import type { Rect, Vec2 } from '$lib/geometry/types';
+import type { Rect, Vec2 } from 'libopenlaser/geometry';
 import type { Guide } from './guides';
 import { HANDLE_SIZE, type Handle } from './handles';
 import { drawDashedRect, type Palette } from './scene-render';

@@ -1,8 +1,8 @@
 <script lang="ts">
   import Dialog from '$lib/ui/Dialog.svelte';
-  import { deleteDestinations } from '$lib/project/layer-fit';
-  import { removeLayer } from '$lib/project/operations';
-  import type { Id, Layer } from '$lib/project/types';
+  import { deleteDestinations } from 'libopenlaser/project';
+  import { removeLayer } from 'libopenlaser/project';
+  import type { Id, Layer } from 'libopenlaser/project';
   import { editor } from '../state/editor.svelte';
   import { layerSummary } from '../lib/layers';
   import { profiles } from '../state/profiles.svelte';

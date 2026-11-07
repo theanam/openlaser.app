@@ -1,0 +1,93 @@
+{
+  "name": "libopenlaser",
+  "version": "0.1.0",
+  "description": "Drive laser engravers and cutters from the browser: GRBL over Web Serial, LaserPecker over Web Bluetooth, Ruida .rd export, the CAM that turns designs into jobs, and SVG, DXF, image, font and tracing tools to make the designs.",
+  "keywords": [
+    "laser",
+    "laser engraver",
+    "laser cutter",
+    "grbl",
+    "ruida",
+    "laserpecker",
+    "cam",
+    "g-code",
+    "web serial",
+    "web bluetooth",
+    "svg",
+    "dxf",
+    "image tracing"
+  ],
+  "license": "MIT",
+  "author": "Anam Ahmed <anam.ahmed.a@gmail.com>",
+  "homepage": "https://openlaser.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theanam/openlaser.app.git",
+    "directory": "packages/libopenlaser"
+  },
+  "bugs": {
+    "url": "https://github.com/theanam/openlaser.app/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./geometry": {
+      "types": "./dist/geometry/index.d.ts",
+      "import": "./dist/geometry.js"
+    },
+    "./project": {
+      "types": "./dist/project/index.d.ts",
+      "import": "./dist/project.js"
+    },
+    "./cam": {
+      "types": "./dist/cam/index.d.ts",
+      "import": "./dist/cam.js"
+    },
+    "./machine": {
+      "types": "./dist/machine/index.d.ts",
+      "import": "./dist/machine.js"
+    },
+    "./import": {
+      "types": "./dist/import/index.d.ts",
+      "import": "./dist/import.js"
+    },
+    "./fonts": {
+      "types": "./dist/fonts/index.d.ts",
+      "import": "./dist/fonts.js"
+    },
+    "./shapes": {
+      "types": "./dist/shapes/index.d.ts",
+      "import": "./dist/shapes.js"
+    },
+    "./trace": {
+      "types": "./dist/trace/index.d.ts",
+      "import": "./dist/trace.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/dts-extensions.mjs",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "clipper2-ts": "2.0.1-18",
+    "fflate": "^0.8.3",
+    "harfbuzzjs": "1.6.3",
+    "nanoid": "^5.1.6",
+    "opentype.js": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "fake-indexeddb": "^6.2.5",
+    "fast-check": "^4.10.2",
+    "jsdom": "^27.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

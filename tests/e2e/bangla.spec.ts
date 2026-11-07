@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { newProject, prepare } from './helpers';
 
-const font = (name: string) => readFileSync(new URL(`../fixtures/fonts/${name}`, import.meta.url));
+const font = (name: string) =>
+  readFileSync(new URL(`../../packages/libopenlaser/test/fixtures/fonts/${name}`, import.meta.url));
 const LATIN = font('noto-sans-bengali-latin-400-normal.ttf');
 const BENGALI = font('noto-sans-bengali-bengali-400-normal.ttf');
 

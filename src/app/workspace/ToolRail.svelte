@@ -9,7 +9,7 @@
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import * as actions from '../actions';
   import type { Component } from 'svelte';
-  import { isShapeKind, shapeDef } from '$lib/shapes';
+  import { isShapeKind, shapeDef } from 'libopenlaser/shapes';
   import { formatCombo } from '../lib/keys';
   import { editor, type Tool } from '../state/editor.svelte';
   import ShapeGlyph from '../inspector/ShapeGlyph.svelte';

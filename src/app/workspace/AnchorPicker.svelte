@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Popover } from 'bits-ui';
   import { tick } from 'svelte';
-  import type { Anchor } from '$lib/project/types';
+  import type { Anchor } from 'libopenlaser/project';
 
   /** A small button showing the current anchor; it opens a 3×3 grid of large, labelled targets. */
   interface Props {

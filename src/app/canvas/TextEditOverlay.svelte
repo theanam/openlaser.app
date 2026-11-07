@@ -1,9 +1,9 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { cssFamilyFor, findFont } from '$lib/fonts/catalog';
-  import { ensureFont } from '$lib/fonts/loader';
-  import { removeObjects } from '$lib/project/operations';
-  import type { TextObject } from '$lib/project/types';
+  import { cssFamilyFor, findFont } from 'libopenlaser/fonts';
+  import { ensureFont } from 'libopenlaser/fonts';
+  import { removeObjects } from 'libopenlaser/project';
+  import type { TextObject } from 'libopenlaser/project';
   import { canvas } from '../state/canvas.svelte';
   import { editor } from '../state/editor.svelte';
   import { fonts } from '../state/fonts.svelte';
