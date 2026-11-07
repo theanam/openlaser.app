@@ -1,15 +1,24 @@
 name: Publish libopenlaser
 
-# Push a tag like libopenlaser-v0.2.0 after setting that version in
-# packages/libopenlaser/package.json.
+# Every push to main that changes the library publishes it. The version in
+# packages/libopenlaser/package.json must be new; the run fails if it is
+# already on npm, so a change never ships without a release. After publishing
+# it tags the commit libopenlaser-v<version>.
 on:
   push:
-    tags: ['libopenlaser-v*']
+    branches: [main]
+    paths: ['packages/libopenlaser/**']
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  # Pushes the release tag.
+  contents: write
   # npm trusted publishing and provenance.
   id-token: write
+
+concurrency:
+  group: publish-lib
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -25,11 +34,29 @@ jobs:
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install -g npm@^11.5.1
       - run: pnpm install --frozen-lockfile
-      - name: Check the tag matches the package version
+      - name: Check the version is new
+        id: version
         run: |
           version=$(node -p "require('./packages/libopenlaser/package.json').version")
-          test "libopenlaser-v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
-      - run: pnpm --filter libopenlaser test
-      - run: pnpm --filter libopenlaser build
-      - run: npm publish --provenance --access public
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if ! npm view "libopenlaser@$version" version >/dev/null 2>&1; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif git ls-remote --exit-code --tags origin "refs/tags/libopenlaser-v$version" >/dev/null; then
+            echo "::error::libopenlaser $version is already released. Bump the version in packages/libopenlaser/package.json."
+            exit 1
+          else
+            # Published by hand (the first release): only the tag is missing.
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.version.outputs.publish == 'true'
+        run: pnpm --filter libopenlaser test
+      - if: steps.version.outputs.publish == 'true'
+        run: pnpm --filter libopenlaser build
+      - if: steps.version.outputs.publish == 'true'
+        run: npm publish --provenance --access public
         working-directory: packages/libopenlaser
+      - name: Tag the release
+        run: |
+          tag="libopenlaser-v${{ steps.version.outputs.version }}"
+          git tag "$tag"
+          git push origin "$tag"

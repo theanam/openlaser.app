@@ -15,5 +15,5 @@
     "noEmit": true,
     "paths": { "libopenlaser/*": ["./src/*"] }
   },
-  "include": ["src", "test", "vite.config.ts"]
+  "include": ["src", "test", "examples", "vite.config.ts"]
 }

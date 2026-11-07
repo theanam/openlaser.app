@@ -17,7 +17,7 @@ Read `docs/decisions.md` before changing behaviour. The product spec (behaviour)
 - New keyboard shortcuts go in `src/app/shortcuts.ts`; they appear in Help and the `?` sheet automatically.
 - Help links issues to https://github.com/theanam/openlaser.app/issues; everything else to anam.ahmed.a@gmail.com.
 - Geometry, the project model, CAM, machine support, the importers, fonts, shapes and tracing live in `packages/libopenlaser` (published to npm as `libopenlaser`). It never imports from `src/`. The app imports it only through its entry points (`libopenlaser/geometry`, `project`, `cam`, `machine`, `import`, `fonts`, `shapes`, `trace`); anything the app needs is exported from those `index.ts` files. Its tests live in `packages/libopenlaser/test`.
-- Every change to `packages/libopenlaser` bumps its `version` in the same commit (patch for fixes, minor for new features or machines, and while it is 0.x, minor for breaking changes too). After pushing to `main`, tag that commit `libopenlaser-v<version>` and push the tag; the tag publishes it to npm.
+- Every change to `packages/libopenlaser` releases a new version: bump its `version` in the same commit (patch for fixes, minor for new features or machines, and while it is 0.x, minor for breaking changes too). Pushing that commit to `main` publishes it to npm and tags it `libopenlaser-v<version>` (`.github/workflows/publish-lib.yml`); the workflow fails if that version was already released.
 
 ## Code rules (from the spec)
 

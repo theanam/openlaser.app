@@ -1,6 +1,6 @@
 {
   "name": "libopenlaser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drive laser engravers and cutters from the browser: GRBL over Web Serial, LaserPecker over Web Bluetooth, Ruida .rd export, the CAM that turns designs into jobs, and SVG, DXF, image, font and tracing tools to make the designs.",
   "keywords": [
     "laser",
@@ -66,13 +66,14 @@
   },
   "files": [
     "dist",
+    "examples",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/dts-extensions.mjs",
     "test": "vitest run",
-    "prepublishOnly": "pnpm test && pnpm build"
+    "prepublishOnly": "npm test && npm run build"
   },
   "dependencies": {
     "clipper2-ts": "2.0.1-18",

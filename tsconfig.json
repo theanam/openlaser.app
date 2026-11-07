@@ -29,6 +29,7 @@
     "tests/**/*.ts",
     "packages/libopenlaser/src/**/*.ts",
     "packages/libopenlaser/test/**/*.ts",
+    "packages/libopenlaser/examples/**/*.ts",
     "vite.config.ts",
     "playwright.config.ts",
     "scripts/**/*.ts"

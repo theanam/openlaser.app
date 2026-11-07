@@ -76,6 +76,25 @@ Protocol details come from the [LaserPecker protocol notes](https://github.com/n
 
 The laser fires only when you start a job. Framing runs with the laser off unless you enable a low frame power (5% at most). The first job of each session asks you to confirm a short safety checklist. Always wear eye protection rated for your laser, ventilate the room and stay with the machine while it runs.
 
+## Library
+
+Everything under the interface is a library you can build on: [libopenlaser](packages/libopenlaser) on npm. It connects to GRBL lasers over USB and LaserPecker engravers over Bluetooth, exports Ruida `.rd` files, compiles designs to G-code, and imports SVG, DXF, images and fonts.
+
+```bash
+npm i libopenlaser
+```
+
+```ts
+import { compileJob } from 'libopenlaser/cam';
+import { GrblConnection, WebSerialTransport } from 'libopenlaser/machine';
+
+const plan = compileJob({ project, profile, assets: new Map() });
+const machine = await GrblConnection.open(await WebSerialTransport.request(), profile);
+await machine.run({ lines: plan.gcode });
+```
+
+The [library README](packages/libopenlaser/README.md) has guides for each machine, design tools, presets and safety, with examples the tests run.
+
 ## Development
 
 openlaser is a static Svelte 5 + TypeScript app built with Vite. There is no backend.
