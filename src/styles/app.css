@@ -131,6 +131,14 @@ button:disabled,
   font-size: 14px;
 }
 
+/* The start screen's call to action, shared by its Connect split button and plain buttons. */
+.btn.big {
+  height: 52px;
+  padding: 0 22px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+
 .btn.small {
   height: 30px;
   padding: 0 10px;

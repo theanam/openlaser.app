@@ -1,6 +1,6 @@
 {
   "name": "libopenlaser",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drive laser engravers and cutters from the browser: GRBL over Web Serial, LaserPecker over Web Bluetooth, Ruida .rd export, the CAM that turns designs into jobs, and SVG, DXF, image, font and tracing tools to make the designs.",
   "keywords": [
     "laser",

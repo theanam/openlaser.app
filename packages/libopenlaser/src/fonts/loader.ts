@@ -205,7 +205,10 @@ function register(face: Face): Promise<boolean> {
   return p;
 }
 
-/** Make a font drawable by the canvas. Resolves when the face is registered (or failed); never rejects. */
+/**
+ * Make a font drawable by CSS with the same file its outlines come from, registered under the
+ * family name. Resolves when the face is registered (or failed); never rejects.
+ */
 export function ensureFont(font: FontRef): Promise<void> {
   const k = refKey(font);
   const hit = ensured.get(k);
@@ -214,11 +217,11 @@ export function ensureFont(font: FontRef): Promise<void> {
     try {
       const face = await resolveFace(font);
       if (face.entry && isBundled(face)) {
-        // Declared by the @fontsource CSS; nudge the browser to fetch the woff2 and redraw once it has.
+        // The @fontsource copy draws at once and offline, but it is another release with other
+        // spacing: nudge it in as a stand-in until the outline's own file is registered.
         const spec = `${face.weight} 16px "${cssFamilyFor(face.entry, face.weight)}"`;
         const set = typeof document !== 'undefined' ? document.fonts : undefined;
         if (set && !set.check(spec)) void set.load(spec).then(notify, () => undefined);
-        return;
       }
       if (await register(face)) notify();
     } catch {

@@ -98,18 +98,17 @@ describe('ensureFont', () => {
     ]);
   });
 
-  it('bundled faces resolve without a download, but bytes still come from fontsource', async () => {
+  it('registers the outline file for bundled faces too, so edited text matches the outlines', async () => {
     const L = await freshLoader();
     await L.ensureFont({ family: 'Geist', weight: 500, style: 'normal' });
-    expect(ttfRequests).toEqual([]);
-    const bytes = await L.getFontBytes({ family: 'Geist', weight: 500, style: 'normal' });
-    expect(bytes).toEqual(TTF);
+    // The bundled @fontsource copy is another release; the face drawn is the one outlined.
     expect(ttfRequests).toEqual([
       'https://cdn.jsdelivr.net/fontsource/fonts/geist@latest/latin-500-normal.ttf',
     ]);
-    // A weight the app does not bundle loads like any other face.
-    await L.ensureFont({ family: 'Geist', weight: 800, style: 'normal' });
-    expect(faces).toEqual([{ family: 'Geist', weight: '800', style: 'normal' }]);
+    expect(faces).toEqual([{ family: 'Geist', weight: '500', style: 'normal' }]);
+    // Outlining reuses the same bytes.
+    expect(await L.getFontBytes({ family: 'Geist', weight: 500, style: 'normal' })).toEqual(TTF);
+    expect(ttfRequests).toHaveLength(1);
   });
 });
 

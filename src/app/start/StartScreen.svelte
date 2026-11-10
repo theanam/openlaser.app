@@ -319,13 +319,6 @@
     flex-wrap: wrap;
   }
 
-  .btn.big {
-    height: 52px;
-    padding: 0 22px;
-    border-radius: 12px;
-    font-size: 16px;
-  }
-
   .btn.secondary {
     background: var(--ol-surface);
     border-color: var(--ol-border-strong);

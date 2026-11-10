@@ -24,10 +24,18 @@
   );
   const layer = $derived(object ? editor.project?.layers.find((l) => l.id === object.layerId) : undefined);
   const box = $derived(object ? textEditBox(object, bedToScreenMatrix(canvas.view, bed)) : null);
-  const family = $derived.by(() => {
+  // The face the outlines are cut from first, so the edited text matches them exactly; a bundled
+  // stand-in draws while it loads.
+  const families = $derived.by(() => {
     if (!object) return '';
     const entry = findFont(fonts.all, object.fontFamily);
-    return entry?.bundled ? cssFamilyFor(entry, object.fontWeight) : object.fontFamily;
+    const standIn = entry?.bundled
+      ? cssFamilyFor(entry, object.fontWeight, object.italic ? 'italic' : 'normal')
+      : null;
+    return [object.fontFamily, standIn]
+      .filter((name, i, all): name is string => !!name && all.indexOf(name) === i)
+      .map((name) => `'${name}'`)
+      .join(', ');
   });
 
   // Starts editing: load the face for display, focus, and select all of a fresh placeholder.
@@ -87,7 +95,7 @@
     aria-label="Edit text"
     data-testid="text-edit"
     style:transform="{box.transform} translateY({box.shiftPx}px)"
-    style:font-family="'{family}', var(--ol-font)"
+    style:font-family="{families}, var(--ol-font)"
     style:font-size="{box.fontSizePx}px"
     style:line-height="{box.lineHeightPx}px"
     style:font-weight={object.fontWeight}
